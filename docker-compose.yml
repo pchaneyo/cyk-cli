@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PGPORT}:5432"
+    volumes:
+      - db:/var/lib/postgre
+  nodejs:
+    image: pchaneyo/cyk-nodejs
+    environment:
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      # DATABASE_URL: "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable"
+      PGHOST: "postgres"
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      SECRET_TOKEN: ${SECRET_TOKEN? SECRET_TOKEN environment variable is missing}
+      SECRET_RTOKEN: ${SECRET_RTOKEN? SECRET_RTOKEN environment variable is missing}
+      # Login Page Config
+      LOGIN_IMAGE: ${LOGIN_IMAGE}
+      LOGIN_TITLE: ${LOGIN_TITLE}
+      LOGIN_SUBTITLE: ${LOGIN_SUBTITLE}
+      LOGIN_APPLI: ${LOGIN_APPLI}
+      # PGSSLMODE: "disable"
+    depends_on:
+      - postgres
+    ports:
+      - "${CYK_PORT}:3000"
+
+volumes:
+  db:
+
+
+
+
