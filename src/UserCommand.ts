@@ -1,0 +1,191 @@
+#!/usr/bin/env ts-node
+import loglevel from 'loglevel'
+import { Command } from 'commander'
+import { DBUser } from '@cyklang/core'
+import { Cmd } from './Cmd'
+const logger = loglevel.getLogger('UserCommand.ts')
+logger.setLevel('debug')
+
+export class UserCommand extends Command {
+    constructor() {
+        super('user')
+        this.description('manage users in cyk_user table').version('0.1')
+        this.addCommand(new UserAddCmd())
+        this.addCommand(new UserListCmd())
+    }
+}
+
+interface Options {
+    id: string | undefined
+    name: string | undefined
+    email: string | undefined
+    access: string | undefined
+    module: string | undefined
+    password: string | undefined
+    disable: boolean | undefined
+    env: string | undefined
+}
+
+class UserAddCmd extends Cmd {
+    constructor() {
+        super('add')
+        this.description('add a new user')
+        .requiredOption('-n --name <name>', 'user name')
+        .option('-e --email <email>', 'user email address')
+        .option('-p --passwd <password>', 'initial password')
+        .option('-a --access <acl>', 'access control list')
+        .option('-m --module <module_name>', 'module to launch by default')
+        .option('-d --disable', 'user not abled to connect')
+        .action(async (options: Options) => {
+            const dbUser = new DBUser()
+            dbUser.name = options.name
+            dbUser.email = options.email
+            dbUser.password = options.password
+            dbUser.access = options.access
+            dbUser.appli = options.module
+            dbUser.disable = options.disable || false
+            await this.commandAdd(dbUser, options)
+        })
+    }
+    async commandAdd (dbUser: DBUser, options: Options) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+            const result = await this.dbManager.dbUserInsert(dbUser)
+            logger.debug(result)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+}
+
+class UserListCmd extends Cmd {
+    constructor() {
+        super('list')
+        this.description('list all users')
+        .action(async (options: Options) => {
+            await this.commandList(options)
+        })
+    }
+    async commandList (options: Options) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+            const result = await this.dbManager.getUsers(undefined)
+            logger.info(result)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+
+}
+
+class UserUpdateCmd extends Cmd {
+    constructor() {
+        super('update')
+        this.description('update user by id all fields except password')
+        .requiredOption('-i --id <id>', 'user ID')
+        .option('-n --name <name>', 'user name')
+        .option('-e --email <email>', 'user email address')
+        .option('-a --access <acl>', 'access control list')
+        .option('-m --module <module_name>', 'module to launch by default')
+        .option('-d --disable', 'user not able to connect')
+        .action(async (options: Options) => {
+            const dbUser = new DBUser()
+            dbUser.id = options.id
+            dbUser.name = options.name
+            dbUser.email = options.email
+            dbUser.access = options.access
+            dbUser.appli = options.module
+            dbUser.disable = options.disable
+            await this.commandUpdate(dbUser, options)
+        })
+    }
+    async commandUpdate  (dbUser2: DBUser, options: Options) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+            if (dbUser2.id === undefined) throw 'id is missing'
+            const dbUser1 = await this.dbManager.getUser(dbUser2.id)
+            if (dbUser1 === undefined) throw 'user with id ' + dbUser2.id + ' not found'
+            // const dbUser1: DBUser = { id: user.user_id, name: user.user_name, email: user.user_email, password: user.user_password, access: user.user_access, appli: user.user_appli, disable: user.user_disable }
+            if (dbUser2.name !== undefined) dbUser1.name = dbUser2.name
+            if (dbUser2.email !== undefined) dbUser1.email = dbUser2.email
+            if (dbUser2.access !== undefined) dbUser1.access = dbUser2.access
+            if (dbUser2.appli !== undefined) dbUser1.appli = dbUser2.appli
+            if (dbUser2.disable !== undefined) dbUser1.disable = dbUser2.disable
+            logger.debug('dbUser1 before dbUserUpdate : ', dbUser1)
+            await this.dbManager.dbUserUpdate(dbUser1)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+}
+
+class UserDeleteCmd extends Cmd {
+    constructor() {
+        super('delete')
+        this.description('delete user by id ')
+        .requiredOption('-i --id <id>', 'user ID')
+        .requiredOption('-n --name <name>', 'user name')
+        .action(async (options: Options) => {
+            const dbUser = new DBUser()
+            dbUser.id = options.id
+            dbUser.name = options.name
+            await this.commandDelete(dbUser, options)
+        })
+    }
+    async commandDelete (dbUser: DBUser, options: Options) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+            if (dbUser.id === undefined || dbUser.name === undefined) throw 'id or name missing'
+            const userExist = await this.dbManager.getUser(dbUser.id)
+            if (userExist === undefined) throw 'user with id ' + dbUser.id + ' not found'
+            if (dbUser.name !== userExist.name) throw 'name ' + dbUser.name + ' different from ' + userExist.name
+            await this.dbManager.dbUserDelete(dbUser)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+}
+
+class UserPasswdCmd extends Cmd {
+    constructor() {
+        super('passwd')
+
+        this.description('change user password')
+        .requiredOption('-i --id <id>', 'user ID')
+        .requiredOption('-n --name <name>', 'user name')
+        .requiredOption('-p --password <password>', 'new password')
+        .action(async (options: Options) => {
+            const dbUser = new DBUser()
+            dbUser.id = options.id
+            dbUser.name = options.name
+            dbUser.password = options.password
+            await this.commandPasswd(dbUser, options)
+        })
+    }
+    async commandPasswd (dbUser: DBUser, options: Options) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+            logger.debug(dbUser)
+            if (dbUser.id === undefined || dbUser.name === undefined || dbUser.password === undefined) throw 'id or name or password missing'
+            const userExist = await this.dbManager.getUser(dbUser.id)
+            if (userExist === undefined) throw 'user with id ' + dbUser.id + ' not found'
+            if (dbUser.name !== userExist.name) throw 'name ' + dbUser.name + ' different from ' + userExist.name
+            await this.dbManager.dbUserPasswd(dbUser.id, dbUser.password)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+}
+
+
+
