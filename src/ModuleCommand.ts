@@ -14,7 +14,7 @@ export class ModuleCommand extends Command {
         this.description('manage modules').version('0.1')
         this.addCommand(new ModuleAddCmd())
         this.addCommand(new ModuleUpdateCmd())
-        this.addCommand(new ModuleRunCmd())
+        // this.addCommand(new ModuleRunCmd())
     }
 }
 
@@ -124,31 +124,31 @@ class ModuleUpdateCmd extends Cmd {
 }
 
 
-class ModuleRunCmd extends Cmd {
-    constructor() {
-        super('run')
-        this.description('execute/run a local module file')
-        .argument('<file>', 'local module file to run')
-        .action(async (file: any, options: any) => {
-            await this.commandRun(file, options)
-        })
-    }
+// class ModuleRunCmd extends Cmd {
+//     constructor() {
+//         super('run')
+//         this.description('execute/run a local module file')
+//         .argument('<file>', 'local module file to run')
+//         .action(async (file: any, options: any) => {
+//             await this.commandRun(file, options)
+//         })
+//     }
 
-    async commandRun (file: string, options: Options) {
-        try {
-            await this.prologue(options)
-            if (this.dbManager === undefined) throw 'dbManager undefined'
-            const source = fs.readFileSync(file).toString()
-            const tag = parseXML(file, source)
-            const moduleInstruction = new ModuleInstruction(tag, this.dbManager)
-            const scopeRun = new Scope(this.dbManager.scope.structure, this.dbManager.scope, undefined)
-            await moduleInstruction.parseInstructions(tag, scopeRun)
-            await moduleInstruction.execute(scopeRun)
-        }
-        catch (err) {
-            logger.error(err)
-        }
-    }
+//     async commandRun (file: string, options: Options) {
+//         try {
+//             await this.prologue(options)
+//             if (this.dbManager === undefined) throw 'dbManager undefined'
+//             const source = fs.readFileSync(file).toString()
+//             const tag = parseXML(file, source)
+//             const moduleInstruction = new ModuleInstruction(tag, this.dbManager)
+//             const scopeRun = new Scope(this.dbManager.scope.structure, this.dbManager.scope, undefined)
+//             await moduleInstruction.parseInstructions(tag, scopeRun)
+//             await moduleInstruction.execute(scopeRun)
+//         }
+//         catch (err) {
+//             logger.error(err)
+//         }
+//     }
 
     
-}
+// }
