@@ -9,110 +9,87 @@ const logger = loglevel.getLogger("ModuleCommand.ts")
 logger.setLevel("debug")
 
 export class ModuleCommand extends Command {
-    constructor() {
-        super('module')
-        this.description('manage modules').version('0.1')
-        this.addCommand(new ModuleAddCmd())
-        this.addCommand(new ModuleUpdateCmd())
-        // this.addCommand(new ModuleRunCmd())
+    constructor(name: string) {
+        super(name)
+        this.description('manage modules')
+        // upload
+        this.addCommand(new ModuleUpload('upload', `Upload local module file(s) to the database.
+Module name is the base name of the file. If a module with the same name already exists, it will be updated.
+Otherwise, a new module is inserted in the database. To rename a module, use option --id to indicate the module you want to rename`)
+        )
+        this.addCommand(new ModuleUpload('u', 'shortcut for upload'))
+        // download
+        this.addCommand(new ModuleDownload('download', 'download module files to the current directory'))
+        this.addCommand(new ModuleDownload('d', 'shortcut for download'))
+        // rename
+
     }
 }
 
-class ModuleAddCmd extends Cmd {
-    constructor() {
-        super('add')
-        this.description('add modules')
-            .argument('<files...>', 'local module file(s) to upload to the server')
-            .option('-n --name <dbname>', 'module dbname')
-            .option('-d --desc <description>', 'description')
-            .option('-a --access <access>', 'access control list')
-            .action(async (files: any, options: any) => {
-                await this.commandAdd(files, options)
-            })
-    }
-
-    async commandAdd(files: string[], options: Options) {
-        // logger.debug('options : ', options, ', files : ', files)
-        try {
-            await this.prologue(options)
-            if (this.dbManager === undefined) throw 'dbManager undefined'
-            if (options.id !== undefined) throw '--id option is not available'
-            if (files.length === 0) throw 'file(s) name(s) missing'
-            if (files.length > 1 && (options.name !== undefined)) throw '--name option cannot be specified with more than 1 file'
-            for (let ind = 0; ind < files.length; ind++) {
-                const file = files[ind]
-                const dbModule = new DBModule()
-                dbModule.source = fs.readFileSync(file).toString()
-                dbModule.dbname = path.basename(file, '.xml')
-                if (options.name !== undefined) dbModule.dbname = options.name
-                if (options.desc !== undefined) dbModule.description = options.desc
-                if (options.access !== undefined) dbModule.access = options.access
-                const moduleExist = await this.dbManager.dbModuleExist(dbModule.dbname)
-                if (moduleExist !== undefined) throw 'module ' + moduleExist.dbname + ' already exists with id ' + moduleExist.id
-                const id = await this.dbManager.dbModuleInsert(dbModule)
-                logger.info('module ' + dbModule.dbname + ' added with id ' + id)
-            }
-        }
-        catch (err) {
-            logger.error(err)
-        }
-    }
+function getModuleDBName(filePath: string): string {
+    let result
+    if (filePath.endsWith('.xml') === false) throw filePath + ' does not have .xml extension'
+    result = path.basename(filePath, '.xml')
+    const identifierRegex = /^[_a-zA-Z][_a-zA-Z0-9]*$/
+    if (result.match(identifierRegex) === null) throw 'filename ' + result + ' does not match identifier syntax'
+    return result
 }
-
-
-interface Options {
+interface UploadOptions {
     id: string | undefined
-    name: string | undefined
-    desc: string | undefined
-    access: string | undefined
     env: string | undefined
 }
-
-class ModuleUpdateCmd extends Cmd {
-    constructor() {
-        super('update')
-        this.description('update module')
-        .option('-i --id <id>', 'module ID')
-        .option('-n --name <dbname>', 'module dbname')
-        .option('-d --desc <description>', 'description')
-        .option('-a --access <access>', 'access control list')
-        .argument('[files...]', 'local module file(s) to upload to the server')
-        .action(async (files: any, options: any) => {
-            await this.commandUpdate(files, options)
-        })
+class ModuleUpload extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+            .option('-i --id <id>', 'module ID to download')
+            .argument('[files...]', 'local module file(s) to upload to the server')
+            .action(async (files: any, options: any) => {
+                await this.commandUpload(files, options)
+            })
     }
-
-    async commandUpdate (files: string[], options: Options) {
-        // logger.debug('files : ', files, ', options : ', options)
+    async commandUpload(files: string[], options: UploadOptions) {
         try {
             await this.prologue(options)
             if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            if (files.length === 0) throw 'file(s) argument is missing'
             if (options.id !== undefined) {
                 if (files.length > 1) throw 'with --id option you can only specify 1 local file'
                 const dbModule = await this.dbManager.getModule(options.id)
-                if (options.name !== undefined) dbModule.dbname = options.name
-                if (options.desc !== undefined) dbModule.description = options.desc
-                if (options.access !== undefined) dbModule.access = options.access
-                if (files.length === 1) {
-                    dbModule.source = fs.readFileSync(files[0]).toString()
-                }
+                dbModule.source = fs.readFileSync(files[0]).toString()
+                dbModule.dbname = getModuleDBName(files[0])
+                const tag = parseXML(dbModule.dbname, dbModule.source)
+                dbModule.access = tag.attributes.ACCESS
+                dbModule.description = tag.attributes.DESCRIPTION
                 await this.dbManager.dbModuleUpdate(dbModule)
             }
             else {
-                if (files.length === 0) throw 'without --id option you need to specify at least 1 local file'
                 for (let ind = 0; ind < files.length; ind++) {
                     const file = files[ind]
-                    const dbname = path.basename(file, '.xml')
-                    const dbModule = await this.dbManager.dbModuleExist(dbname)
-                    if (dbModule === undefined) {
-                        logger.info('local file ' + file + ', module ' + dbname + ' not found')
-                        continue
+                    const dbname = getModuleDBName(file)
+                    const source = fs.readFileSync(file).toString()
+                    const tag = parseXML(dbname, source)
+                    const dbModuleExist = await this.dbManager.dbModuleExist(dbname)
+                    if (dbModuleExist === undefined) {
+                        // insert
+                        const dbModule = new DBModule()
+                        dbModule.source = source
+                        dbModule.dbname = dbname
+                        dbModule.access = tag.attributes.ACCESS
+                        dbModule.description = tag.attributes.DESCRIPTION
+                        logger.debug('module insert ' + dbname + ' access ' + dbModule.access + ' description ' + dbModule.description)
+                        const id = await this.dbManager.dbModuleInsert(dbModule)
+                        logger.info('module ' + dbname + ' added with ID ' + id)
                     }
-                    dbModule.source = fs.readFileSync(file).toString()
-                    logger.debug('dbModule update from ' + file)
-                    if (options.desc !== undefined) dbModule.description = options.desc
-                    if (options.access !== undefined) dbModule.access = options.access
-                    await this.dbManager.dbModuleUpdate(dbModule)
+                    else {
+                        // update
+                        dbModuleExist.access = tag.attributes.ACCESS
+                        dbModuleExist.description = tag.attributes.DESCRIPTION
+                        logger.debug('module update ' + dbname + ' access ' + dbModuleExist.access + ' description ' + dbModuleExist.description)
+                        await this.dbManager.dbModuleUpdate(dbModuleExist)
+                        logger.info('module ' + dbname + ' updated')
+                    }
                 }
             }
         }
@@ -120,35 +97,66 @@ class ModuleUpdateCmd extends Cmd {
             logger.error(err)
         }
     }
-    
 }
 
+interface DownloadOptions {
+    id: string | undefined
+    env: string | undefined
+    all: string | undefined
+}
+class ModuleDownload extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+            .option('-i --id <id>', 'module ID')
+            .option('-a --all', 'download all the modules')
+            .argument('[files...]', 'module(s) name(s) are derived as the basename(s) of the file(s) path')
+            .action(async (files: string[], options: DownloadOptions) => {
+                await this.commandDownload(files, options)
+            })
+    }
+    async commandDownload(files: string[], options: DownloadOptions) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
 
-// class ModuleRunCmd extends Cmd {
-//     constructor() {
-//         super('run')
-//         this.description('execute/run a local module file')
-//         .argument('<file>', 'local module file to run')
-//         .action(async (file: any, options: any) => {
-//             await this.commandRun(file, options)
-//         })
-//     }
+            if (options.id !== undefined) {
+                const dbModule = await this.dbManager.getModule(options.id)
+                await this.downloadModule(dbModule.dbname || '', dbModule)
+            }
+            else if (options.all !== undefined) {
+                const modules = await this.dbManager.getModules(undefined)
+                for(let ind = 0; ind < modules.length; ind++) {
+                    const dbModule = modules[ind]
+                    await this.downloadModule(dbModule.dbname || '', dbModule)
+                }
+            }
+            else {
+                for(let ind = 0; ind < files.length; ind++) {
+                    await this.downloadModule(getModuleDBName(files[ind]))
+                }
+            }
 
-//     async commandRun (file: string, options: Options) {
-//         try {
-//             await this.prologue(options)
-//             if (this.dbManager === undefined) throw 'dbManager undefined'
-//             const source = fs.readFileSync(file).toString()
-//             const tag = parseXML(file, source)
-//             const moduleInstruction = new ModuleInstruction(tag, this.dbManager)
-//             const scopeRun = new Scope(this.dbManager.scope.structure, this.dbManager.scope, undefined)
-//             await moduleInstruction.parseInstructions(tag, scopeRun)
-//             await moduleInstruction.execute(scopeRun)
-//         }
-//         catch (err) {
-//             logger.error(err)
-//         }
-//     }
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
 
-    
-// }
+    async downloadModule(dbname: string, dbModule?: DBModule) {
+        logger.debug('downloadModule ' + dbname)
+        if (dbModule === undefined) {
+            dbModule = await this.dbManager?.dbModuleExist(dbname)
+            if (dbModule === undefined) throw 'module not found : ' + dbname
+        }
+        const filePath = dbname + '.xml'
+        if ( fs.existsSync(filePath) === true) {
+            logger.info('file ' + filePath + ' already exists and will not be overwritten ')
+        }
+        else {
+            fs.writeFileSync(filePath, dbModule.source || '')
+            logger.info('module '+ dbname + ' has been downloaded and file ' + filePath + ' has been created')
+        }
+    }
+}
+

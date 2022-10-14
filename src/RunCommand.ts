@@ -1,4 +1,4 @@
-import { Structure, Script, XmlError, DBRemote, DBManager } from "@cyklang/core"
+import { Structure, Script, XmlError, DBRemote, DBManager, ModuleInstruction, parseXML } from "@cyklang/core"
 import * as fs from "fs"
 import { errorconsole, PrintInstructionType } from "./console"
 import loglevel from 'loglevel'
@@ -10,7 +10,7 @@ const logger = loglevel.getLogger('RunCommand.ts');
 export class RunCommand extends Cmd {
     constructor() {
         super('run')
-        this.description('run script').version('0.1')
+        this.description('run module').version('0.2')
         .argument('<files...>', 'local module file(s) to run')
         .action(async(files: any, options: any) => {
             await this.runFiles(files, options)
@@ -57,10 +57,15 @@ async function runFile(filename: string): Promise<void> {
         const login = await dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
         const dbManager = new DBManager(structure.scope, dbRemote)
         await dbManager.initialize()
+        const tag = parseXML(xmlfilename, xml.toString())
+        const moduleInstruction = new ModuleInstruction(tag, dbManager)
+        await moduleInstruction.parse(structure.scope)
+        await moduleInstruction.execute(structure.scope)
+
         // structure.scope.addInstructionType(new PrintInstructionType(logfilename))
-        let script = new Script(structure.scope, xmlfilename, xml.toString())
-        await script.parseInstructions()
-        await script.execute()
+        // let script = new Script(structure.scope, xmlfilename, xml.toString())
+        // await script.parseInstructions()
+        // await script.execute()
     }
     catch (err) {
 

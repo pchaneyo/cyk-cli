@@ -7,8 +7,8 @@ const logger = loglevel.getLogger('UserCommand.ts')
 logger.setLevel('debug')
 
 export class UserCommand extends Command {
-    constructor() {
-        super('user')
+    constructor(name: string) {
+        super(name)
         this.description('manage users in cyk_user table').version('0.1')
         this.addCommand(new UserAddCmd())
         this.addCommand(new UserListCmd())

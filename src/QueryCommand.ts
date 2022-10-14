@@ -1,15 +1,15 @@
 #!/usr/bin/env ts-node
-import { Script, Structure, DBRemote, DBManager, DBQueryInstruction,  parseXML, Tag, Scope  } from "@cyklang/core"
+import { Script, Structure, DBRemote, DBManager, DBQueryInstruction, parseXML, Tag, Scope } from "@cyklang/core"
 import * as fs from "fs"
 import loglevel from 'loglevel'
-import {Cmd} from './Cmd'
-import {Command} from 'commander'
+import { Cmd } from './Cmd'
+import { Command } from 'commander'
 const logger = loglevel.getLogger("QueryCommand.ts")
 logger.setLevel("debug")
 
 export class QueryCommand extends Command {
-    constructor() {
-        super('query')
+    constructor(name: string) {
+        super(name)
     }
 }
 
@@ -30,7 +30,7 @@ function parseXmlFile(filepath: string, basename: string, xmlSource: string): Ta
 
 async function executeXml(structure: Structure, tag: Tag, xmlSource: string) {
     try {
-        logger.debug('executeXml '+tag.attributes.NAME)
+        logger.debug('executeXml ' + tag.attributes.NAME)
         // structure.setInstructionType("print", new PrintInstructionType(logfilename))
         const dbQueryInstructionType = structure.scope.getInstructionType('db.query')
         if (dbQueryInstructionType === undefined) {

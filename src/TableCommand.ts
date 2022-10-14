@@ -11,8 +11,8 @@ const logger = loglevel.getLogger("TableCommand.ts")
 logger.setLevel("debug")
 
 export class TableCommand extends Command {
-    constructor() {
-        super('table')
+    constructor(name: string) {
+        super(name)
         this.description('import/export table rows').version('0.1')
         this.addCommand(new TableExportCmd())
     }
