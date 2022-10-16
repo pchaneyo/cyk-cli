@@ -168,6 +168,7 @@ class ModuleList extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
+            .option('-s --sort <columns>', 'sort list by column numbers (begins by 0) separated by comma')
             .action(async (options: any) => {
                 await this.commandList(options)
             })
@@ -180,7 +181,7 @@ class ModuleList extends Cmd {
 
             const dbClient = new DBClient(this.dbManager)
             dbClient.selectFromTable('List of Modules', 'cyk_module',
-                { fields: 'module_id,module_dbname,module_access,module_description', order_by: 'module_dbname' })
+                { fields: 'module_id,module_dbname,module_access,module_description', sort: options.sort || '1' })
 
         }
         catch (err) {
