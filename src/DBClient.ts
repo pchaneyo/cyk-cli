@@ -9,8 +9,9 @@ export class DBClient {
     constructor(dbManager: DBManager) {
         this.dbManager = dbManager
     }
+
     async selectFromTable(title: string, tableName: string, options:
-        { fields: string, order_by?: string | undefined, where?: string | undefined }) {
+        { fields: string, sort?: string | undefined, where?: string | undefined }) {
 
         try {
 
@@ -18,12 +19,29 @@ export class DBClient {
             const stringDataType = this.dbManager.scope.structure.stringDataType
             const request = new DBExecuteRequest()
             request.selectFromTable = tableName
-            if (options !== undefined) {
-                Object.entries(options).forEach(([key, value]) => {
-                    const data = new PrimitiveData(stringDataType, value)
-                    request.parameters.addVariable(key, stringDataType).data = data
-                })
+
+            request.parameters.addVariable('fields', stringDataType).data = new PrimitiveData(stringDataType, options.fields)
+            request.parameters.addVariable('where', stringDataType).data = new PrimitiveData(stringDataType, options.where)
+            if (options.sort !== undefined) {
+                const colnames = options.fields.split(',')
+                const sortcols = options.sort.split(',')
+                let order_by = ''
+                for (let ind = 0; ind < sortcols.length; ind++ ) {
+                    const coli = sortcols[ind]
+                    const colname = colnames[Number(coli)]
+                    if (order_by !== '') order_by += ','
+                    order_by += colname
+                }
+                logger.debug('order_by '+order_by)
+                request.parameters.addVariable('order_by', stringDataType).data = new PrimitiveData(stringDataType, order_by)
             }
+
+            // if (options !== undefined) {
+            //     Object.entries(options).forEach(([key, value]) => {
+            //         const data = new PrimitiveData(stringDataType, value)
+            //         request.parameters.addVariable(key, stringDataType).data = data
+            //     })
+            // }
     
             const xmlResult = await this.dbManager.dbExecute(request)
             if (xmlResult === undefined) throw 'xmlResult undefined'
