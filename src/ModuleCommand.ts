@@ -1,10 +1,11 @@
 #!/usr/bin/env ts-node
-import { DBModule, ModuleInstruction, parseXML, Scope } from "@cyklang/core"
+import { DBExecuteRequest, DBModule, ModuleInstruction, ObjectData, parseXML, PrimitiveData, Scope } from "@cyklang/core"
 import * as fs from "fs"
 import loglevel from 'loglevel'
 import path from "path"
 import { Command } from 'commander'
 import { Cmd } from "./Cmd"
+import { DBClient } from "./DBClient"
 const logger = loglevel.getLogger("ModuleCommand.ts")
 logger.setLevel("debug")
 
@@ -17,10 +18,13 @@ export class ModuleCommand extends Command {
 Module name is the base name of the file. If a module with the same name already exists, it will be updated.
 Otherwise, a new module is inserted in the database. To rename a module, use option --id to indicate the module you want to rename`)
         )
-        this.addCommand(new ModuleUpload('u', 'shortcut for upload'))
+        this.addCommand(new ModuleUpload('u', 'shortcut for (u)pload'))
         // download
         this.addCommand(new ModuleDownload('download', 'download module files to the current directory'))
-        this.addCommand(new ModuleDownload('d', 'shortcut for download'))
+        this.addCommand(new ModuleDownload('d', 'shortcut for (d)ownload'))
+        // list
+        this.addCommand(new ModuleList('list', 'List modules'))
+        this.addCommand(new ModuleList('l', 'shortcut for (l)ist'))
         // rename
 
     }
@@ -126,13 +130,13 @@ class ModuleDownload extends Cmd {
             }
             else if (options.all !== undefined) {
                 const modules = await this.dbManager.getModules(undefined)
-                for(let ind = 0; ind < modules.length; ind++) {
+                for (let ind = 0; ind < modules.length; ind++) {
                     const dbModule = modules[ind]
                     await this.downloadModule(dbModule.dbname || '', dbModule)
                 }
             }
             else {
-                for(let ind = 0; ind < files.length; ind++) {
+                for (let ind = 0; ind < files.length; ind++) {
                     await this.downloadModule(getModuleDBName(files[ind]))
                 }
             }
@@ -150,12 +154,37 @@ class ModuleDownload extends Cmd {
             if (dbModule === undefined) throw 'module not found : ' + dbname
         }
         const filePath = dbname + '.xml'
-        if ( fs.existsSync(filePath) === true) {
+        if (fs.existsSync(filePath) === true) {
             logger.info('file ' + filePath + ' already exists and will not be overwritten ')
         }
         else {
             fs.writeFileSync(filePath, dbModule.source || '')
-            logger.info('module '+ dbname + ' has been downloaded and file ' + filePath + ' has been created')
+            logger.info('module ' + dbname + ' has been downloaded and file ' + filePath + ' has been created')
+        }
+    }
+}
+
+class ModuleList extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+            .action(async (options: any) => {
+                await this.commandList(options)
+            })
+    }
+
+    async commandList(options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            const dbClient = new DBClient(this.dbManager)
+            dbClient.selectFromTable('List of Modules', 'cyk_module',
+                { fields: 'module_id,module_dbname,module_access,module_description', order_by: 'module_dbname' })
+
+        }
+        catch (err) {
+            logger.error(err)
         }
     }
 }
