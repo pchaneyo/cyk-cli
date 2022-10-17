@@ -1,0 +1,10 @@
+<?xml-model href="https://www.cyklang.net/cyklang.xsd" ?>
+<module>
+    <showform>
+        <form title="Homepage">
+            <string name="title">"Welcome to your new application"</string>
+            <string name="subtitle">"Your server and database have been successfully initialized !"</string>
+        </form>
+    </showform>
+
+</module>

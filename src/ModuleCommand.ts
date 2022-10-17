@@ -1,5 +1,5 @@
 #!/usr/bin/env ts-node
-import { DBExecuteRequest, DBModule, ModuleInstruction, ObjectData, parseXML, PrimitiveData, Scope } from "@cyklang/core"
+import { DBModule, parseXML } from "@cyklang/core"
 import * as fs from "fs"
 import loglevel from 'loglevel'
 import path from "path"
@@ -88,6 +88,7 @@ class ModuleUpload extends Cmd {
                     }
                     else {
                         // update
+                        dbModuleExist.source = source
                         dbModuleExist.access = tag.attributes.ACCESS
                         dbModuleExist.description = tag.attributes.DESCRIPTION
                         logger.debug('module update ' + dbname + ' access ' + dbModuleExist.access + ' description ' + dbModuleExist.description)

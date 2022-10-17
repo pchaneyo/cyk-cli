@@ -1,11 +1,9 @@
 #!/usr/bin/env ts-node
-import { Structure, XmlError, DBRemote, DBManager, DBTableInstruction } from "@cyklang/core"
+import { DBManager } from "@cyklang/core"
 import * as fs from "fs"
 import loglevel from 'loglevel'
-import path from "path"
-import dotenv from 'dotenv'
 import { Command } from "commander"
-import { exec, spawn } from "child_process"
+import { spawn } from "child_process"
 import { Cmd } from "./Cmd"
 const logger = loglevel.getLogger("TableCommand.ts")
 logger.setLevel("debug")
