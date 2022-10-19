@@ -31,9 +31,11 @@ Otherwise, a new module is inserted in the database. To rename a module, use opt
 }
 
 function getModuleDBName(filePath: string): string {
-    let result
-    if (filePath.endsWith('.xml') === false) throw filePath + ' does not have .xml extension'
-    result = path.basename(filePath, '.xml')
+    // let result
+    // if (filePath.endsWith('.xml') === false) throw filePath + ' does not have .xml extension'
+    // result = path.basename(filePath, '.xml')
+
+    const result = path.parse(filePath).name
     const identifierRegex = /^[_a-zA-Z][_a-zA-Z0-9]*$/
     if (result.match(identifierRegex) === null) throw 'filename ' + result + ' does not match identifier syntax'
     return result
@@ -156,7 +158,7 @@ class ModuleDownload extends Cmd {
         }
         const filePath = dbname + '.xml'
         if (fs.existsSync(filePath) === true) {
-            logger.info('file ' + filePath + ' already exists and will not be overwritten ')
+            logger.info('file ' + filePath + ' already exists. Remove it before launching the command if you want to overwrite.')
         }
         else {
             fs.writeFileSync(filePath, dbModule.source || '')

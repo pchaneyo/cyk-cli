@@ -5,6 +5,7 @@ import loglevel from 'loglevel'
 import { Command } from "commander"
 import { spawn } from "child_process"
 import { Cmd } from "./Cmd"
+import { DBClient } from "./DBClient"
 const logger = loglevel.getLogger("TableCommand.ts")
 logger.setLevel("debug")
 
@@ -13,6 +14,9 @@ export class TableCommand extends Command {
         super(name)
         this.description('import/export table rows').version('0.1')
         this.addCommand(new TableExportCmd())
+        this.addCommand(new TableImportCmd())
+        this.addCommand(new TableList('list', 'list database tables'))
+        this.addCommand(new TableList('l', '(l)ist database tables'))
     }
 }
 
@@ -121,7 +125,26 @@ const commandImportExport = async (dbManager: DBManager, direction: 'from' | 'to
     catch (err) {
         logger.error(err)
     }
+}
 
+class TableList extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+        .option('-s --sort <columns>', 'sort list by column numbers (begins with 0) separated by comma')
+        .action(async (options: any) => {
+            await this.commandList(options)
+        })
+    }
 
+    async commandList(options: any) {
+        await this.prologue(options)
+        if (this.dbManager === undefined) throw 'dbManager undefined'
+
+        const dbClient = new DBClient(this.dbManager)
+        dbClient.selectFromTable('List of Tables', 'cyk_table',
+        {fields: 'table_id,table_name,table_description,table_access', sort: options.sort || '1'}
+        )
+    }
 }
 
