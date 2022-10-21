@@ -48,7 +48,7 @@ class ModuleUpload extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-            .option('-i --id <id>', 'module ID to download')
+            .option('-i --id <id>', 'module ID to upload')
             .argument('[files...]', 'local module file(s) to upload to the server')
             .action(async (files: any, options: any) => {
                 await this.commandUpload(files, options)

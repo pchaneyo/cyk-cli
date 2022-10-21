@@ -21,10 +21,12 @@
       "commander": "^9.4.0",
       "dotenv": "^16.0.1",
       "loglevel": "^1.8.0",
+      "mime-types": "^2.1.35",
       "pako": "^2.0.4",
       "xml": "^1.0.1"
    },
    "devDependencies": {
+      "@types/mime-types": "^2.1.1",
       "@types/pako": "^2.0.0",
       "@types/sax": "^1.2.4",
       "@types/xml": "^1.0.8",

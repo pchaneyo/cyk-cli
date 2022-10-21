@@ -8,6 +8,7 @@ import { TableCommand } from './TableCommand'
 import { TestCommand } from './TestCommand'
 import { RunCommand } from './RunCommand'
 import { InitCommand } from './InitCommand'
+import { AssetCommand } from './AssetCommand'
 const logger = loglevel.getLogger("index.ts")
 logger.setLevel("debug")
 
@@ -16,6 +17,8 @@ program.name('cyk').description('cyklang CLI')
     .version('0.2')
 
 program.addCommand(new InitCommand('init'))
+program.addCommand(new AssetCommand('asset', 'manage assets'))
+program.addCommand(new AssetCommand('a', 'manage assets'))
 program.addCommand(new ModuleCommand('module'))
 program.addCommand(new ModuleCommand('m'))
 program.addCommand(new UserCommand('user'))
