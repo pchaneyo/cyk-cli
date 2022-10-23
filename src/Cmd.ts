@@ -8,6 +8,7 @@ logger.setLevel('debug')
 
 export class Cmd extends Command {
     dbManager: DBManager | undefined
+    dbRemote: DBRemote | undefined
 
     constructor(name: string) {
         super(name);
@@ -23,11 +24,11 @@ export class Cmd extends Command {
         if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
         logger.debug('DBREMOTE_URL ' + process.env.DBREMOTE_URL)
         const nodeCrypto = new NodeCrypto()
-        const dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
-        const login = await dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
+        this.dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
+        const login = await this.dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
         // logger.debug(login)
         
-        this.dbManager = new DBManager(structure.scope, dbRemote)
+        this.dbManager = new DBManager(structure.scope, this.dbRemote)
         await this.dbManager.initialize()
     }
 }
