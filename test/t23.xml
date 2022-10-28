@@ -1,0 +1,44 @@
+<?xml-model href="cyklang.xsd" ?>
+<module dbname="t23">
+    <function name="call_get_tables">
+        <block>
+            <object name="settings"/>
+            <db.call module="t22" method="get_tables" returns="settings"/>
+
+            <!-- <db.execute module="t22" method="get_tables" returns="settings">
+            </db.execute> -->
+            <print>"Client side : " + string(settings)</print>
+        </block>
+    </function>
+
+    <call function="call_get_tables"/>
+
+    <print>now()</print>
+
+    <function name="wait">
+        <number name="duration">1000</number>
+        <string name="message"/>
+        <block>
+            <sleep>duration</sleep>
+            <print>now() + ' ' + message</print>
+        </block>
+    </function>
+
+    <parallel>
+        <call function="wait">
+            <number name="duration">3000</number>
+            <string name="message">"First (3 sec)"</string>
+        </call>
+        <call function="wait">
+            <number name="duration">2000</number>
+            <string name="message">"Second (2 sec)"</string>
+        </call>
+        <call function="wait">
+            <number name="duration">1000</number>
+            <string name="message">"Third (1 sec)"</string>
+        </call>
+    </parallel>
+
+    <print>now() + " AFTER parallel "</print>
+
+</module>

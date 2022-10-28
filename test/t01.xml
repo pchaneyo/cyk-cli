@@ -1,0 +1,185 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+
+    <type name="prestation">
+        <number name="id"/>
+        <string name="libelle"/>
+    </type>
+    <type name="dossier">
+        <number name="id" />
+        <string name="libelle" />
+        <object type="prestation" name="prestation" />
+    </type>
+    <type name="dossier_remorquage" base="dossier">
+        <string name="lieu" />
+    </type>
+    
+    <function name="add" returns="c: number">
+        <number name="a" />
+        <number name="b"/>
+        <block>
+            <print>"*** Function add BEGIN" + a</print>
+            <let name="c">a + b</let>
+            <print>"**** Function add output c =" + c</print>
+        </block>
+    </function>
+    <function name="fact" returns="result: number">
+        <number name="N"/>
+        <block>
+            <if>
+                <condition><![CDATA[ N <= 0]]></condition>
+                <then>
+                    <let name="result">1</let>
+                </then>
+                <else>
+                    <number name="fact1">1</number>
+                    <call function="fact" returns="fact1">
+                        <number name="N">N - 1</number>
+                    </call>
+                    <let name="result">N * fact1</let>
+                </else>
+            </if>
+        </block>
+    </function>
+    <object type="dossier" name="dos1">
+        <number name="id">1</number>
+        <string name="libelle">"Dossier DUPONT"</string>
+    </object>
+    <!-- <let name="dos1.id">1</let>
+        <let name="dos1.libelle">"DUPONT"</let> -->
+    <print>"******* Mon nom est " + dos1.libelle + " id " + dos1.id</print>
+    <object type="dossier_remorquage" name="dos2">
+        <number name="id">2</number>
+    </object>
+    <let name="dos2.libelle">"DURAND"</let>
+    <let name="dos2.lieu">"Saint-Denis"</let>
+    <print>"Dossier remorquage : " + dos2.libelle + " lieu " + dos2.lieu</print>
+    <!-- <let name="dos1.lieu">"toto"</let> -->
+    <if>
+        <condition><![CDATA[ dos1.id == 2 ]]></condition>
+        <then>
+            <print>"then de dos1.id == 1"</print>
+        </then>
+        <condition>dos2.libelle == "DURAND"</condition>
+        <then>
+            <print>"then dos2.libelle == DURAND"</print>
+        </then>
+        <else>
+            <print>"CASE else"</print>
+        </else>
+    </if>
+    <block>
+        <print>"Nested block dos1.id " + dos1.id </print>
+    </block>
+    <number name="result"/>
+    <call function="add" returns="result">
+        <number name="a">150</number>
+        <number name="b">300</number>
+    </call>
+    <print>"Result 150 + 300 : " + result</print>
+    <let name="result">add(1000,2000)</let>
+    <print>"Result 1000 + 2000 : " + result</print>
+    <number name="N"> 4 </number>
+
+    <print>"Before fact of " + N</print>
+    <call function="fact" returns="result">
+        <number name="N">N</number>
+    </call>
+    <print>"factorielle de " + N + " = " + result</print>
+    <print>"factorielle de 5 : " + fact(5)</print>
+    <object type="prestation" name="pst1">
+        <number name="id">100</number>
+        <string name="libelle">"Prestation 1"</string>
+    </object>
+    <object type="prestation" name="pst2">
+    </object>
+
+    <print>"PST1 id="+pst1.id +" libelle="+pst1.libelle</print>
+    <let name="pst2">pst1</let>
+    <let name="pst2.libelle">"Prestation 2"</let>
+    <print>"PST2 id="+pst2.id +" libelle="+pst2.libelle</print>
+    <print>"PST1 id="+pst1.id +" libelle="+pst1.libelle</print>
+    <let name="dos1.prestation">pst1</let>
+    <print>"dos1.prestation.libelle = "+dos1.prestation.libelle</print>
+
+    <object name="numbers">
+        <number>150</number>
+        <number>50</number>
+    </object>
+    <call object="numbers" method="push">
+        <number>10</number>
+    </call>
+    <number name="total">0</number>
+    <call object="numbers" method="foreach">
+        <function>
+            <number name="n"/>
+            <block>
+                <print>"sum " + n</print>
+                <let name="total">total + n</let>
+            </block>
+        </function>
+    </call>
+    <print>"sum = "+total</print>
+    <object name="double" />
+    <call object="numbers" method="foreach">
+        <function>
+            <number name="n"/>
+            <block>
+                <call object="double" method="push">
+                    <number>2*n</number>
+                </call>
+            </block>
+        </function>
+    </call>
+    <let name="total">0</let>
+    <print>"dump double[]"</print>
+    <call object="double" method="foreach">
+        <function>
+            <number name="n"/>
+            <block>
+                <print>"double[] element : " + n</print>
+                <let name="total">total + n</let>
+            </block>
+        </function>
+    </call>
+    <print>"sum = "+total</print>
+    <!--
+        <array name="tabnum" type="number">
+            <number>150</number>
+            <number>50</number>
+        </array>
+        
+        <foreach array="tabnum" element="num">
+            <print>num</print>
+            <let name="total">total + element</let>
+        </foreach>
+        <print>"total du tableau = "+total</print> -->
+
+    <object type="dossier" name="dos3">
+        <number name="id">300</number>
+        <string name="libelle">"dossier 300"</string>
+    </object>
+
+    <print>"dos3 " + dos3.id + " " + dos3.libelle</print>
+
+    <string name="xml" literal=""><![CDATA[ 
+        <number name="id">1000</number>
+        <string name="libelle">"libellé dossier"</string>
+        ]]>
+    </string>
+    <object type="dossier" name="dos_object">
+        object(xml, "dossier")
+    </object>
+    <print>string(dos_object)</print>
+
+    <print>"Vidage de l'object pst1 :"</print>
+    <call object="pst1" method="foreach">
+        <function>
+            <string name="varvalue"/>
+            <string name="varname"/>
+            <block>
+                <print>"name "+varname+ ", value "+varvalue</print>
+            </block>
+        </function>
+    </call>
+</module>

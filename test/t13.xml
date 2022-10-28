@@ -1,0 +1,23 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <object name="films_actors" />
+    <number name="index">2</number>
+    <while>
+        <condition>index > 0</condition>
+        <then>
+            <set name="index">index - 1</set>
+            <!-- <db.execute query="films_actors" result="films_actors">
+                <number name="length_from">60</number>
+                <number name="length_to">60</number>
+            </db.execute> -->
+            <db.runquery name="films_actors"  result="films_actors">
+                <number name="length_from">60</number>
+                <number name="length_to">60</number>
+            </db.runquery>
+            <print>"index = "+index</print>
+            <sleep>5000</sleep>
+            
+        </then>
+    </while>
+
+</module>

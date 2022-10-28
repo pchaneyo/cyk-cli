@@ -1,0 +1,113 @@
+{
+  "dataType": {
+    "name": "form",
+    "structure": {
+      "directory": { "dataTypes": {}, "instructionTypes": {} },
+      "trueData": { "type": { "name": "boolean" }, "value": true },
+      "falseData": { "type": { "name": "boolean" }, "value": false },
+      "functionDataType": { "name": "function" },
+      "methodDataType": { "name": "method" }
+    },
+    "methods": {},
+    "members": { "array": [] },
+    "baseType": {
+      "name": "grid",
+      "structure": {
+        "directory": { "dataTypes": {}, "instructionTypes": {} },
+        "trueData": { "type": { "name": "boolean" }, "value": true },
+        "falseData": { "type": { "name": "boolean" }, "value": false },
+        "functionDataType": { "name": "function" },
+        "methodDataType": { "name": "method" }
+      },
+      "methods": {},
+      "members": { "array": [] },
+      "baseType": {
+        "name": "component",
+        "structure": {
+          "directory": { "dataTypes": {}, "instructionTypes": {} },
+          "trueData": { "type": { "name": "boolean" }, "value": true },
+          "falseData": { "type": { "name": "boolean" }, "value": false },
+          "functionDataType": { "name": "function" },
+          "methodDataType": { "name": "method" }
+        },
+        "methods": {},
+        "members": { "array": [] }
+      }
+    }
+  },
+  "data": {
+    "type": {
+      "name": "form",
+      "structure": {
+        "directory": { "dataTypes": {}, "instructionTypes": {} },
+        "trueData": { "type": { "name": "boolean" }, "value": true },
+        "falseData": { "type": { "name": "boolean" }, "value": false },
+        "functionDataType": { "name": "function" },
+        "methodDataType": { "name": "method" }
+      },
+      "methods": {},
+      "members": { "array": [] },
+      "baseType": {
+        "name": "grid",
+        "structure": {
+          "directory": { "dataTypes": {}, "instructionTypes": {} },
+          "trueData": { "type": { "name": "boolean" }, "value": true },
+          "falseData": { "type": { "name": "boolean" }, "value": false },
+          "functionDataType": { "name": "function" },
+          "methodDataType": { "name": "method" }
+        },
+        "methods": {},
+        "members": { "array": [] },
+        "baseType": {
+          "name": "component",
+          "structure": {
+            "directory": { "dataTypes": {}, "instructionTypes": {} },
+            "trueData": { "type": { "name": "boolean" }, "value": true },
+            "falseData": { "type": { "name": "boolean" }, "value": false },
+            "functionDataType": { "name": "function" },
+            "methodDataType": { "name": "method" }
+          },
+          "methods": {},
+          "members": { "array": [] }
+        }
+      }
+    },
+    "objectDataType": {
+      "name": "form",
+      "structure": {
+        "directory": { "dataTypes": {}, "instructionTypes": {} },
+        "trueData": { "type": { "name": "boolean" }, "value": true },
+        "falseData": { "type": { "name": "boolean" }, "value": false },
+        "functionDataType": { "name": "function" },
+        "methodDataType": { "name": "method" }
+      },
+      "methods": {},
+      "members": { "array": [] },
+      "baseType": {
+        "name": "grid",
+        "structure": {
+          "directory": { "dataTypes": {}, "instructionTypes": {} },
+          "trueData": { "type": { "name": "boolean" }, "value": true },
+          "falseData": { "type": { "name": "boolean" }, "value": false },
+          "functionDataType": { "name": "function" },
+          "methodDataType": { "name": "method" }
+        },
+        "methods": {},
+        "members": { "array": [] },
+        "baseType": {
+          "name": "component",
+          "structure": {
+            "directory": { "dataTypes": {}, "instructionTypes": {} },
+            "trueData": { "type": { "name": "boolean" }, "value": true },
+            "falseData": { "type": { "name": "boolean" }, "value": false },
+            "functionDataType": { "name": "function" },
+            "methodDataType": { "name": "method" }
+          },
+          "methods": {},
+          "members": { "array": [] }
+        }
+      }
+    },
+    "variables": { "list": [] }
+  }
+}

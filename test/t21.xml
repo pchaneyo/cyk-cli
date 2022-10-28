@@ -1,0 +1,71 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <object name="params">
+        <string name="name">"Dupont"</string>
+        <string name="surname">"Jean"</string>
+    </object>
+    <module_object name="m_t20" dbname="t20">
+        <object name="settings">params</object>
+    </module_object>    
+    <!-- <call object="m_t20" method="__init__">
+        <object name="settings">params</object>
+    </call> -->
+    <call object="m_t20" method="print_settings"/>
+
+    <object name="obj">m_t20</object>
+    <string name="owner"/>
+    <object name="cars">
+        <object name="john">
+            <string name="brand">"BMW"</string>
+        </object>
+        <object name="pierre">
+            <string name="brand">"TOYOTA"</string>
+        </object>
+    </object>
+    <if>
+        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]>  </condition>
+        <then>
+            <print>owner + "'s car's brand is " + cars.get(owner).brand</print>
+        </then>
+        <else>
+            <print>"owner not set"</print>
+        </else>
+    </if>
+    <set name="owner">"yves"</set>
+    <if>
+        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]>  </condition>
+        <then>
+            <print>owner + "'s car's brand is " + cars.get(owner).brand</print>
+        </then>
+        <else>
+            <print>"owner " + owner + " not in the collection "</print>
+        </else>
+    </if>
+    <set name="owner">"john"</set>
+    <if>
+        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]>  </condition>
+        <then>
+            <print>owner + "'s car's brand is " + cars.get(owner).brand</print>
+        </then>
+        <else>
+            <print>"TEST KO"</print>
+        </else>
+    </if>
+
+    <boolean name="bool">true</boolean>
+    <set name="bool">boolean("")</set>
+    <print>"bool : " + bool</print>
+    
+    <string name="chaine">150</string>
+    <print>"chaine : " + chaine</print>
+
+    <object name="document">
+        <datetime name="dtbirthday">datetime("1963-11-04")</datetime>
+        <datetime name="dtundef1"/>
+        <datetime name="dtundef2">undefined</datetime>
+        <datetime name="dtnull1">null</datetime>
+    </object>
+    <print>string(document)</print>
+    <print>string(object(string(document)))</print>
+
+</module>

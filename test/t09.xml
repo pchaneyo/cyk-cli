@@ -1,0 +1,29 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <object name="dates">
+        <datetime name="datebirth">datetime(&quot;11/04/1963&quot;)</datetime>
+        <datetime name="datenow">now()</datetime>
+        <boolean name="french">true</boolean>
+    </object>
+
+    <print>"date of birth : " + dates.datebirth + ", now : "+dates.datenow</print>
+    <print>"french " + dates.french </print>
+
+    <number name="num1"/>
+    <set name="num1">150</set>
+    <while>
+        <condition><![CDATA[ num1 < 200 ]]> </condition>
+        <then>
+            <print>num1</print>
+            <set name="num1">num1 + 10</set>
+        </then>
+    </while>
+
+    <string name="str1">string(num1)</string>
+    <print>str1 + ' number("  1234.56")+10 : ' + (number("  1234.56") + 10)</print>
+
+    <number name="n1">100</number>
+    <number name="n2">null</number>
+    <print>"n2 = " + n2</print>
+    <print>"n1 + n2 = " + (n1 + n2)</print>
+</module>

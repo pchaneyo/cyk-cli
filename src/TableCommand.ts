@@ -40,6 +40,7 @@ class TableImportCmd extends Cmd {
     constructor() {
         super('import')
         this.description('import from CSV file(s)')
+        .argument('<tables...>', 'table(s) to import')
         .option('-f --file <file>', 'name of the file to import, defaults to <table_name>.csv')
         .option('-d --dir <directory>', 'name of the directory where to find files to import')
         .action(async (tables, options) => this.commandImport(tables, options))
@@ -146,5 +147,9 @@ class TableList extends Cmd {
         {fields: 'table_id,table_name,table_description,table_access', sort: options.sort || '1'}
         )
     }
+}
+
+class TableQuery extends Cmd {
+    
 }
 

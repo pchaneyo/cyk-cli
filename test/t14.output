@@ -1,0 +1,50 @@
+obj2 <object name="selected">
+</object>
+<string name="command" literal="">new</string>
+undefined = undefined
+actor <string name="actor_id">
+</string>
+<string name="first_name">
+</string>
+========
+undefined
+--------
+condition actor.actor_id == undefined is true
+undefined
+actor.actor_id == undefined
+========= TEST OF COPY =======
+init copie with source.copy()
+copie first first orig, second second orig
+after changing copie.first 
+source.first first orig, copie.first new first
+source.second second orig, copie.second second orig
+========= TEST OF setValuesFrom =======
+after source.setValuesFrom(copie)
+source.first new first, copie.first new first
+source.second second orig, copie.second second orig
+========= TEST OF newDBRow =======
+actress <number name="actor_id">
+</number>
+<string name="first_name">
+</string>
+<string name="last_name">
+</string>
+<datetime name="last_update">
+</datetime>
+<string name="cyk_remark">
+</string>
+<boolean name="cyk_disable">
+</boolean>
+user1 <number name="user_id">
+</number>
+<string name="user_name">
+</string>
+<string name="user_email">
+</string>
+<string name="user_password">
+</string>
+<string name="user_access">
+</string>
+<string name="user_appli">
+</string>
+<boolean name="user_disable">false</boolean>

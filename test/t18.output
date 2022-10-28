@@ -1,0 +1,22 @@
+a = value_a
+b =   <string name='c'>'value_c'</string> 
+c = value_c
+d = value_d
+variable_name = value_variable_name
+g.member1 = member1 VALUE, g.member2 = 100
+ht = 15
+taux = 8.5
+tva = 1.28
+ttc = 16.28
+xpr = 'john ' + ' doe', i = john  doe
+xpr_ht_tva : ht + tva
+result_ttc = 16.28
+array before = <object>
+    <string literal="">obj1_element</string>
+</object>
+<object>
+    <string literal="">obj2_element</string>
+</object>
+array after = 
+substring('12345',0,2) = 12
+substring('12345',2) = 345

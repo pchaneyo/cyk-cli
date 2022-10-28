@@ -1,0 +1,8 @@
+jean  bernard
+    alain
+  dupont
+ result.actor.at(0).first_name Nick
+ result.resultset.at(0).film.title Jersey Sassy
+ result.resultset.at(0).actor.last_name Wahlberg <mika?>
+Jersey Sassy Wahlberg <mika?>
+Smile Earring Wahlberg <mika?>

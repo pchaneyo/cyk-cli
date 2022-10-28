@@ -1,0 +1,25 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <type name="point">
+        <number name="x">0</number>
+        <number name="y">1</number>
+        <string name="resume">"x = "+x + ", y = "+ y</string>
+    </type>
+    <object type="point" name="p1" />
+    <print>"p1.x = "+p1.x +", p1.y = "+p1.y</print>
+    <type name="colorOrigin" base="point">
+        <number name="y">0</number>
+        <string name="color">"yellow"</string>
+        <method name="__init__">
+            <block>
+                <set name="this.resume">"colorOrigin : x = "+this.x + ", y = "+this.y</set>
+                <print>"ctor of colorOrigin this.resume : "+this.resume</print>
+            </block>
+        </method>
+    </type>
+    <object type="colorOrigin" name="co">
+        <string name="color">"red"</string>
+    </object>
+    <print>"co.x = " + co.x + ", co.y = "+co.y+", co.color = "+co.color+", co.resume = "+co.resume</print>
+    
+</module>

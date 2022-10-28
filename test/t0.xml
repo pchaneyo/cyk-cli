@@ -1,0 +1,26 @@
+<block>
+    <type name="dossier">
+        <number name="id" />
+        <string name="libelle" />
+    </type>
+
+    <number name="jour"/>
+    <number name="mois" />
+    <number name="annee" />
+    <string name="message" />
+    <let name="jour">28</let>
+    <let name="mois">12</let>
+    <let name="annee">2021</let>
+    <let name="message">"Aujourd'hui c'est " + jour + "/" + mois + "/" + annee</let>
+    <print>message</print>
+    <print>"28" + "12"</print>
+    <print>28 + 12</print>
+
+    <dossier name="dos1" />
+
+
+    <let name="dos1.id">1</let>
+    <let name="dos1.libelle">"DUPONT"</let>
+    <print>"dos1.id = "+ dos1.id + " dos.libelle = " + dos1.libelle</print>
+
+</block>

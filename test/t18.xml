@@ -1,0 +1,59 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <stringexec><![CDATA[ "<string name='a'>'value_a'</string>" ]]> </stringexec>
+    <print>"a = " + a </print>
+    <string name="b" literal=""><![CDATA[  <string name='c'>'value_c'</string> ]]></string>
+    <print>"b = " + b </print>
+    <stringexec>b</stringexec>
+    <print>"c = " + c </print>
+    <stringexec literal=""> <![CDATA[ <string name="d"> "value_d" </string> ]]></stringexec>
+    <print>"d = " + d</print>
+    <string name="e">"variable_name"</string>
+    <stringexec literal=""> <![CDATA[  <string name="{{ e }}"> "value_variable_name" </string> ]]> </stringexec>
+    <print>"variable_name = " + variable_name </print>
+
+    <string name="f" literal="">
+        <![CDATA[ 
+        <string name='member1'>"member1 VALUE"</string>
+        <number name='member2'>100</number>
+        ]]>
+    </string>
+    <object name="g">object(f)</object>
+    <print>"g.member1 = "+g.member1 + ", g.member2 = "+g.member2</print>
+
+    <number name="taux">8.5</number>
+    <number name="ht">15</number>
+    <number name="tva"> round( ht * taux ) / 100  </number>
+    <number name="ttc">ht + tva</number>
+    <print>"ht = "+ht</print>
+    <print>"taux = "+taux</print>
+    <print>"tva = "+ tva</print>
+    <print><![CDATA[ "ttc = "]]>  <![CDATA[ + ttc ]]>  </print>
+    <string name="xpr">"'john ' + ' doe'"</string>
+    <string name="i">eval(xpr)</string>
+    <print>"xpr = " + xpr + ", i = "+i</print>
+    <string name="xpr_ht_tva">"ht + tva"</string>
+    <number name="result_ttc">eval(xpr_ht_tva)</number>
+    <print>"xpr_ht_tva : " + xpr_ht_tva</print>
+    <print>"result_ttc = "+result_ttc</print>
+
+    <object name="obj1">
+        <string>"obj1_element"</string>
+    </object>
+    <object name="obj2">
+        <string>"obj2_element"</string>
+    </object>
+    <object name="array">
+        <object>obj1</object>
+        <object>obj2</object>
+    </object>
+    <print>"array before = "+string(array)</print>
+    <call object="array" method="remove">
+        <object>obj1</object>
+        <object>obj2</object>
+    </call>
+    <print>"array after = "+string(array)</print>
+
+    <print>"substring('12345',0,2) = " + substring('12345', 0, 2)</print>
+    <print>"substring('12345',2) = " + substring('12345', 2)</print>
+</module>

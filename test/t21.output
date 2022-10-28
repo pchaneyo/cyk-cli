@@ -1,0 +1,21 @@
+print_settings : <string name="name" literal="">Dupont</string>
+<string name="surname" literal="">Jean</string>
+owner not set
+owner yves not in the collection 
+john's car's brand is BMW
+bool : false
+chaine : 150
+<datetime name="dtbirthday">datetime(&quot;Mon Nov 04 1963 04:00:00 GMT+0400 (heure de La Réunion)&quot;)</datetime>
+<datetime name="dtundef1">
+</datetime>
+<datetime name="dtundef2">
+</datetime>
+<datetime name="dtnull1">
+</datetime>
+<datetime name="dtbirthday">datetime(&quot;Mon Nov 04 1963 04:00:00 GMT+0400 (heure de La Réunion)&quot;)</datetime>
+<datetime name="dtundef1">
+</datetime>
+<datetime name="dtundef2">
+</datetime>
+<datetime name="dtnull1">
+</datetime>

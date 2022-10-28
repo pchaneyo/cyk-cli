@@ -1,0 +1,42 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <module name="mod" import="oilcar x">
+        <number name="x">10</number>
+        <number name="y">20</number>
+        <function name="sum" returns="result: number">
+            <block>
+                <print>"INSIDE mod.sum = "+ (x+y)</print>
+                <set name="result">x + y</set>
+            </block>
+        </function>
+        <type name="vehicle">
+            <string name="carplatenumber"/>
+            <method name="getAutonomy" returns="autonomy:number">
+            </method>
+        </type>
+        <type name="oilcar" base="vehicle">
+            <number name="tankcapacity" />
+            <number name="l100"/>
+            <method name="getAutonomy" returns="autonomy:number">
+                <block>
+                    <let name="autonomy">100 * (this.tankcapacity / this.l100)</let>
+                </block>
+            </method>
+        </type>
+    </module>
+    <print>"MOD.x = "+x</print>
+    <print>"MOD.y = "+MOD.y</print>
+    <print>"PRINT MOD.sum = "+MOD.sum()</print>
+    <object type="oilcar" name="mycar">
+        <string name="carplatenumber">"CV584MK"</string>
+        <number name="tankcapacity">60</number>
+        <number name="l100">9</number>
+    </object>
+    <print>"mycar autonomy = "+mycar.getAutonomy()</print>
+
+    <number name="result"/>
+    <call function="MOD.sum" returns="result"/>
+    <print>"MOD.sum = "+result</print>
+
+    <!-- <module name="__form__" dbname="form" import="*"/> -->
+</module>

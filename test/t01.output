@@ -1,0 +1,32 @@
+******* Mon nom est Dossier DUPONT id 1
+Dossier remorquage : DURAND lieu Saint-Denis
+then dos2.libelle == DURAND
+Nested block dos1.id 1
+*** Function add BEGIN150
+**** Function add output c =450
+Result 150 + 300 : 450
+*** Function add BEGIN1000
+**** Function add output c =3000
+Result 1000 + 2000 : 3000
+Before fact of 4
+factorielle de 4 = 24
+factorielle de 5 : 120
+PST1 id=100 libelle=Prestation 1
+PST2 id=100 libelle=Prestation 2
+PST1 id=100 libelle=Prestation 2
+dos1.prestation.libelle = Prestation 2
+sum 150
+sum 50
+sum 10
+sum = 210
+dump double[]
+double[] element : 300
+double[] element : 100
+double[] element : 20
+sum = 420
+dos3 300 dossier 300
+<number name="id">1000</number>
+<string name="libelle" literal="">libellé dossier</string>
+Vidage de l'object pst1 :
+name id, value 100
+name libelle, value Prestation 2

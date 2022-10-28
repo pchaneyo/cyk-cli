@@ -1,0 +1,10 @@
+dossier 3 Dossier 3
+*** Function add BEGIN 100
+**** Function add output c = 300
+printed by function before of resume dos1
+RESUME OF dos1 : label Label dos1, Dossier ID 1 Libellé Dossier 1 qty 110
+printed by function before of resume dos 2
+RESUME OF dos2 : label Label dos2, Dossier ID 2 Libellé Dossier 2 qty 200
+dos id 1, libelle Dossier 1, qty 110
+dos id 2, libelle Dossier 2, qty 200
+dos id 3, libelle Dossier 3, qty 330

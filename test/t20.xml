@@ -1,0 +1,15 @@
+<?xml-model href="cyklang.xsd" ?>
+<module name="t20" dbname="t20">
+    <object name="settings"/>
+    <function name="__init__">
+        <object name="settings"/>
+        <block>
+            <set name="this.settings">settings</set>
+        </block>
+    </function>
+    <function name="print_settings">
+        <block>
+            <print>"print_settings : " + string(settings)</print>
+        </block>
+    </function>
+</module>

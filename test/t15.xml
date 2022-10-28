@@ -1,0 +1,47 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <print>"test de if()"</print>
+    <print>if(2+2 == 4, "2+2==4", "2+2!==4")</print>
+
+    <db.query name="actors_by_film">
+        <number name="film_id"/>
+        <string name="__fields__">"
+            film_id: number;
+            actor_id: number: key;
+            title: string;
+            image_uri: string;
+            first_name: string;
+            last_name: string
+            "
+        </string>
+        <string name="__sql__" literal="">
+            select film.film_id, title, actor.actor_id actor_id,
+actor.image_uri,
+first_name, last_name 
+from film_actor join film on film.film_id = film_actor.film_id
+join actor on actor.actor_id = film_actor.actor_id
+where film_actor.film_id = {{ film_id }}
+        </string>
+    </db.query>
+
+    <object name="actors_by_film"/>
+
+    <!-- <db.execute query="actors_by_film" result="actors_by_film">
+        <number name="film_id">103</number>
+    </db.execute> -->
+
+    <db.runquery name="actors_by_film" result="actors_by_film">
+        <number name="film_id">103</number>
+    </db.runquery>
+
+    <print>string(actors_by_film)</print>
+    <print>actors_by_film.resultset.length()</print>
+    <!-- <object name="films_actors"/>
+    <db.execute query="films_actors" result="films_actors">
+        <number name="length_from">60</number>
+        <number name="length_to">60</number>
+    </db.execute>
+    <print>"============= films_actors =========="</print>
+    <print>string(films_actors)</print> -->
+
+</module>

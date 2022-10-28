@@ -1,0 +1,125 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+
+    <db.table name="actor">
+        <number name="actor_id" type="int" primary="" generated='by default'/>
+        <string name="first_name" type="varchar(50)"/>
+        <string name="last_name" type="text" />
+        <datetime name="last_update" type="timestamp with time zone"/>
+        <string name="cyk_remark" type="varchar(255)" />
+        <boolean name="cyk_disable" type="boolean"/>
+    </db.table>
+
+    <db.table name="film">
+        <number name="film_id" type="int" primary="" generated='by default'/>
+        <string name="title" type="varchar(255)" />
+        <string name="description" type="text" />
+        <number name="release_year" type="int"/>
+        <number name="length" type="int" />
+        <number name="language_id" type="int"/>
+    </db.table>
+
+    <db.table name="film_actor">
+        <number name="actor_id" type="int" primary=""/>
+        <number name="film_id" type="int" primary=""/>
+        <number name="length" type="int"/>
+    </db.table>
+
+    <db.query name="films_actors">
+        <number name="length_from">0</number>
+        <number name="length_to">999</number>
+        <string name="__entities__">"actor film"</string>
+        <string name="__sql__" literal="">
+            SELECT * FROM public.actor 
+            join film_actor on film_actor.actor_id = actor.actor_id 
+            join film on film_actor.film_id = film.film_id
+            where film.length between {{ length_from }}  and {{ length_to }}
+            -- and actor.actor_id = 2
+            ORDER BY actor.actor_id ASC ;
+        </string>
+    </db.query>
+    
+    <object name="actor_maria">
+        <string name="first_name">"Maria" </string>
+        <string name='last_name'>'CHANE YOU KAYE'</string>
+        <string name='cyk_remark'> 'remarque' </string>
+    </object>
+
+    <!-- <db.execute insert_into_table="actor" returning_into="actor_maria" >
+        <object name="actor">actor_maria</object>
+    </db.execute> -->
+
+    <db.insert table="actor" returning_into="actor_maria">
+        <object name="actor">actor_maria</object>
+    </db.insert>
+
+    <object name="new_film">
+        <string name="title">"La mélodie du bonheur"</string>
+        <string name="description">"Le film préféré de Mao"</string>
+        <number name="language_id">1</number>
+        <number name="release_year">2022</number>
+        <number name="length">60</number>
+    </object>
+
+    <!-- <db.execute insert_into_table="film" returning_into="new_film">
+        <object> new_film </object>
+    </db.execute> -->
+
+    <db.insert table="film" returning_into="new_film">
+        <object>new_film</object>
+    </db.insert>
+
+    <print>"New film ID " + new_film.film_id </print>
+
+    <let name="new_film.release_year"> 1965 </let>
+
+    <!-- <db.execute update_table="film">
+        <object name="film"> new_film </object>
+    </db.execute> -->
+
+    <db.update table="film">
+        <object name="film"> new_film </object>
+    </db.update>
+
+    <!-- <db.execute insert_into_table="film_actor">
+        <object>
+            <number name="actor_id">actor_maria.actor_id</number>
+            <number name="film_id">new_film.film_id</number>
+        </object>
+    </db.execute> -->
+
+    <db.insert table="film_actor">
+        <object>
+            <number name="actor_id">actor_maria.actor_id</number>
+            <number name="film_id">new_film.film_id</number>
+        </object>
+    </db.insert>
+
+    <object name="films_actors" />
+
+    <!-- <db.execute query="films_actors" result="films_actors">
+        <number name="length_from">60</number>
+        <number name="length_to">60</number>
+    </db.execute> -->
+
+    <db.runquery name="films_actors" result="films_actors">
+        <number name="length_from">60</number>
+        <number name="length_to">60</number>
+    </db.runquery>
+
+    <print>"films_actors.resultset.at(0).actor.last_name " + films_actors.resultset.at(0).actor.last_name</print>
+    <call object="films_actors.resultset" method="foreach">
+        <function>
+            <object name="result" />
+            <block>
+                <print>"actor " + result.actor.actor_id + " " + result.actor.first_name + " " + result.actor.last_name 
+                    + ", film " + result.film.film_id + " " + result.film.title 
+                </print>
+            </block>
+        </function>
+    </call>
+
+    <print>"string(films_actors) : "+string(films_actors)</print>
+
+
+</module>

@@ -1,0 +1,234 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <!--
+    function build_entries
+    -->
+    
+    <function name="build_entries" returns="result: object">
+        <object name="param"/>
+        <object name="model_entries"/>
+        <block>
+            <set name="result"></set>
+            <call object="model_entries" method="foreach">
+                <function>
+                    <object name="model_entry"/>
+                    <block>
+                        <object name="entry">newDBRow("entry")</object>
+                        <set name="entry.entry_ord">model_entry.ent_ord</set>
+                        <set name="entry.entry_acct">eval(model_entry.ent_acct)</set>
+                        <set name="entry.entry_aux">eval(model_entry.ent_aux)</set>
+                        <set name="entry.entry_debit">eval(model_entry.ent_debit)</set>
+                        <set name="entry.entry_credit">eval(model_entry.ent_credit)</set>
+                        <call object="result" method="push">
+                            <object>entry</object>
+                        </call>
+                    </block>
+                </function>
+            </call>
+        </block>
+    </function>
+
+    <!--
+    function update_document_entries
+    -->
+
+    <function name="update_document_entries">
+        <number name="doc_id"/>
+        <block>
+            
+            <object name="result_document"/>
+            <!-- <db.execute select_from_table="document" result="result_document">
+                <string name="where">"doc_id="+doc_id</string>
+            </db.execute> -->
+            
+            <db.select table="document" result="result_document">
+                <string name="where">"doc_id="+doc_id</string>
+            </db.select>
+
+            <if>
+                <condition>result_document.document.length() == 0</condition>
+                <then>
+                    <print>"doc_id "+doc_id+" not found"</print>
+                    <break/>
+                </then>
+                <condition>result_document.document.at(0).doc_model == undefined</condition>
+                <then>
+                    <print>"doc_id "+doc_id+" doc_model is null"</print>
+                    <break/>
+                </then>
+            </if>
+
+            <object name="document">result_document.document.at(0)</object>
+
+            <object name="result_model"/>
+
+            <db.select table="model" result="result_model">
+                <string name="where">"model_id="+document.doc_model</string>
+            </db.select>
+
+            <!-- <db.execute select_from_table="model" result="result_model">
+                <string name="where">"model_id="+document.doc_model</string>
+            </db.execute> -->
+
+            <if>
+                <condition>result_model.model.length() == 0</condition>
+                <then>
+                    <print>"doc_id "+doc_id+", doc_model "+document.doc_model +" not found"</print>
+                    <break/>
+                </then>
+            </if>
+
+            <object name="model">result_model.model.at(0)</object>
+
+            <object name="new_entries"/>
+            <call function="build_entries" returns="new_entries">
+                <object name="param">object(document.doc_params)</object>
+                <object name="model_entries">object(model.model_entries)</object>
+            </call>
+
+            <call object="new_entries" method="foreach">
+                <function>
+                    <object name="entry"/>
+                    <block>
+                        <set name="entry.entry_year">document.doc_year</set>
+                        <set name="entry.entry_date">document.doc_date</set>
+                        <set name="entry.entry_jnl">document.doc_jnl</set>
+                        <set name="entry.entry_doc">document.doc_id</set>
+                    </block>
+                </function>
+            </call>
+            <print>"***** NEW ENTRIES ******"</print>
+            <print>string(new_entries)</print>
+
+            <object name="result_old_entries"/>
+
+            <db.select table="entry" result="result_old_entries">
+                <string name="where">"entry_doc="+doc_id</string>
+                <string name="order_by">"entry_ord,entry_id"</string>
+            </db.select>
+
+            <!-- <db.execute select_from_table="entry" result="result_old_entries">
+                <string name="where">"entry_doc="+doc_id</string>
+                <string name="order_by">"entry_ord,entry_id"</string>
+            </db.execute> -->
+            <object name="old_entries">result_old_entries.entry</object>
+            <print>"***** OLD ENTRIES ******"</print>
+            <print>string(old_entries)</print>
+
+            <!-- synchronize between old_entries and new_entries -->
+
+            <number name="i_old">0</number>
+            <number name="i_new">0</number>
+
+            <object name="old_entry"/>
+            <object name="new_entry"/>
+
+            <function name="next_old">
+                <block>
+                    <if>
+                        <condition><![CDATA[ i_old < old_entries.length() ]]></condition>
+                        <then>
+                            <set name="old_entry">old_entries.at(i_old)</set>
+                            <set name="i_old">i_old + 1</set>
+                        </then>
+                        <else>
+                            <set name="old_entry">undefined</set>
+                        </else>
+                    </if>
+                </block>
+            </function> 
+
+            <function name="next_new">
+                <block>
+                    <if>
+                        <condition><![CDATA[ i_new < new_entries.length() ]]></condition>
+                        <then>
+                            <set name="new_entry">new_entries.at(i_new)</set>
+                            <set name="i_new">i_new + 1</set>
+                        </then>
+                        <else>
+                            <set name="new_entry">undefined</set>
+                        </else>
+                    </if>
+                </block>
+            </function>
+
+            <call function="next_old"/>
+            <call function="next_new"/>
+
+            <loop>
+                <break>old_entry == undefined</break>
+                <loop>
+                    <break>new_entry == undefined</break>
+                    <break> <![CDATA[ new_entry.entry_ord >= old_entry.entry_ord ]]> </break>
+
+                    <db.insert table="entry">
+                        <object>new_entry</object>
+                    </db.insert>
+
+                    <!-- <db.execute insert_into_table="entry">
+                        <object>new_entry</object>
+                    </db.execute> -->
+                    <print>"old_entry : "+old_entry.entry_ord+", insert new_entry : "+new_entry.entry_ord</print>
+                    <call function="next_new"/>
+                </loop>
+
+                <if>
+                    <condition>new_entry == undefined</condition>
+                    <then>
+                        <db.delete table="entry">
+                            <object>old_entry</object>
+                        </db.delete>
+                        <!-- <db.execute delete_from_table="entry">
+                            <object>old_entry</object>
+                        </db.execute> -->
+                        <print>"delete old_entry : "+old_entry.entry_ord +", new_entry undefined"</print>
+                    </then>
+                    <condition><![CDATA[ old_entry.entry_ord < new_entry.entry_ord ]]>  </condition>
+                    <then>
+                        <db.delete table="entry">
+                            <object>old_entry</object>
+                        </db.delete>
+                        <!-- <db.execute delete_from_table="entry">
+                            <object>old_entry</object>
+                        </db.execute> -->
+                        <print>"delete old_entry : "+old_entry.entry_ord+", new_entry = "+new_entry.entry_ord</print>
+                    </then>
+                    <condition>old_entry.entry_ord == new_entry.entry_ord</condition>
+                    <then>
+                        <set name="new_entry.entry_id">old_entry.entry_id</set>
+                        <db.update table="entry">
+                            <object>new_entry</object>
+                        </db.update>
+                        <!-- <db.execute update_table="entry">
+                            <object>new_entry</object>
+                        </db.execute> -->
+                        <print>"update new_entry id="+new_entry.entry_id+", ord="+new_entry.entry_ord</print>
+                        <call function="next_new"/>
+                    </then>
+                </if>
+
+                <call function="next_old"/>
+            </loop>
+
+            <loop>
+                <break>new_entry == undefined</break>
+                <db.insert table="entry">
+                    <object>new_entry</object>
+                </db.insert>
+                <!-- <db.execute insert_into_table="entry">
+                    <object>new_entry</object>
+                </db.execute> -->
+
+                <print>"after old_entries, insert new_entry : "+new_entry.entry_ord</print>
+                <call function="next_new"/>
+            </loop>
+
+        </block>
+    </function>
+
+
+    <call function="update_document_entries">
+        <number name="doc_id">4</number>
+    </call>
+</module>

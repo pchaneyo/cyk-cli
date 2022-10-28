@@ -1,0 +1,49 @@
+<object name="year">
+    <object name="2021">
+        <number name="year_num">2021</number>
+        <string name="year_begin_date" literal="">2021-01-01</string>
+        <string name="year_end_date" literal="">2021-12-31</string>
+    </object>
+</object>
+<object name="resultset">
+    <object>
+        <object name="year">
+            <number name="year_num">2021</number>
+            <string name="year_begin_date" literal="">2021-01-01</string>
+            <string name="year_end_date" literal="">2021-12-31</string>
+        </object>
+    </object>
+</object>
+<object name="meta">
+    <string name="year" literal="">&lt;db.table name=&quot;year&quot; id=&quot;14&quot;&gt;
+    &lt;number name=&quot;year_num&quot; type=&quot;int&quot; primary=&quot;&quot;&gt;
+    &lt;/number&gt;
+    &lt;string name=&quot;year_begin_date&quot; type=&quot;date&quot;&gt;
+    &lt;/string&gt;
+    &lt;string name=&quot;year_end_date&quot; type=&quot;date&quot;&gt;
+    &lt;/string&gt;
+&lt;/db.table&gt;</string>
+    <string name="resultset" literal="">year</string>
+</object>
+dbresult.year_begin_date : 2021-01-01
+year_begin_date : 2021-01-01
+year_end_date : 2021-12-31
+year_begin : 2021-01-01 09:00:00 GMT+0400
+year_end   : 2021-12-31 09:00:00 GMT+0400
+year_end greater than year_begin
+OK Février
+test IF before
+monthlabel Mars
+test IF after
+month 1 Janvier 2021 2021-01-01 -> 2021-01-31
+month 2 Février 2021 2021-02-01 -> 2021-02-28
+month 3 Mars 2021 2021-03-01 -> 2021-03-31
+month 4 Avril 2021 2021-04-01 -> 2021-04-30
+month 5 Mai 2021 2021-05-01 -> 2021-05-31
+month 6 Juin 2021 2021-06-01 -> 2021-06-30
+month 7 Juillet 2021 2021-07-01 -> 2021-07-31
+month 8 Août 2021 2021-08-01 -> 2021-08-31
+month 9 Septembre 2021 2021-09-01 -> 2021-09-30
+month 10 Octobre 2021 2021-10-01 -> 2021-10-31
+month 11 Novembre 2021 2021-11-01 -> 2021-11-30
+month 12 Décembre 2021 2021-12-01 -> 2021-12-31

@@ -1,0 +1,86 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <object name="dbresult"/>
+    <!-- <db.execute select_from_table="year" result="dbresult">
+        <string name="where">"year_num = 2021"</string>
+    </db.execute> -->
+    <db.select table="year" result="dbresult">
+        <string name="where">"year_num = 2021"</string>
+    </db.select>
+    <print>string(dbresult)</print>
+    <print>"dbresult.year_begin_date : "+dbresult.year.at(0).year_begin_date</print>
+    <string name="year_begin_date">dbresult.year.at(0).year_begin_date</string>
+    <string name="year_end_date">dbresult.year.at(0).year_end_date</string>
+    <print>"year_begin_date : "+year_begin_date</print>
+    <print>"year_end_date : "+year_end_date</print>
+    <datetime name="year_begin">datetime("2021-01-01 04:00:00 GMT-0100")</datetime>
+    <print>"year_begin : "+year_begin</print>
+    <datetime name="year_end">datetime("2021-12-31 04:00:00 GMT-0100")</datetime>
+    <print>"year_end   : "+year_end</print>
+    <if>
+        <condition><![CDATA[ year_end > year_begin]]></condition>
+        <then>
+            <print>"year_end greater than year_begin"</print>
+        </then>
+        <else>
+            <print>"TEST KO"</print>
+        </else>
+    </if>
+
+    <object name="monthlabel">
+        <string name="_01">"Janvier"</string>
+        <string name="_02">"Février"</string>
+        <string name="_03">"Mars"</string>
+        <string name="_04">"Avril"</string>
+        <string name="_05">"Mai"</string>
+        <string name="_06">"Juin"</string>
+        <string name="_07">"Juillet"</string>
+        <string name="_08">"Août"</string>
+        <string name="_09">"Septembre"</string>
+        <string name="_10">"Octobre"</string>
+        <string name="_11">"Novembre"</string>
+        <string name="_12">"Décembre"</string>
+    </object>
+    <if>
+        <condition>monthlabel.has("_02")</condition>
+        <then>
+            <print>"OK "+monthlabel.get("_02")</print>
+        </then>
+        <else>
+            <print>"KO"</print>
+        </else>
+    </if>
+    <print>"test IF before"</print>
+    <print>"monthlabel " + monthlabel.get("_03")</print>
+    <print>"test IF after"</print>
+
+    <object name="months"></object>
+
+    <number name="count">0</number>
+    <string name="month_begin">year_begin_date</string>
+    <while>
+        <condition><![CDATA[ month_begin < year_end_date]]></condition>
+        <then>
+            <set name="count">count + 1</set>
+        
+            <string name="month_end">dateadd("day", -1, dateadd("month", 1, month_begin))</string>
+            
+            <string name="month_label">monthlabel.at(datepart("month",month_begin)-1)+" "+datepart("year",month_begin)</string>
+            <print>"month "+count+ " "+month_label+" "+month_begin + " -> "+month_end</print>
+
+            <call object="months" method="push">
+                <object>
+                    <string name="month_label">month_label</string>
+                    <string name="begin">month_begin</string>
+                    <string name="end">month_end</string>
+                </object>
+            </call>
+
+            <set name="month_begin">dateadd("month", 1, month_begin)</set>
+        </then>
+    </while>
+
+    
+    <!-- <print>string(months)</print> -->
+
+</module>

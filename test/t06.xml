@@ -1,0 +1,16 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <function name="wait" returns="result: number">
+        <number name="ms"/>
+        <block>
+            <sleep>ms</sleep>
+            <let name="result">ms</let>
+        </block>
+    </function>
+    <print>"DEBUT"</print>
+    <number name="v1">wait(1000) </number>
+    <print>"v1 = "+v1</print>
+    <number name="v2">wait(2000)</number>
+    <print>"v2 = "+v2</print>
+    <print>"FIN"</print>
+</module>

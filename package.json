@@ -11,7 +11,7 @@
       "npm:upgrade": "npx npm-check-updates -iu",
       "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
       "dev": "nodemon -e ts --ignore build --exec \"npm run global\" ",
-      "test": "sudo npm i -g && cyk"
+      "test": "cyk test test/t*.xml"
    },
    "keywords": [],
    "author": "",

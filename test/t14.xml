@@ -1,0 +1,82 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <object name="obj1">
+        <string name="name">"obj1_name"</string>
+    </object>
+    <object name="obj2"></object>
+    
+    <function name="funct" returns="result: object">
+        <object name="ret">
+            <object name='selected'/>
+            <string name='command'>'new'</string>
+        </object>
+        <block>
+            <set name="result"> ret </set>
+        </block>
+    </function>
+    <set name="obj2">funct()</set>
+    <print>"obj2 "+string(obj2)</print>
+
+    <print>"undefined = "+undefined</print>
+
+    <object name="actor">
+        <string name="actor_id"/>
+        <string name="first_name"/>
+    </object>
+    <print>"actor "+string(actor)</print>
+    <print>"========"</print>
+    <print>actor.actor_id</print>
+    <print>"--------"</print>
+    <if>
+        <condition>actor.actor_id == undefined</condition>
+        <then>
+            <print>"condition actor.actor_id == undefined is true"</print>
+        </then>
+        <else>
+            <print>"condition actor.actor_id == undefined is false"</print>
+        </else>
+    </if>
+    <print>actor.actor_id</print>
+    <print>"actor.actor_id == "+actor.actor_id</print>
+
+    <!-- actor.actor_id is undefined, set undefined to n1 -->
+
+    <number name="n1"/>
+    <set name="n1">actor.actor_id</set>
+
+    <!-- objectData.copy() duplicates each variable of objectData, returns new ObjectData -->
+    <print>"========= TEST OF COPY ======="</print>
+    <object name="source">
+        <string name="first">"first orig"</string>
+        <string name="second">"second orig"</string>
+    </object>
+    <object name="copie">
+        source.copy()
+    </object>
+
+    <set name="copie">source.copy()</set>
+
+    <print>"init copie with source.copy()"</print>
+    <print>"copie first "+ copie.first + ", second " + copie.second</print>
+
+    <set name="copie.first">"new first"</set>
+    <print>"after changing copie.first "</print>
+    <print>"source.first "+source.first +", copie.first "+copie.first</print>
+    <print>"source.second "+source.second +", copie.second "+copie.second</print>
+
+    <print>"========= TEST OF setValuesFrom ======="</print>
+
+    <set name="source">source.setValuesFrom(copie)</set>
+    <print>"after source.setValuesFrom(copie)"</print>
+    <print>"source.first "+source.first +", copie.first "+copie.first</print>
+    <print>"source.second "+source.second +", copie.second "+copie.second</print>
+
+    <print>"========= TEST OF newDBRow ======="</print>
+
+    <object name="actress">newDBRow("actor")</object>
+    <print>"actress "+string(actress)</print>
+
+    <object name="user1">newDBRow("cyk_user")</object>
+    <print>"user1 "+string(user1)</print>
+
+</module>

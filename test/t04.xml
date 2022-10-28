@@ -1,0 +1,116 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+  <function name="wait" returns="result: number">
+    <number name="ms">100</number>
+    <block>
+      <print>"ms = "+ms</print>
+      <print> "AVANT" </print>
+      <sleep> ms </sleep>
+      <print> "APRES" </print>
+      <let name="result">ms</let>
+    </block>
+  </function>
+  <number name="result"></number>
+  <let name="result">wait(200)</let>
+  <print>"result = " + result </print>
+  <number name="x">10</number>
+  <number name="y">20</number>
+  <if>
+    <condition><![CDATA[ x > 0  && y > 0]]></condition>
+    <then>
+      <print> "x et y sont positifs" </print>
+    </then>
+  </if>
+  <call function="wait">
+  </call>
+
+  <!--
+    function counter_next
+  -->
+
+  <function name="counter_next" returns="result: string">
+    <string name="counter"/>
+    <block>
+      <if>
+        <condition>counter == undefined</condition>
+        <then>
+          <break/>
+        </then>
+      </if>
+      <number name="prefix_end">length(counter)</number>
+      <while>
+        <condition><![CDATA[ prefix_end > 0 && substring(counter,prefix_end - 1,prefix_end) >= '0' && substring(counter,prefix_end - 1,prefix_end) <= '9' ]]></condition>
+        <then>
+          <set name="prefix_end">prefix_end - 1</set>
+        </then>
+      </while>
+      <number name="current">0</number>
+      <if>
+        <condition><![CDATA[ prefix_end < length(counter) ]]></condition>
+        <then>
+          <set name="current">number(substring(counter,prefix_end))</set>
+        </then>
+      </if>
+      <set name="current">current + 1</set>
+      <set name="result">substring(counter,0,prefix_end) + padstart(string(current),length(counter)-prefix_end,'0')</set>
+    </block>
+  </function>
+
+  <print>"length('1234') = "+length('1234')</print>
+  <print>"length(undefined) = "+length(undefined)</print>
+  <print>"counter_next('JANV-010') = " + counter_next('JANV-010')</print>
+  <print>"counter_next('March-999') = " + counter_next('March-999')</print>
+  <print>"counter_next('April-909') = " + counter_next('April-909')</print>
+  <print>"counter_next('Février') = " + counter_next('Février')</print>
+  <print>"counter_next(undefined) = " + counter_next(undefined)</print>
+  <print>"padend('1',3,'0') = " + padend('1',3,'0')</print>
+  <datetime name="debut">now()</datetime>
+  <!-- <print>number(debut)</print> -->
+  <print>"substring('abc',0,1) = "+substring('abc',0,1)</print>
+  <print>"substring('abc',0,0) = "+substring('abc',0,0)</print>
+  <string name="q" literal="">L'abondance</string>
+  <print>"quote : " + quote(q)</print>
+  <print>"quote undefined : " + quote(undefined)</print>
+  <print>"quote null : " + quote(null)</print>
+
+  <object name="list"/>
+  <call object="list" method="pushnamevariable">
+    <string name="name">"1963-11-04"</string>
+    <object name="variable">
+      <string name="date">"1963-11-04"</string>
+      <string name="surname">"philippe"</string>
+    </object>
+  </call>
+  <print>string(list)</print>
+  <print>list.get("1963-11-04").surname</print>
+  <call object="list" method="push">
+    <object name="10">
+      <string name="date">"10"</string>
+      <string name="surname">"Surname10"</string>
+    </object>
+  </call>
+  <print>"list.get(10).surname = " + list.get(10).surname</print>
+
+  <object name="varobj">undefined</object>
+  <if>
+    <condition>varobj == undefined</condition>
+    <then>
+      <print>"test OK of varobj == undefined"</print>
+    </then>
+    <else>
+      <print>"TEST KO OF VAROBJ AND UNDEFINED"</print>
+    </else>
+  </if>
+
+  <string name="varstring"/>
+  <if>
+    <condition>varstring == undefined</condition>
+    <then>
+      <print>"varstring == undefined"</print>
+    </then>
+    <else>
+      <print>"varstring = " + varstring + ", length(varstring) = " + length(varstring)</print>
+    </else>
+  </if>
+
+</module>

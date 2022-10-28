@@ -1,0 +1,7 @@
+MOD.x = 10
+MOD.y = 20
+INSIDE mod.sum = 30
+PRINT MOD.sum = 30
+mycar autonomy = 666.6666666666667
+INSIDE mod.sum = 30
+MOD.sum = 30

@@ -1,0 +1,21 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <string name="d1">"2022-07-14"</string>
+    <print>"day : "+datepart("day", d1)+", month : "+datepart("month", d1)+", year : "+datepart("year", d1)</print>
+    <string name="d2">dateadd("day", -18, d1)</string>
+    <print>"d2 : "+d2</print>
+    <object name="entry">
+        <number name="entry_debit"></number>
+        <number name="entry_credit">100</number>
+    </object>
+    <print>
+        if(entry.entry_debit == null || entry.entry_debit == undefined, "DEBIT NULL OR UNDEFINED", entry.entry_debit)          
+    </print>
+    <print>
+        if(entry.entry_credit == null || entry.entry_credit == undefined, "CREDIT NULL OR UNDEFINED", entry.entry_credit)
+    </print>
+    <print>
+        if(entry.entry_debit == null || entry.entry_debit == undefined, 0, entry.entry_debit)
+        - if(entry.entry_credit == null || entry.entry_credit == undefined, 0, entry.entry_credit)
+    </print>
+</module>

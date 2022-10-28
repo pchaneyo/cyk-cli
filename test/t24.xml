@@ -1,0 +1,10 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+   <string name="toto" literal=""/>
+   <let name="toto"></let>
+   <function name="dfdf">
+      <block>
+      </block>
+   </function>
+
+</module>

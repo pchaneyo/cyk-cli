@@ -1,0 +1,57 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+  <string name="a" literal="">jean  bernard
+    alain
+  </string>
+  <string name="b">"dupont"</string>
+  <print>a + b</print>
+
+  <object name="result">
+    <object name="actor">
+        <object>
+            <number name="actor_id">2</number>
+            <string name="first_name" literal="">Nick</string>
+            <string name="last_name" literal="">Wahlberg &lt;mika?&gt;</string>
+            <string name="last_update" literal="">Sun May 26 2013 14:50:58 GMT+0400 (heure de La Réunion)</string>
+        </object>
+    </object>
+    <object name="film">
+        <object>
+            <number name="film_id">485</number>
+            <string name="title" literal="">Jersey Sassy</string>
+            <string name="description" literal="">A Lacklusture Documentary of a Madman And a Mad Cow who must Find a Feminist in Ancient Japan</string>
+            <number name="release_year">2006</number>
+        </object>
+        <object>
+            <number name="film_id">811</number>
+            <string name="title" literal="">Smile Earring</string>
+            <string name="description" literal="">A Intrepid Drama of a Teacher And a Butler who must Build a Pastry Chef in Berlin</string>
+            <number name="release_year">2006</number>
+        </object>
+    </object>
+    <object name="resultset">
+        <object>
+            <object name="actor">actor.at(0)</object>
+            <object name="film">film.at(0)</object>
+        </object>
+        <object>
+            <object name="actor">actor.at(0)</object>
+            <object name="film">film.at(1)</object>
+        </object>
+    </object>
+</object>
+
+<print>" result.actor.at(0).first_name " + result.actor.at(0).first_name</print>
+<print>" result.resultset.at(0).film.title " + result.resultset.at(0).film.title</print>
+<print>" result.resultset.at(0).actor.last_name " + result.resultset.at(0).actor.last_name</print>
+
+<call object="result.resultset" method="foreach">
+  <function>
+    <object name="result" />
+    <block>
+      <print>result.film.title + ' ' + result.actor.last_name</print>
+    </block>
+  </function>
+</call>
+
+</module>

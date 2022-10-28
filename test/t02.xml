@@ -1,0 +1,88 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <type name="dossier">
+        <number name="id" />
+        <string name="libelle" />
+        <number name="qty"/>
+        <method name="resume" returns="result:string">
+            <string name="label">"Default Label"</string>
+            <function name="before"/>
+            <block>
+                <call function="before" />
+                <let name="result">"label "+ label + ", Dossier ID "+this.id+" Libellé "+this.libelle+" qty "+this.qty</let>
+            </block>
+        </method>
+    </type>
+
+    <object type="dossier" name="dos1">
+        <number name="id">1</number>
+        <string name="libelle">"Dossier 1"</string>
+        <number name="qty"> 110 </number>
+    </object>
+    <object type="dossier" name="dos2">
+        <number name="id">2</number>
+        <string name="libelle">"Dossier 2"</string>
+        <number name="qty">200</number>
+    </object>
+    <object type="dossier" name="dos3">
+        <number name="id">3</number>
+        <string name="libelle">"Dossier 3"</string>
+        <number name="qty"> 330 </number>
+    </object>
+
+    <print>"dossier 3 "+dos3.libelle</print>
+
+    <function name="add" returns="c: number">
+        <number name="a" />
+        <number name="b"/>
+        <block>
+            <print>"*** Function add BEGIN " + a</print>
+            <set name="c">a + b</set>
+            <print>"**** Function add output c = " + c</print>
+        </block>
+    </function>
+
+    <number name='addition'></number>
+    <call function='add' returns="result">
+        <number name="a">100</number>
+        <number name='b'>200</number>
+    </call>
+
+    <string name="resume"/>
+    <call object="dos1" method="resume" returns="resume">
+        <string name="label">"Label dos1"</string>
+        <function name="before">
+            <block>
+                <print>"printed by function before of resume dos1"</print>
+            </block>
+        </function>
+    </call>
+    <print>"RESUME OF dos1 : "+resume</print>
+    <call object="dos2" method="resume" returns="resume">
+        <string name="label">"Label dos2"</string>
+        <function name="before">
+            <block>
+                <print>"printed by function before of resume dos 2"</print>
+            </block>
+        </function>
+    </call>
+    <print>"RESUME OF dos2 : "+resume</print>
+
+    <call object="dos2" method="push">
+        <string>"this is a comment"</string>
+    </call>
+    <object name="list">
+        <object type="dossier">dos1</object>
+        <object type="dossier">dos2</object>
+        <object type="dossier">dos3</object>
+    </object>
+    <call object="list" method="foreach">
+        <function>
+            <object type="dossier" name="dos"></object>
+            <block>
+                <print>"dos id "+dos.id + ", libelle "+dos.libelle + ", qty "+dos.qty</print>
+            </block>
+        </function>
+    </call>
+
+</module>

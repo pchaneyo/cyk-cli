@@ -1,0 +1,74 @@
+<?xml-model href="cyklang.xsd" ?>
+<module>
+    <type name="vehicle">
+        <string name="carplatenumber"/>
+        <method name="getAutonomy" returns="autonomy:number">
+        </method>
+    </type>
+    <type name="oilcar" base="vehicle">
+        <number name="tankcapacity" />
+        <number name="l100"/>
+        <method name="getAutonomy" returns="autonomy:number">
+            <block>
+                <let name="autonomy">100 * (this.tankcapacity / this.l100)</let>
+            </block>
+        </method>
+    </type>
+    <type name="evcar" base="vehicle">
+        <number name="batterycapacity"/>
+        <number name="conspkm"/>
+        <method name="getAutonomy" returns="autonomy:number">
+            <block>
+                <let name="autonomy">this.batterycapacity / this.conspkm</let>
+            </block>
+        </method>
+    </type>
+    <object type="oilcar" name="mycar">
+        <string name="carplatenumber">"CV584MK"</string>
+        <number name="tankcapacity">60</number>
+        <number name="l100">9</number>
+    </object>
+    <object type="evcar" name="yourcar">
+        <string name="carplatenumber">"DX643ME"</string>
+        <number name="batterycapacity">150</number>
+        <number name="conspkm">0.315</number>
+    </object>
+    <number name="mycarautonomy"/>
+    <call object="mycar" method="getAutonomy" returns="mycarautonomy" />
+    <print>"my car has an autonomy of "+ mycarautonomy + " kms "+ mycar.carplatenumber</print>
+    <number name="yourcarautonomy"/>
+    <call object="yourcar" method="getAutonomy" returns="yourcarautonomy"/>
+    <print>"your car has an autonomy of "+ yourcarautonomy + " km "+ yourcar.carplatenumber</print>
+    <function name="add" returns="result:number">
+        <number name="a"/>
+        <number name="b"/>
+        <block>
+            <let name="result">a + b</let>
+        </block>
+    </function>
+    <number name="result"/>
+    <call function="add" returns="result">
+        <number name="a">1000</number>
+        <number name="b">2000</number>
+    </call>
+    <print>"add result = "+result</print>
+    <print>"add expression = "+add(3000,4000)</print>
+    <print>"mycar autonomy is "+ mycar.getAutonomy()</print>
+    <print>"yourcar autonomy is "+yourcar.getAutonomy()</print>
+    <function name="sumvh" returns="result:number">
+        <object type="vehicle" name="vh1" />
+        <object type="vehicle" name="vh2" />
+        <block>
+            <let name="result">vh1.getAutonomy()+vh2.getAutonomy()</let>
+        </block>
+    </function>
+    <call function="sumvh" returns="result">
+        <object type="vehicle" name="vh1">mycar</object>
+        <object type="vehicle" name="vh2">yourcar</object>
+    </call>
+    <print>"Two cars autonomy result = " +result + " km"</print>
+    <print>"Two cars autonomy : " +sumvh(mycar,yourcar) + " km"</print>
+
+
+    <print>"FINI"</print>
+</module>
