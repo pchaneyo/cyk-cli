@@ -11,7 +11,7 @@ export class DBClient {
     }
 
     async selectFromTable(title: string, tableName: string, options:
-        { fields: string, sort?: string | undefined, where?: string | undefined }) {
+        { fields: string, sort?: string | undefined, where?: string | undefined, width?: string | undefined }) {
 
         try {
 
@@ -26,13 +26,13 @@ export class DBClient {
                 const colnames = options.fields.split(',')
                 const sortcols = options.sort.split(',')
                 let order_by = ''
-                for (let ind = 0; ind < sortcols.length; ind++ ) {
+                for (let ind = 0; ind < sortcols.length; ind++) {
                     const coli = sortcols[ind]
                     const colname = colnames[Number(coli)]
                     if (order_by !== '') order_by += ','
                     order_by += colname
                 }
-                logger.debug('order_by '+order_by)
+                logger.debug('order_by ' + order_by)
                 request.parameters.addVariable('order_by', stringDataType).data = new PrimitiveData(stringDataType, order_by)
             }
 
@@ -42,37 +42,38 @@ export class DBClient {
             //         request.parameters.addVariable(key, stringDataType).data = data
             //     })
             // }
-    
+
             const xmlResult = await this.dbManager.dbExecute(request)
             if (xmlResult === undefined) throw 'xmlResult undefined'
             const tagXmlResult = parseXML('xmlResult', xmlResult)
-    
+
             const objXmlResult = (await objectDataType.parseData(tagXmlResult, this.dbManager.scope)) as ObjectData
             const objectMeta = (objXmlResult.variables.getData('meta')) as ObjectData
             if (objectMeta === undefined) throw 'objectMeta not found'
             const xmlMeta = objectMeta.variables.getString(tableName)
             if (xmlMeta === undefined) throw 'meta does not have ' + tableName + ' description'
-    
+
             const tagDBTable = parseXML('dbTable', xmlMeta)
             const dbTable = new DBTable(tagDBTable)
-    
+
             const fields = options.fields.split(',')
             const list = new List()
-    
+            if (options.width !== undefined) list.width = options.width
+
             for (let ind = 0; ind < fields.length; ind++) {
                 const field = fields[ind]
                 const dbColumn = dbTable.columns.filter((dbColumn) => dbColumn.name === field)[0]
                 if (dbColumn === undefined) throw 'field ' + field + ' not found'
                 list.addDBColumn(dbColumn)
             }
-    
+
             const objDataset = objXmlResult.variables.getData(tableName) as ObjectData
             for (let ind = 0; ind < objDataset.variables.length(); ind++) {
                 const record = (objDataset.variables.at(ind)?.data as ObjectData)
                 list.addObjectData(record)
             }
             logger.info(list.renderList(title))
-            
+
         }
         catch (err) {
             logger.error(err)
@@ -81,6 +82,7 @@ export class DBClient {
 }
 
 class List {
+    width = "0"
     columns: Column[] = []
     rows: Row[] = []
     lines: string[] = []
@@ -107,20 +109,44 @@ class List {
     }
 
     renderList(title: string): string {
-        // calculate column.width
+
+        // parse width option
+
+        const colws: number[] = []
+        const colws_ = this.width.split(',')
+
+        for (let ind = 0; ind < colws_.length; ind++) {
+            const colw = Number.parseInt(colws_[ind])
+            if (isNaN(colw)) {
+                const msg = '--width incorrect format : ' + this.width
+                throw msg
+            }
+            colws.push(colw)
+        }
+
+        logger.debug('colws', colws.join(','))
+
+        // calculate column.actualWidth
         let total_width = 0
         for (let indi = 0; indi < this.columns.length; indi++) {
             const column = this.columns[indi]
-            column.width = column.label.length
+
+            if (indi < colws.length) column.width = colws[indi]
+            else column.width = colws[colws.length - 1]
+
+            column.actualWidth = column.label.length
             this.rows.forEach((row) => {
                 const cell = row.cells[indi]
                 const renderedCell = this.renderCell(cell)
-                if (renderedCell.length > column.width) {
-                    column.width = renderedCell.length
+                if (renderedCell.length > column.actualWidth) {
+                    if (column.width === 0 || renderedCell.length < column.width)
+                        column.actualWidth = renderedCell.length
+                    else
+                        column.actualWidth = column.width
                 }
             })
             if (total_width > 0) total_width += 3
-            total_width += column.width
+            total_width += column.actualWidth
         }
 
         // title
@@ -131,43 +157,46 @@ class List {
         this.lines.push(this.renderSeparator())
 
         // rows
-        for (let indj = 0; indj < this.rows.length; indj++ ) {
+        for (let indj = 0; indj < this.rows.length; indj++) {
             const row = this.rows[indj]
             this.lines.push(this.renderRow(row))
         }
+        this.lines.push(this.renderSeparator())
+        this.lines.push('Number of lines : ' + this.rows.length)
+        
         return this.lines.join('\n')
     }
 
     renderHeaderRow(): string {
         let result = ''
-        for (let indi = 0; indi < this.columns.length; indi++ ) {
+        for (let indi = 0; indi < this.columns.length; indi++) {
             const column = this.columns[indi]
             if (result !== '') result += ' | '
-            result += this.renderCell(column.label, column.width, 'center')
+            result += this.renderCell(column.label, column.actualWidth, 'center')
         }
         return result
     }
 
     renderRow(row: Row): string {
         let result = ''
-        for (let indi = 0; indi < this.columns.length; indi++ ) {
+        for (let indi = 0; indi < this.columns.length; indi++) {
             const column = this.columns[indi]
             let justify: 'left' | 'right' | 'center' | undefined = 'left'
             if (column.dbColumn?.dataTypeName === 'number' || column?.type === 'number') {
                 justify = 'right'
             }
             if (result !== '') result += ' | '
-            result += this.renderCell(row.cells[indi], column.width, justify)
+            result += this.renderCell(row.cells[indi], column.actualWidth, justify)
         }
         return result
     }
 
     renderSeparator(): string {
         let result = ''
-        for ( let indi = 0; indi < this.columns.length; indi++ ) {
+        for (let indi = 0; indi < this.columns.length; indi++) {
             const column = this.columns[indi]
             if (result !== '') result += '-+-'
-            result += '-'.repeat(column.width)
+            result += '-'.repeat(column.actualWidth)
         }
         return result
     }
@@ -180,20 +209,29 @@ class List {
         else if (value === null) {
             result = 'null'
         }
+        else if (value instanceof Date) {
+            const d = value as Date
+            result = d.toISOString()
+        }
         else {
             result = value.toString()
         }
-        if (width !== undefined && result.length < width) {
-            if (justify === undefined || justify === 'left') {
-                result += ' '.repeat(width - result.length)
-            }
-            else if (justify === 'right') {
-                result = ' '.repeat(width - result.length) + result
+        if (width !== undefined && width !== 0) {
+            if (result.length >= width) {
+                result = result.substring(0, width)
             }
             else {
-                // justify === center
-                const before = Math.floor((width - result.length) / 2)
-                result = ' '.repeat(before) + result + ' '.repeat(width - result.length - before)
+                if (justify === undefined || justify === 'left') {
+                    result += ' '.repeat(width - result.length)
+                }
+                else if (justify === 'right') {
+                    result = ' '.repeat(width - result.length) + result
+                }
+                else {
+                    // justify === center
+                    const before = Math.floor((width - result.length) / 2)
+                    result = ' '.repeat(before) + result + ' '.repeat(width - result.length - before)
+                }
             }
         }
         return result
@@ -207,6 +245,7 @@ class Column {
     type?: string | undefined;
     computed?: string | undefined;
     width: number = 0
+    actualWidth: number = 0
     constructor(name: string) {
         this.name = name
     }
