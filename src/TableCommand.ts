@@ -7,6 +7,8 @@ import { spawn } from "child_process"
 import { Cmd } from "./Cmd"
 import { DBClient } from "./DBClient"
 import { Stream } from "form-data"
+import FormData from 'form-data'
+
 const logger = loglevel.getLogger("TableCommand.ts")
 logger.setLevel("debug")
 
@@ -22,6 +24,7 @@ export class TableCommand extends Command {
 }
 
 class TableExportCmd extends Cmd {
+
     constructor() {
         super('export')
         this.description('export to CSV file(s)')
@@ -30,6 +33,7 @@ class TableExportCmd extends Cmd {
             .option('-d --dir <directory>', 'name of the directory where to create exported files')
             .action(async (tables, options) => this.commandExport(tables, options))
     }
+
     async commandExport(tables: string[], options: Options) {
         await this.prologue(options)
         if (this.dbManager === undefined) throw 'dbManager undefined'
@@ -48,8 +52,8 @@ class TableExportCmd extends Cmd {
                     logger.info('table ' + tableName + ' not found')
                     continue
                 }
-                const filename = this.buildFilename(dbTable.name, options)
-                this.copyTo(dbTable, filename)
+                const filename = buildFilename(dbTable.name, options)
+                await this.copyTo(dbTable, filename)
             }
         }
         catch (err) {
@@ -57,49 +61,31 @@ class TableExportCmd extends Cmd {
         }
     }
 
-    buildFilename(tableName: string, options: Options): string {
-        let filename
-        if (options.file !== undefined) {
-            if (fs.existsSync(options.file) && fs.lstatSync(options.file).isDirectory())
-                throw '--file ' + options.file + ' is a directory'
-            filename = options.file
-        }
-        else if (options.dir === undefined)
-            throw '--file and --dir unspecified'
-        else if (fs.existsSync(options.dir) === false)
-            throw 'directory ' + options.dir + ' does not exist'
-        else if (fs.lstatSync(options.dir).isFile()) {
-            throw ("--dir " + options.dir + " is a file ")
-        }
-        else {
-            let directory = options.dir.trim()
-            if (directory[directory.length - 1] !== '/') {
-                directory += '/'
-            }
-            filename = directory + tableName + '.csv'
-        }
-        return filename
-    }
-
     async copyTo(dbTable: DBTable, filename: string) {
         if (this.dbRemote === undefined) throw 'dbRemote undefined'
-        const response = await this.dbRemote.apiServer.get('/admin/export/' + dbTable.name, { responseType: 'stream'})
-        // logger.debug(response)
 
-        const writeStream = fs.createWriteStream(filename)
-        const stream = response as Stream
-        stream.on('data', (data: Uint8Array) => {
-            logger.debug('**** DATA ****', data.length)
-            const textDecoder = new TextDecoder()
-            const chunk = (textDecoder.decode(data))
-            writeStream.write(chunk)
-        })
-        stream.on('end', () => logger.debug('**** DONE ****'))
+        try {
+            const writeStream = fs.createWriteStream(filename)
+
+            const response = await this.dbRemote.apiServer.get('/admin/export/' + dbTable.name, { responseType: 'stream'})
+            const stream = response as Stream
+            stream.on('data', (data: Uint8Array) => {
+                logger.debug('**** DATA ****', data.length)
+                const textDecoder = new TextDecoder()
+                const chunk = (textDecoder.decode(data))
+                writeStream.write(chunk)
+            })
+            stream.on('end', () => logger.debug('**** DONE ****'))
+        }
+        catch (err) {
+            logger.error(err)
+        }
     }
 
 }
 
 class TableImportCmd extends Cmd {
+
     constructor() {
         super('import')
         this.description('import from CSV file(s)')
@@ -108,11 +94,77 @@ class TableImportCmd extends Cmd {
             .option('-d --dir <directory>', 'name of the directory where to find files to import')
             .action(async (tables, options) => this.commandImport(tables, options))
     }
+
     async commandImport(tables: string[], options: Options) {
         await this.prologue(options)
         if (this.dbManager === undefined) throw 'dbManager undefined'
-        await commandImportExport(this.dbManager, 'from', tables, options)
+        // await commandImportExport(this.dbManager, 'to', tables, options)
+
+        try {
+            if (options.file === undefined && options.dir === undefined) throw '--file or --dir mandatory'
+            if (options.file !== undefined && options.dir !== undefined) throw '--file and --dir are mutually exclusive'
+            if (tables.length === 0) throw 'at least one table name is mandatory'
+            if (tables.length > 1 && options.dir === undefined) throw 'for multiple tables, --dir is mandatory'
+    
+            for (let indi = 0; indi < tables.length; indi++) {
+                const tableName = tables[indi]
+                const dbTable = await this.dbManager.dbTableExist(tableName)
+                if (dbTable === undefined) {
+                    logger.info('table ' + tableName + ' not found')
+                    continue
+                }
+                const filename = buildFilename(dbTable.name, options)
+                this.copyFrom(dbTable, filename)
+            }
+        }
+        catch (err) {
+            logger.error(err)
+        }
     }
+
+    async copyFrom(dbTable: DBTable, filename: string) {
+        if (this.dbRemote === undefined) throw 'dbRemote undefined'
+
+        try {
+            const file = fs.createReadStream(filename)
+            const form = new FormData()
+            form.append('uploadFile', file)
+
+            const route = '/admin/import/' + dbTable.name
+            const resp = await this.dbRemote.apiServer.post(route, form)
+            if (resp.status === 200) {
+                logger.debug(filename + ' uploaded')
+            }
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+}
+
+
+function buildFilename(tableName: string, options: Options): string {
+    let filename
+    if (options.file !== undefined) {
+        if (fs.existsSync(options.file) && fs.lstatSync(options.file).isDirectory())
+            throw '--file ' + options.file + ' is a directory'
+        filename = options.file
+    }
+    else if (options.dir === undefined)
+        throw '--file and --dir unspecified'
+    else if (fs.existsSync(options.dir) === false)
+        throw 'directory ' + options.dir + ' does not exist'
+    else if (fs.lstatSync(options.dir).isFile()) {
+        throw ("--dir " + options.dir + " is a file ")
+    }
+    else {
+        let directory = options.dir.trim()
+        if (directory[directory.length - 1] !== '/') {
+            directory += '/'
+        }
+        filename = directory + tableName + '.csv'
+    }
+    return filename
 }
 
 interface Options {
