@@ -193,3 +193,27 @@ class ModuleList extends Cmd {
     }
 }
 
+class ModuleDelete extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+        .argument('[files...]', 'module(s) to delete from the database')
+        .action(async(files: any, options: any) => {
+            await this.commandDelete(files, options)
+        })
+    }
+    async commandDelete(files: string[], options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            if (files.length === 0) throw 'no module to delete'
+
+
+        }
+        catch (err){
+            logger.error(err)
+        } 
+    }
+}
+
