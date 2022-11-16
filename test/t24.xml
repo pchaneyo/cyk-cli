@@ -7,4 +7,12 @@
       </block>
    </function>
 
+   <string name="name">"Mortimer"</string>
+   <string name="country">"France"</string>
+   <string name="model" literal="">
+      My name is {{ name }}
+      I live in {{ country }}
+   </string>
+   <print>interpolate(model)</print>
+   <print>replace("php_script.php", "php","cyk", "g")</print>
 </module>
