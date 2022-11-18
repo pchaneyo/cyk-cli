@@ -17,18 +17,24 @@ export class Cmd extends Command {
  
     async prologue(options: any) {
 
-        const dotenvOutput = dotenv.config({path: options.env})
-        if (dotenvOutput.error !== undefined) throw dotenvOutput.error
+        try {
+            const dotenvOutput = dotenv.config({path: options.env})
+            if (dotenvOutput.error !== undefined) throw dotenvOutput.error
+    
+            const structure = new Structure()
+            if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
+            logger.debug('Cmd.DBREMOTE_URL ' + process.env.DBREMOTE_URL)
+            const nodeCrypto = new NodeCrypto()
+            this.dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
+            const login = await this.dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
+            // logger.debug(login)
+            
+            this.dbManager = new DBManager(structure.scope, this.dbRemote)
+            await this.dbManager.initialize()
+        }
+        catch (err) {
+            logger.error(err)
+        }
 
-        const structure = new Structure()
-        if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
-        logger.debug('DBREMOTE_URL ' + process.env.DBREMOTE_URL)
-        const nodeCrypto = new NodeCrypto()
-        this.dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
-        const login = await this.dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
-        // logger.debug(login)
-        
-        this.dbManager = new DBManager(structure.scope, this.dbRemote)
-        await this.dbManager.initialize()
     }
 }

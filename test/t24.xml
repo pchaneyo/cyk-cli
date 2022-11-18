@@ -15,4 +15,16 @@
    </string>
    <print>interpolate(model)</print>
    <print>replace("php_script.php", "php","cyk", "g")</print>
+
+   <print>"while Loop "</print>
+   <number name="cpt">0</number>
+   <while>
+      <condition> <![CDATA[ cpt < 1000 ]]></condition>
+      <then>
+        <number name="nombre">1000</number>
+        <set name="cpt">cpt + 1</set>
+        <print>"cpt = " + cpt</print>
+      </then>
+    </while>
+    <print>"after 10 loop dcl NOMBRE and set"</print>
 </module>
