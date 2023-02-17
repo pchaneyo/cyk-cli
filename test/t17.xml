@@ -1,4 +1,4 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
     <string name="d1">"2022-07-14"</string>
     <print>"day : "+datepart("day", d1)+", month : "+datepart("month", d1)+", year : "+datepart("year", d1)</print>
@@ -18,4 +18,6 @@
         if(entry.entry_debit == null || entry.entry_debit == undefined, 0, entry.entry_debit)
         - if(entry.entry_credit == null || entry.entry_credit == undefined, 0, entry.entry_credit)
     </print>
+    <print>"Expression with boolean terms"</print>
+    <print><![CDATA[ "TRUE = " + (true && "VRAI") ]]>  </print>
 </module>

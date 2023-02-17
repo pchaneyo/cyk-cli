@@ -22,7 +22,7 @@ export class TestCommand extends Cmd {
             for (let ind=0; ind < files.length; ind++) {
                 const result = await testfile(files[ind])
                 if (result === false) {
-                    logger.debug('*********** FAILURE ' + process.argv[ind] + ' ***************')
+                    logger.debug('*********** FAILURE ' + files[ind] + ' ***************')
                 }
             }
         }

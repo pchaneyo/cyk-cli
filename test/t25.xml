@@ -1,0 +1,23 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<module>
+    <function name="task" synchronized="">
+        <string name="name"/>
+        <number name="duration"/>
+        <block>
+            <print>name + " begins "</print>
+            <sleep>duration</sleep>
+            <print>name + " ended after " + duration </print>
+        </block>
+    </function>
+    <parallel>
+        <call function="task">
+            <string name="name">"task 1"</string>
+            <number name="duration">2000</number>
+        </call>
+        <call function="task">
+            <string name="name">"task 2"</string>
+            <number name="duration">1000</number>
+        </call>
+    </parallel>
+
+</module>

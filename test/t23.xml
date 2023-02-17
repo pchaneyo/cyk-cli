@@ -13,14 +13,14 @@
 
     <call function="call_get_tables"/>
 
-    <print>now()</print>
+    <!-- <print>now()</print> -->
 
     <function name="wait">
         <number name="duration">1000</number>
         <string name="message"/>
         <block>
             <sleep>duration</sleep>
-            <print>now() + ' ' + message</print>
+            <print>message</print>
         </block>
     </function>
 
@@ -39,6 +39,6 @@
         </call>
     </parallel>
 
-    <print>now() + " AFTER parallel "</print>
+    <print>" AFTER parallel "</print>
 
 </module>
