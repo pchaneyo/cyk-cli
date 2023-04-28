@@ -6,7 +6,7 @@
         <boolean name="french">true</boolean>
     </object>
 
-    <print>"date of birth : " + dates.datebirth + ", now : "+dates.datenow</print>
+    <print>"date of birth : " + dates.datebirth </print>
     <print>"french " + dates.french </print>
 
     <number name="num1"/>
