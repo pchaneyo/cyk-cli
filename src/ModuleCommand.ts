@@ -25,8 +25,9 @@ Otherwise, a new module is inserted in the database. To rename a module, use opt
         // list
         this.addCommand(new ModuleList('list', 'List modules'))
         this.addCommand(new ModuleList('l', 'shortcut for (l)ist'))
-        // rename
-
+        // rename **TODO**
+        // delete
+        this.addCommand(new ModuleDelete('delete', 'delete module from database'))
     }
 }
 
@@ -197,10 +198,10 @@ class ModuleDelete extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-        .argument('[files...]', 'module(s) to delete from the database')
-        .action(async(files: any, options: any) => {
-            await this.commandDelete(files, options)
-        })
+            .argument('[files...]', 'module(s) to delete from the database')
+            .action(async (files: any, options: any) => {
+                await this.commandDelete(files, options)
+            })
     }
     async commandDelete(files: string[], options: any) {
         try {
@@ -208,12 +209,17 @@ class ModuleDelete extends Cmd {
             if (this.dbManager === undefined) throw 'dbManager undefined'
 
             if (files.length === 0) throw 'no module to delete'
-
+            const dbClient = new DBClient(this.dbManager)
+            for (let ind = 0; ind < files.length; ind++) {
+                const dbname = files.at(ind)
+                if (dbname !== undefined)
+                    dbClient.deleteModule(dbname)
+            }
 
         }
-        catch (err){
+        catch (err) {
             logger.error(err)
-        } 
+        }
     }
 }
 

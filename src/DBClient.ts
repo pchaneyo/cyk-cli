@@ -79,6 +79,22 @@ export class DBClient {
             logger.error(err)
         }
     }
+
+    async deleteModule(dbname: string) {
+
+        try {
+            const dbModule = await this.dbManager.dbModuleExist(dbname)
+
+            if (dbModule === undefined) {
+               throw ('Module ' + dbname + ' not found')
+            }
+            await this.dbManager.dbModuleDelete(dbModule)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+
+    }
 }
 
 class List {
