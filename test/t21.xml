@@ -9,13 +9,37 @@
         <string name="surname">"Jean"</string>
     </object>
     <module_object name="m_t20"/>
+
     <set name="m_t20" module="t20">
-        <object name="settings">params</object> 
-    </set> 
- 
+         <object name="settings">params</object>
+    </set>
+
     <!-- <call object="m_t20" method="__init__">
         <object name="settings">params</object>
     </call> -->
+
+    <object name="v_obj"/>
+    <number name="caller_nb">999</number>
+
+    <!-- <call function="m_t20.callee">
+        <object name="v_obj">v_obj</object>
+    </call>
+
+    <print>"v_obj.nested.member = "  + v_obj.nested.member</print> -->
+
+    <function name="f_module_arg">
+        <module_object name="module"/>
+        <block>
+            <call function="module.callee">
+                <object name="v_obj">v_obj</object>
+            </call>
+            <print>"f_module_arg : v_obj.nested.member = "  + v_obj.nested.member</print>
+        </block>
+    </function>
+    <call function="f_module_arg">
+        <module_object name="module">m_t20</module_object>
+    </call>
+
     <call object="m_t20" method="print_settings"/>
 
     <object name="obj">m_t20</object>
@@ -29,7 +53,7 @@
         </object>
     </object>
     <if>
-        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]>  </condition>
+        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]></condition>
         <then>
             <print>owner + "'s car's brand is " + cars.get(owner).brand</print>
         </then>
@@ -39,7 +63,7 @@
     </if>
     <set name="owner">"yves"</set>
     <if>
-        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]>  </condition>
+        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]></condition>
         <then>
             <print>owner + "'s car's brand is " + cars.get(owner).brand</print>
         </then>
@@ -49,7 +73,7 @@
     </if>
     <set name="owner">"john"</set>
     <if>
-        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]>  </condition>
+        <condition><![CDATA[ owner !== undefined && cars.get(owner) !== undefined && cars.get(owner).has('brand') == true  ]]></condition>
         <then>
             <print>owner + "'s car's brand is " + cars.get(owner).brand</print>
         </then>
@@ -61,7 +85,7 @@
     <boolean name="bool">true</boolean>
     <set name="bool">boolean("")</set>
     <print>"bool : " + bool</print>
-    
+
     <set name="chaine">150</set>
     <print>"chaine : " + chaine</print>
 

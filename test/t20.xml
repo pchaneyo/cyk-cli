@@ -12,4 +12,20 @@
             <print>"print_settings : " + string(settings)</print>
         </block>
     </function>
+
+    <!-- context of callee if FunctionData.funct -->
+
+    <number name="caller_nb">888</number>
+
+    <function name="callee">
+        <object name="v_obj"/>
+        <block>
+            <call object="v_obj" method="push">
+                <object name="nested">
+                    <number name="member">caller_nb</number>
+                </object>
+            </call>
+        </block>
+    </function>
+
 </module>

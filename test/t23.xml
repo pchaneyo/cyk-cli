@@ -7,7 +7,7 @@
 
             <!-- <db.execute module="t22" method="get_tables" returns="settings">
             </db.execute> -->
-            <print>"Client side : " + string(settings)</print>
+            <!-- <print>"Client side : " + string(settings)</print> -->
         </block>
     </function>
 

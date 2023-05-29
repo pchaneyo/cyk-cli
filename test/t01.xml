@@ -13,12 +13,21 @@
     <type name="dossier_remorquage" base="dossier">
         <string name="lieu" />
     </type>
-    
+
     <function name="add" returns="c: number">
         <number name="a" />
         <number name="b"/>
         <block>
-            <print>"*** Function add BEGIN" + a</print>
+            <print>"*** Function add BEGIN a " + a + " b " + b</print>
+            <if>
+                <condition><![CDATA[ a > b]]></condition>
+                <then>
+                    <print>"then a gt b"</print>
+                </then>
+                <else>
+                    <print>"else a gt b"</print>
+                </else>
+            </if>
             <let name="c">a + b</let>
             <print>"**** Function add output c =" + c</print>
         </block>
@@ -26,15 +35,18 @@
     <function name="fact" returns="result: number">
         <number name="N"/>
         <block>
+            <print>"fact begin N = " + N</print>
+            <number name="fact1">1</number>
+            <number name="N_1">N   -   1</number>
             <if>
                 <condition><![CDATA[ N <= 0]]></condition>
                 <then>
                     <let name="result">1</let>
                 </then>
                 <else>
-                    <number name="fact1">1</number>
+
                     <call function="fact" returns="fact1">
-                        <number name="N">N - 1</number>
+                        <number name="N">N_1</number>
                     </call>
                     <let name="result">N * fact1</let>
                 </else>
@@ -79,13 +91,13 @@
     <print>"Result 150 + 300 : " + result</print>
     <let name="result">add(1000,2000)</let>
     <print>"Result 1000 + 2000 : " + result</print>
-    <number name="N"> 4 </number>
+    <number name="Nombre"> 4 </number>
 
-    <print>"Before fact of " + N</print>
+    <print>"Before fact of " + Nombre</print>
     <call function="fact" returns="result">
-        <number name="N">N</number>
+        <number name="N">Nombre</number>
     </call>
-    <print>"factorielle de " + N + " = " + result</print>
+    <print>"factorielle de " + Nombre + " = " + result</print>
     <print>"factorielle de 5 : " + fact(5)</print>
     <object type="prestation" name="pst1">
         <number name="id">100</number>
@@ -182,4 +194,30 @@
             </block>
         </function>
     </call>
+
+    <!-- context of callee if FunctionData.funct -->
+
+    <object name="v_obj"/>
+    <number name="caller_nb">888</number>
+
+    <function name="callee">
+        <block>
+            <call object="v_obj" method="push">
+                <object name="nested">
+                    <number name="member">caller_nb</number>
+                </object>
+            </call>
+        </block>
+    </function>
+
+    <function name="caller">
+        <block>
+            <number name="caller_nb">999</number>
+            <call function="callee"/>
+            <print>"v_obj.nested.member = "  + v_obj.nested.member</print>
+        </block>
+    </function>
+
+    <call function="caller"/>
+
 </module>

@@ -1,3 +1,5 @@
+chaine = A + B
+f_module_arg : v_obj.nested.member = 888
 print_settings : <string name="name" literal="">Dupont</string>
 <string name="surname" literal="">Jean</string>
 owner not set
