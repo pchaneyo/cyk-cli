@@ -1,0 +1,18 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<module>
+    <map name="hash">
+        <key>nom</key><value>CHANE</value>
+        <key>prénom</key><value>Philippe</value>
+        <key>Nom : {{ {0} Prénom {1} }}</key><value>Firstname : {{ {1} Name {0} }}</value>
+    </map>
+    <print>"nom : " + hash.get("nom")</print>
+    <call object="hash" method="set">
+        <string name="key">"date"</string>
+        <string name="value" literal=""><![CDATA[ <b>Gras</b> <i>Italic </i>]]></string>
+    </call>
+    <print>"date : " + hash.get("date")</print>
+    <print>"format 1 : " + format("Format sans paramètre")</print>
+    <print>"format 2 : " + format("Nom : {0} Final", "CYK")</print>
+    <print>"format 3 : " + format("Nom : {{ {0} Prénom {1} }}", "CYK", "Philippe")</print>
+
+</module>
