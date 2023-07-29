@@ -1,205 +1,388 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+    <xs:simpleType name="identifier">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[_a-zA-Z][_a-zA-Z0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:element name="module" type="defineModule"/>
 
     <xs:complexType name="defineModule">
-        <xs:complexContent >
-            <xs:extension base="block">
-                <xs:attribute name="name" type="xs:string"/>
-                <xs:attribute name="dbname" type="xs:string"/>
-                <xs:attribute name="import" type="xs:string"/>
+        <xs:annotation>
+            <xs:documentation>
+                root element of a module file. Module name is derived from the file name minus file xml extension. 
+                File name must then follow identifier restrictions (alphabetic, digits and _ (underscore) characters accepted)
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="blockInstruction">
+                <xs:attribute name="description" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            description is copied to cyk_module database table, module_description column
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="access" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Access Control List of the module. User group has an identifier and the permissions are a single letter: (r)ead or (w)rite
+                            ACL is copied to cyk_module database table, module_access column
+                            e.g. "admin:* ; readef:r ; writer:rw"
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="block">
+    <xs:complexType name="blockInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                Instructions in a block element are executed sequentially except in the parallel instruction. If not the parallel instruction, you can exit prematurely a block with the break instruction
+            </xs:documentation>
+        </xs:annotation>
         <xs:group ref="instruction" minOccurs="0" maxOccurs="unbounded"/>
     </xs:complexType>
 
     <xs:group name="instruction">
         <xs:choice>
-            <xs:element name="module" type="defineModule"/>
             <xs:group ref="declareVariable"/>
             <xs:element name="let" type="let_set"/>
             <xs:element name="set" type="let_set"/>
             <xs:element name="print" type="xs:string"/>
-            <xs:element ref="if"/>
-            <xs:element ref="call"/>
-            <xs:element name="block" type="block"/>
+            <xs:element name="if" type="ifInstruction"/>
+            <xs:element name="call" type="callInstruction"/>
+            <xs:element name="block" type="blockInstruction"/>
             <xs:element name="break" type="xs:string"/>
             <xs:element name="continue" type="xs:string"/>
             <xs:element name="sleep" type="xs:string"/>
-            <xs:element ref="while"/>
-            <xs:element name="loop" type="block"/>
-            <xs:element ref="stringexec"/>
-            <xs:element name="parallel" type="block"/>
+            <xs:element name="while" type="whileInstruction"/>
+            <xs:element name="loop" type="loopInstruction"/>
+            <xs:element name="stringexec" type="stringexecInstruction"/>
+            <xs:element name="parallel" type="parallelInstruction"/>
 
             <!-- server side -->
-            <xs:element ref="db.table"/>
-            <xs:element ref="db.query"/>
-            <xs:element ref="db.insert"/>
-            <xs:element ref="db.update"/>
-            <xs:element ref="db.runquery"/>
-            <xs:element ref="db.select"/>
-            <xs:element ref="db.delete"/>
-            <xs:element ref="db.call"/>
+            <xs:element name="db.table" type="dbtableInstruction"/>
+            <xs:element name="db.query" type="dbqueryInstruction"/>
+            <xs:element name="db.insert" type="dbinsertInstruction"/>
+            <xs:element name="db.update" type="dbupdateInstruction"/>
+            <xs:element name="db.runquery" type="dbrunqueryInstruction"/>
+            <xs:element name="db.select" type="dbselectInstruction"/>
+            <xs:element name="db.delete" type="dbdeleteInstruction"/>
+            <xs:element name="db.call" type="dbcallInstruction"/>
+
+            <!-- browser side -->
+            <xs:element name="setmenu" type="setmenuInstruction"/>
+            <xs:element name="closedialog" fixed=""/>
+            <xs:element name="showdialog" type="showdialogInstruction"/>
+            <xs:element name="closeform" fixed=""/>
+            <xs:element name="showform" type="showformInstruction"/>
+            <xs:element name="alert" type="alertInstruction"/>
+            <xs:element name="resetdialogdirty" fixed=""/>
+            <xs:element name="sendevent" type="sendevent"/>
+            <xs:element name="toolbar" type="toolbarComponent"/>
+
         </xs:choice>
     </xs:group>
 
     <xs:group name="declareVariable">
         <xs:choice>
-            <xs:element ref="boolean"/>
-            <xs:element ref="number"/>
-            <xs:element ref="string"/>
-            <xs:element ref="datetime"/>
-            <xs:element ref="object"/>
+            <xs:element name="boolean" type="booleanType"/>
+            <xs:element name="number" type="numberType"/>
+            <xs:element name="string" type="stringType"/>
+            <xs:element name="datetime" type="datetimeType"/>
+            <xs:element name="object" type="declareObject"/>
             <xs:element name="function" type="function_method"/>
-            <xs:element ref="type"/>
+            <xs:element name="type" type="typeType"/>
             <xs:element name="module_object" type="moduleObject"/>
-
+            <xs:element name="moduleobject" type="moduleObject"/>
             <!-- browser only -->
-            <xs:element ref="form"/>
+            <xs:element name="form" type="formComponent"/>
+            <xs:element name="dialog" type="dialogComponent"/>
+            <xs:group ref="component"/>
+            <!-- server only -->
+            <xs:element name="request" type="requestObject"/>
+            <xs:element name="response" type="responseObject"/>
         </xs:choice>
     </xs:group>
 
     <xs:group name="declareVariable_method">
         <xs:choice>
-            <xs:element ref="boolean"/>
-            <xs:element ref="number"/>
-            <xs:element ref="string"/>
-            <xs:element ref="datetime"/>
-            <xs:element ref="object"/>
-            <xs:element name="function"/>
-            <xs:element ref="type"/>
+            <xs:element name="boolean" type="booleanType"/>
+            <xs:element name="number" type="numberType"/>
+            <xs:element name="string" type="stringType"/>
+            <xs:element name="datetime" type="datetimeType"/>
+            <xs:element name="object" type="declareObject"/>
+            <xs:element name="function" type="function_method"/>
+            <xs:element name="type" type="typeType"/>
+            <xs:element name="module_object" type="moduleObject"/>
+            <xs:element name="moduleobject" type="moduleObject"/>
+            <!-- browser only -->
+            <xs:element name="form" type="formComponent"/>
+            <xs:element name="dialog" type="dialogComponent"/>
+            <xs:group ref="component"/>
+            <!-- server only -->
+            <xs:element name="request" type="requestObject"/>
+            <xs:element name="response" type="responseObject"/>
 
             <xs:element name="method" type="function_method"/>
         </xs:choice>
     </xs:group>
 
-    <xs:element name="boolean">
-        <xs:complexType mixed="true">
-            <xs:attribute name="name" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="number">
-        <xs:complexType mixed="true">
-            <xs:attribute name="name" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="string">
+    <xs:complexType name="booleanType">
         <xs:annotation>
-            <!-- <xs:appinfo>string_appinfo</xs:appinfo> -->
-            <xs:documentation>declares a <i>string</i> variable</xs:documentation>
+            <xs:documentation>boolean is a basic data type wrapping javascript boolean type</xs:documentation>
         </xs:annotation>
-        <xs:complexType mixed="true">
-            <xs:attribute name="name" type="xs:string"/>
-            <xs:attribute name="literal" type="xs:string" fixed=""/>
-        </xs:complexType>
-    </xs:element>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="identifier"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
 
-    <xs:element name="stringexec">
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="xs:string">
-                    <xs:attribute name="literal" type="xs:string" fixed=""/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="numberType">
+        <xs:annotation>
+            <xs:documentation>number is a basic data type wrapping javascript number type</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="identifier"/>
+            </xs:extension>
+        </xs:simpleContent>
 
-    <xs:element name="datetime">
-        <xs:complexType mixed="true">
-            <xs:attribute name="name" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    </xs:complexType>
 
-    <xs:element name="object">
-        <xs:complexType mixed="true">
-            <xs:group ref="declareVariable_method" minOccurs="0" maxOccurs="unbounded">
-            </xs:group>
-            <xs:attribute name="name" type="xs:string"/>
-            <xs:attribute name="type" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="stringType">
+        <xs:annotation>
+            <xs:documentation>
+                string is a basic data type wrapping javascript string type. To give a literal value to the string variable rather than
+                an expression which will be evaluated, use [literal] attribute
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="identifier"/>
+                <xs:attribute name="literal" type="xs:string" fixed=""/>
+            </xs:extension>
+        </xs:simpleContent>
 
-    <xs:element name="type">
-        <xs:complexType>
-            <xs:group ref="declareVariable_method" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:attribute name="name" type="xs:string"/>
-            <xs:attribute name="type" type="xs:string"/>
-            <xs:attribute name="base" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    </xs:complexType>
 
-    <xs:complexType name="moduleObject">
+    <xs:complexType name="loopInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                The loop instruction block is repeated indefinitely. You can exit the loop with the break instruction,
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="blockInstruction">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="stringexecInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                By default, the text content is considered as an expression
+                and evaluated to a string value is interpreted as source code for a block instruction and executed.
+                But with [literal] attribute, the text content is not evaluated as an expression and considered directly as the source code
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="literal" type="xs:string" fixed=""/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="parallelInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                Each instruction in the parallele block starts simultaeously. The parallel instruction ends when every instruction ends.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="blockInstruction">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="datetimeType">
+        <xs:annotation>
+            <xs:documentation>
+                datetime is a basic data type wrapping javascript Date type.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="identifier"/>
+            </xs:extension>
+        </xs:simpleContent>
+
+    </xs:complexType>
+
+    <xs:complexType name="declareObject" mixed="true">
+        <xs:annotation>
+            <xs:documentation>
+                an object can be declared and defined
+                    by evaluating an expression which returns an object
+                    or by declaring all the variables member of the object
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareVariable_method" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="name" type="identifier"/>
+        <xs:attribute name="type" type="identifier"/>
+    </xs:complexType>
+
+    <xs:complexType name="typeType">
+        <xs:annotation>
+            <xs:documentation>
+                type declares a sub type from a base object data type. Member variables are declared as sub elements.
+                If attribute [literal] is unset, in a declare tag using this type, the declare tag's content is evaluated as an expression which returns that 
+                will be the initial value of the object declared.
+                If attribute [literal] is set (see template and html types), in a declare tag using this type, the new object will not be initialized.
+                The tag's content will be accessed using Typescript.
+                Attribute [literal] of type declaration should not be confused with attribute [literal] in a declare tag (e.g. string data type)
+                To declare an object of the new data type, use [type] attribute of the object element
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareVariable_method" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="name" type="identifier"/>
+        <xs:attribute name="type" type="xs:string"/>
+        <xs:attribute name="base" type="xs:string"/>
+        <xs:attribute name="literal" type="xs:string" fixed=""/>
+    </xs:complexType>
+
+
+    <xs:complexType name="moduleObject" mixed="true">
+        <xs:annotation>
+            <xs:documentation>
+                If [module] attribute then creates an object by instantiating a module object from module whose name is given by the [module] attribute.
+                You can pass values to the constructor of the module as sub elements of this tag.
+                Without [module] attribute, tag content must be an expression that evaluates to a module object.
+            </xs:documentation>
+        </xs:annotation>
         <xs:group ref="declareVariable" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:attribute name="name" type="xs:string"/>
-        <xs:attribute name="dbname" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
+        <xs:attribute name="module" type="identifier"/>
+        <xs:attribute name="import" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="let_set" mixed="true">
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:annotation>
+            <xs:documentation>
+                attribute [name] is the name of the variable to set or an expression evaluated to a variable.
+                The new value of the variable is determined by an expression or you can give the member variables of a new object that will be created.
+                In case of a string variable, you can set [literal] attribute to indicate that the value is not to be evaluated as an expression.
+                In case of a module object variable, you can specify [module] attribute to give the name of the module to load from the database
+    
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareVariable_method" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="literal" type="xs:string" fixed=""/>
+        <xs:attribute name="module" type="xs:string"/>
     </xs:complexType>
 
-    <xs:element name="print">
-    </xs:element>
-
-    <xs:complexType name="function_method">
-        <xs:sequence minOccurs="0">
+    <xs:complexType name="function_method" mixed="true">
+        <xs:annotation>
+            <xs:documentation>
+                declares a function which is obtained by evaluating an expression returning a function or by defining it by sub elements.
+             To define a function, include the following sub elements. At first declare the input parameters, then declare an instruction block.
+             To return a result, set a [returns] attribute which gives the name of the returned variable and its type e.g. result : number
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
             <xs:group ref="declareVariable" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="block" type="block"/>
+            <xs:element name="block" type="blockInstruction" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
         <xs:attribute name="returns" type="xs:string"/>
+        <xs:attribute name="synchronized" type="xs:string"/>
     </xs:complexType>
 
-    <xs:element name="if">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:group ref="conditionThen" minOccurs="1" maxOccurs="unbounded"/>
-                <xs:sequence minOccurs="0">
-                    <xs:element name="else" type="block"/>
-                </xs:sequence>
+
+    <xs:complexType name="ifInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                if instruction is similar to a case in other languages. You can give several pairs of (condition, then block) and a final [else] block.
+                The instruction will terminate when the first condition is verified and the corresponding [then] block is executed. See https://www.cyklang.net/reference/#ifInstruction
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:group ref="conditionThen" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:sequence minOccurs="0">
+                <xs:element name="else" type="blockInstruction"/>
             </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
 
     <xs:group name="conditionThen">
         <xs:sequence>
-            <xs:element name="condition"/>
-            <xs:element name="then" type="block"/>
+            <xs:element name="condition">
+                <xs:annotation>
+                    <xs:documentation>
+                        condition is an expression evaluated to a boolean value. To escape expression's characters special for XML e.g. &lt; character, use XML CDATA construction
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="then" type="blockInstruction"/>
         </xs:sequence>
     </xs:group>
 
-    <xs:element name="call">
-        <xs:complexType>
-            <xs:group ref="declareVariable" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:attribute name="function"/>
-            <xs:attribute name="returns"/>
-            <xs:attribute name="object"/>
-            <xs:attribute name="method"/>
-        </xs:complexType>
-    </xs:element>
 
-    <xs:element name="while">
-        <xs:complexType>
-            <xs:group ref="conditionThen"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="callInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                you can call a function by using the [function] attribute or an object method by giving simultaneously the [object] to call and the [method] of this object
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareVariable" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="function"/>
+        <xs:attribute name="returns"/>
+        <xs:attribute name="object"/>
+        <xs:attribute name="method"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="whileInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                classic while control instruction. See https://www.cyklang.net/reference/#whileInstruction
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="conditionThen"/>
+    </xs:complexType>
+
 
     <!-- 
         server-side
     -->
 
-    <xs:element name="db.table">
-        <xs:complexType>
-            <xs:group ref="defineColumn" minOccurs="1" maxOccurs="unbounded"/>
-            <xs:attribute name="name" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+
+    <xs:complexType name="dbtableInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                define a database table columns and foreign key. Instruction can be repeated. First time, the table will be created.
+                Then, the server will detect new columns and create them.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="db.tableElement" minOccurs="1" maxOccurs="unbounded"/>
+        <xs:attribute name="name" type="identifier"/>
+        <xs:attribute name="description" type="xs:string"/>
+    </xs:complexType>
+
+
+    <xs:group name="db.tableElement">
+        <xs:choice>
+            <xs:group ref="defineColumn"/>
+            <xs:element name="foreignkey" type="foreignKey"/>
+        </xs:choice>
+    </xs:group>
 
     <xs:group name="defineColumn">
         <xs:choice>
@@ -210,12 +393,20 @@
         </xs:choice>
     </xs:group>
 
+    <xs:complexType name="foreignKey">
+        <xs:sequence>
+            <xs:element name="string" type="stringType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="parent" type="identifier"/>
+    </xs:complexType>
+
     <xs:complexType name="numberColumn">
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
         <xs:attribute name="type">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="int"></xs:enumeration>
+                    <xs:enumeration value="numeric(12,2)"></xs:enumeration>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
@@ -230,7 +421,7 @@
     </xs:complexType>
 
     <xs:complexType name="stringColumn">
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
         <xs:attribute name="type">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
@@ -238,7 +429,11 @@
                     <xs:enumeration value="varchar(30)"></xs:enumeration>
                     <xs:enumeration value="varchar(50)"></xs:enumeration>
                     <xs:enumeration value="varchar(255)"></xs:enumeration>
+                    <xs:enumeration value="varchar(1024)"></xs:enumeration>
+                    <xs:enumeration value="varchar(2048)"></xs:enumeration>
                     <xs:enumeration value="text"></xs:enumeration>
+                    <xs:enumeration value="date"></xs:enumeration>
+                    <xs:enumeration value="bytea"></xs:enumeration>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
@@ -246,7 +441,7 @@
     </xs:complexType>
 
     <xs:complexType name="datetimeColumn">
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
         <xs:attribute name="type">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
@@ -265,7 +460,7 @@
     </xs:complexType>
 
     <xs:complexType name="booleanColumn">
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
         <xs:attribute name="type">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
@@ -275,118 +470,237 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:element name="db.query">
-        <xs:complexType>
-            <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:attribute name="name" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="dbqueryInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                define a database query
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="name" type="identifier"/>
+    </xs:complexType>
+
 
     <xs:group name="declareQueryParameter">
         <xs:choice>
-            <xs:element ref="boolean"/>
-            <xs:element ref="number"/>
-            <xs:element ref="string"/>
-            <xs:element ref="datetime"/>
+            <xs:element name="boolean" type="booleanType"/>
+            <xs:element name="number" type="numberType"/>
+            <xs:element name="string" type="stringType"/>
+            <xs:element name="datetime" type="datetimeType"/>
         </xs:choice>
     </xs:group>
 
-    <xs:element name="db.insert">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="object"/>
-            </xs:sequence>
-            <xs:attribute name="table" use="required" type="xs:string"/>
-            <xs:attribute name="returning_into" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
 
-    <xs:element name="db.update">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="object"/>
-            </xs:sequence>
-            <xs:attribute name="table" use="required" type="xs:string"/>
-            <xs:attribute name="returning_into" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="dbinsertInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                sql insert
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="object" type="declareObject"/>
+        </xs:sequence>
+        <xs:attribute name="table" use="required" type="identifier"/>
+        <xs:attribute name="returning_into" type="identifier"/>
+    </xs:complexType>
 
-    <xs:element name="db.runquery">
-        <xs:complexType>
-            <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:attribute name="name" use="required" type="xs:string"/>
-            <xs:attribute name="result" use="required" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="dbupdateInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                sql update
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="object" type="declareObject"/>
+        </xs:sequence>
+        <xs:attribute name="table" use="required" type="identifier"/>
+        <xs:attribute name="returning_into" type="identifier"/>
+    </xs:complexType>
 
-    <xs:element name="db.select">
-        <xs:complexType>
-            <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:attribute name="table" use="required" type="xs:string"/>
-            <xs:attribute name="result" use="required" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="dbrunqueryInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                sql run query
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="name" use="required" type="identifier"/>
+        <xs:attribute name="result" use="required" type="identifier"/>
+    </xs:complexType>
 
-    <xs:element name="db.delete">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="object"/>
-            </xs:sequence>
-            <xs:attribute name="table" use="required" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="dbselectInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                sql select
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="table" use="required" type="identifier"/>
+        <xs:attribute name="result" use="required" type="identifier"/>
+    </xs:complexType>
 
-    <xs:element name="db.call">
-        <xs:complexType>
-            <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:attribute name="module" use="required" type="xs:string"/>
-            <xs:attribute name="method" use="required" type="xs:string"/>
-            <xs:attribute name="returns" type="xs:string"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="dbdeleteInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                sql delete
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="object" type="declareObject"/>
+        </xs:sequence>
+        <xs:attribute name="table" use="required" type="identifier"/>
+    </xs:complexType>
+
+    <xs:complexType name="dbcallInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                remotely execute on the server a module's method.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:group ref="declareQueryParameter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="module" use="required" type="identifier"/>
+        <xs:attribute name="method" use="required" type="identifier"/>
+        <xs:attribute name="returns" type="identifier"/>
+    </xs:complexType>
 
     <!-- 
         browser-only
     -->
 
-    <xs:element name="form" type="formComponent">
-    </xs:element>
-
     <xs:complexType name="formComponent">
         <xs:complexContent>
             <xs:extension base="gridComponent">
-                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="title" type="xs:string"/>
+                <xs:attribute name="card" type="xs:string" fixed=""/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="dialogComponent">
+        <xs:complexContent>
+            <xs:extension base="formComponent">
+                <xs:attribute name="seamless" fixed=""/>
+                <xs:attribute name="maximized" fixed=""/>
+                <xs:attribute name="full-width" fixed=""/>
+                <xs:attribute name="full-height" fixed=""/>
+                <xs:attribute name="position">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="standard"/>
+                            <xs:enumeration value="top"/>
+                            <xs:enumeration value="bottom"/>
+                            <xs:enumeration value="right"/>
+                            <xs:enumeration value="left"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="transition_show">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="fade"/>
+                            <xs:enumeration value="slide-right"/>
+                            <xs:enumeration value="slide-left"/>
+                            <xs:enumeration value="slide-up"></xs:enumeration>
+                            <xs:enumeration value="slide-down"></xs:enumeration>
+                            <xs:enumeration value="scale"/>
+                            <xs:enumeration value="rotate"/>
+                            <xs:enumeration value="flip-right"/>
+                            <xs:enumeration value="flip-left"/>
+                            <xs:enumeration value="flip-up"/>
+                            <xs:enumeration value="flip-down"/>
+                            <xs:enumeration value="jump-right"/>
+                            <xs:enumeration value="jump-left"/>
+                            <xs:enumeration value="jump-up"/>
+                            <xs:enumeration value="jump-down"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="transition_hide">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="fade"/>
+                            <xs:enumeration value="slide-right"/>
+                            <xs:enumeration value="slide-left"/>
+                            <xs:enumeration value="slide-up"></xs:enumeration>
+                            <xs:enumeration value="slide-down"></xs:enumeration>
+                            <xs:enumeration value="scale"/>
+                            <xs:enumeration value="rotate"/>
+                            <xs:enumeration value="flip-right"/>
+                            <xs:enumeration value="flip-left"/>
+                            <xs:enumeration value="flip-up"/>
+                            <xs:enumeration value="flip-down"/>
+                            <xs:enumeration value="jump-right"/>
+                            <xs:enumeration value="jump-left"/>
+                            <xs:enumeration value="jump-up"/>
+                            <xs:enumeration value="jump-down"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="transition-duration" type="xs:integer"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="gridComponent" mixed="true">
+        <xs:annotation>
+            <xs:documentation>
+                HTML 5 CSS Grid Layout. See https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout for more information
+            </xs:documentation>
+        </xs:annotation>
         <xs:sequence>
             <xs:group ref="gridParameter" minOccurs="0" maxOccurs="unbounded"/>
             <xs:group ref="component" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="template-columns" type="xs:string"/>
-        <xs:attribute name="column" type="xs:string"/>
+        <xs:attribute name="name" type="identifier"/>
+
+        <xs:attribute name="grid" type="xs:string"/>
+        <xs:attribute name="grid-template-areas" type="xs:string"/>
+        <xs:attribute name="grid-template" type="xs:string"/>
+        <xs:attribute name="grid-template-columns" type="xs:string"/>
+        <xs:attribute name="grid-template-rows" type="xs:string"/>
+        <xs:attribute name="grid-auto-rows" type="xs:string"/>
+        <xs:attribute name="grid-auto-columns" type="xs:string"/>
+        <xs:attribute name="grid-auto-flow" type="xs:string"/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
     </xs:complexType>
 
     <xs:group name="gridParameter">
         <xs:choice>
-            <xs:element ref="string"/>
-            <xs:element ref="boolean"/>
+            <xs:element name="string" type="stringType"/>
+            <xs:element name="boolean" type="booleanType"/>
         </xs:choice>
     </xs:group>
 
     <xs:group name="component">
         <xs:choice>
             <xs:element name="grid" type="gridComponent"/>
+            <xs:element name="cardsection" type="gridComponent"/>
+            <xs:element name="cardactions" type="gridComponent"/>
             <xs:element name="input" type="inputComponent"/>
             <xs:element name="button" type="buttonComponent"/>
             <xs:element name="field" type="fieldComponent"/>
+            <xs:element name="separator" type="separatorComponent"/>
+            <xs:element name="tableview" type="tableviewComponent"/>
+            <xs:element name="select" type="selectComponent"/>
+            <xs:element name="html" type="htmlComponent"/>
+            <xs:element name="qimg" type="qimgComponent"/>
+            <xs:element name="form" type="formComponent"/>
         </xs:choice>
     </xs:group>
 
     <xs:complexType name="inputComponent">
-        <xs:group ref="componentTemplate" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:sequence>
+            <xs:element name="string" type="inputParameter" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="componentTemplate" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
         <xs:attribute name="model" type="xs:string"/>
         <xs:attribute name="readonly" type="xs:string"/>
         <xs:attribute name="disable" type="xs:string"/>
@@ -404,22 +718,191 @@
         <xs:attribute name="rounded" type="xs:string"/>
         <xs:attribute name="square" type="xs:string"/>
         <xs:attribute name="autogrow" type="xs:string"/>
+        <xs:attribute name="mandatory" type="xs:string"/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
+
+        <xs:attribute name="hidden" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="inputParameter">
+        <xs:simpleContent>
+            <xs:restriction base="stringType">
+                <xs:attribute name="name" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="identifier">
+                            <xs:enumeration value="label"/>
+                            <xs:enumeration value="visible"/>
+                            <xs:enumeration value="model"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="literal" type="xs:string" fixed=""/>
+            </xs:restriction>
+        </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="buttonComponent">
-        <xs:group ref="buttonEvent" minOccurs="0" maxOccurs="1"/>
+        <xs:sequence>
+            <xs:element name="string" type="buttonParameter" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="function" type="buttonEvent" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
         <xs:attribute name="icon" type="xs:string"/>
         <xs:attribute name="label" type="xs:string"/>
+        <xs:attribute name="validate_dialog" fixed=""/>
+        <xs:attribute name="save" fixed=""/>
+        <xs:attribute name="if-dirty" fixed=""/>
+        <xs:attribute name="closeform" fixed=""/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
     </xs:complexType>
 
-    <xs:group name="buttonEvent">
-        <xs:choice>
-            <xs:element name="onclick" type="block"/>
-        </xs:choice>
-    </xs:group>
+    <xs:complexType name="buttonParameter">
+        <xs:simpleContent>
+            <xs:restriction base="stringType">
+                <xs:attribute name="name" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="identifier">
+                            <xs:enumeration value="label"></xs:enumeration>
+                            <xs:enumeration value="visible"></xs:enumeration>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="literal" type="xs:string" fixed=""/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="buttonEvent">
+        <xs:complexContent>
+            <xs:restriction base="function_method">
+                <xs:sequence>
+                    <xs:group ref="declareVariable" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="block" type="blockInstruction" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="name" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="identifier">
+                            <xs:enumeration value="onclick"></xs:enumeration>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="fieldComponent">
         <xs:group ref="componentTemplate" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="tableviewComponent">
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="model" type="xs:string" use="required"/>
+        <xs:attribute name="title" type="xs:string"/>
+        <xs:attribute name="not-empty" fixed=""/>
+        <xs:attribute name="rows-per-page" type="xs:integer"/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
+
+        <xs:attribute name="template" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="selectComponent">
+        <xs:sequence>
+            <xs:element name="string" type="selectParameter" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="object" type="declareObject" minOccurs="0"/>
+            <xs:element name="function" minOccurs="0">
+                <xs:complexType>
+                    <xs:complexContent>
+                        <xs:restriction base="function_method">
+                            <xs:sequence>
+                                <xs:group ref="declareVariable" minOccurs="0" maxOccurs="unbounded"/>
+                                <xs:element name="block" type="blockInstruction" minOccurs="1" maxOccurs="1"/>
+                            </xs:sequence>
+                            <xs:attribute name="name" use="required">
+                                <xs:simpleType>
+                                    <xs:restriction base="identifier">
+                                        <xs:enumeration value="add_function"></xs:enumeration>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:attribute>
+                        </xs:restriction>
+                    </xs:complexContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="model"/>
+        <xs:attribute name="label"/>
+        <xs:attribute name="readonly" fixed=""/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="selectParameter">
+        <xs:simpleContent>
+            <xs:restriction base="stringType">
+                <xs:attribute name="name" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="identifier">
+                            <xs:enumeration value="model"/>
+                            <xs:enumeration value="label"/>
+                            <xs:enumeration value="visible"/>
+                            <xs:enumeration value="option_value"/>
+                            <xs:enumeration value="option_label"/>
+                            <xs:enumeration value="add_label"/>
+                            <xs:enumeration value="comp_options"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="literal" type="xs:string" fixed=""/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="separatorComponent">
+        <xs:attribute name="dark" fixed=""/>
+        <xs:attribute name="vertical" fixed=""/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
     </xs:complexType>
 
     <xs:group name="componentTemplate">
@@ -434,6 +917,149 @@
                 <xs:attribute name="name" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="setmenuInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                sets the drawer menu content.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="object" type="declareObject">
+                <xs:annotation>
+                    <xs:documentation>
+                        <![CDATA[ 
+                        Each menu item is described by a string variable composed of the following parts joined by a semi-colon character : title;icon;caption;path
+                        e.g. Account table;receipt;Manage the account table; /run/accounint/account 
+                        ]]>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="showdialogInstruction">
+        <xs:annotation>
+            <xs:documentation>
+                show a modal dialog box. You can stack up to 6 modal dialog box.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="dialog" type="dialogComponent"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="showformInstruction">
+        <xs:all>
+            <xs:element name="toolbar" type="toolbarComponent" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="form" type="formComponent"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="alertInstruction">
+        <xs:sequence>
+            <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="1" />
+            <xs:element name="message" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="sendevent">
+        <xs:sequence>
+            <xs:element name="string" type="sendeventParameter" minOccurs="2" maxOccurs="2"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="sendeventParameter">
+        <xs:simpleContent>
+            <xs:restriction base="stringType">
+                <xs:attribute name="name">
+                    <xs:simpleType>
+                        <xs:restriction base="identifier">
+                            <xs:enumeration value="component"></xs:enumeration>
+                            <xs:enumeration value="event"></xs:enumeration>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="toolbarComponent" mixed="true">
+        <xs:sequence>
+            <xs:group ref="component" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="htmlComponent">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="literal" type="xs:string" fixed=""/>
+                <xs:attribute name="href" type="xs:string"/>
+
+                <xs:attribute name="grid-area" type="xs:string"/>
+                <xs:attribute name="grid-column-start" type="xs:string"/>
+                <xs:attribute name="grid-column-end" type="xs:string"/>
+                <xs:attribute name="grid-row-start" type="xs:string"/>
+                <xs:attribute name="grid-row-end" type="xs:string"/>
+                <xs:attribute name="grid-column" type="xs:string"/>
+                <xs:attribute name="grid-row" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="qimgComponent">
+        <xs:sequence>
+            <xs:element name="string" type="qimgParameter" minOccurs="0" maxOccurs="2"/>
+            <xs:element name="object" type="declareObject"/>
+        </xs:sequence>
+
+        <xs:attribute name="model" type="xs:string"/>
+        <xs:attribute name="label" type="xs:string"/>
+
+        <xs:attribute name="grid-area" type="xs:string"/>
+        <xs:attribute name="grid-column-start" type="xs:string"/>
+        <xs:attribute name="grid-column-end" type="xs:string"/>
+        <xs:attribute name="grid-row-start" type="xs:string"/>
+        <xs:attribute name="grid-row-end" type="xs:string"/>
+        <xs:attribute name="grid-column" type="xs:string"/>
+        <xs:attribute name="grid-row" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="qimgParameter">
+        <xs:simpleContent>
+            <xs:restriction base="stringType">
+                <xs:attribute name="name" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="identifier">
+                            <xs:enumeration value="table_name"/>
+                            <xs:enumeration value="field_name"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- server side only objects -->
+
+    <xs:complexType name="requestObject">
+        <xs:annotation>
+            <xs:documentation>
+                Only on .cyk service page module, in the parameters of [get] function. 
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="name"/>
+    </xs:complexType>
+
+    <xs:complexType name="responseObject">
+        <xs:annotation>
+            <xs:documentation>
+                Only on .cyk service page module, in the parameters of [get] function.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="name"/>
     </xs:complexType>
 
 </xs:schema>
