@@ -11,7 +11,7 @@
     <let name="jour">28</let>
     <let name="mois">12</let>
     <let name="annee">2021</let>
-    <let name="message">"Aujourd'hui c'est " + jour + "/" + mois + "/" + annee</let>
+    <let name="message">format("La date en français est {0}/{1}/{2}", jour, mois, annee)</let>
     <print>message</print>
     <print>"28" + "12"</print>
     <print>28 + 12</print>

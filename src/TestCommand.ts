@@ -1,4 +1,4 @@
-import { Structure, Script, XmlError, DBRemote, DBManager } from "@cyklang/core"
+import { Structure, Script, XmlError, DBRemote, DBManager, MapData, ModuleInstruction, parseXML } from "@cyklang/core"
 import * as fs from "fs"
 import { errorconsole, PrintInstructionType } from "./console"
 import loglevel from 'loglevel'
@@ -18,7 +18,7 @@ export class TestCommand extends Cmd {
     }
     async testRun(files: string[], options: any) {
         try {
-            await this.prologue(options)
+            const signinResponse = await this.prologue(options)
             for (let ind=0; ind < files.length; ind++) {
                 const result = await testfile(files[ind])
                 if (result === false) {
@@ -62,6 +62,28 @@ async function testfile(filename: string): Promise<boolean> {
         await dbManager.initialize()
         structure.scope.addInstructionType(new PrintInstructionType(logfilename))
         let script = new Script(structure.scope, xmlfilename, xml.toString())
+        const user_lang = login.content.user_lang
+        if (user_lang && user_lang.trim() !== '') {
+            
+            const langfilename = filename + "__" + user_lang + ".xml"
+
+            if (fs.existsSync(langfilename)) {
+                const langXml = fs.readFileSync(langfilename)
+                const tag = parseXML(xmlfilename, langXml.toString())
+                const modLang = new ModuleInstruction(tag, dbManager)
+                await modLang.parse(structure.scope)
+                await modLang.execute(structure.scope)
+
+                const langMap = modLang.objectData?.variables.getData(user_lang)
+
+                if (langMap !== null && langMap !== undefined) {
+                    structure.mapLang = langMap as MapData
+
+                    outfilename = filename + "__" + user_lang + ".output"
+                }
+            }
+        }
+
         await script.parseInstructions()
         await script.execute()
         // console.log(JSON.stringify(script.block.toString()))

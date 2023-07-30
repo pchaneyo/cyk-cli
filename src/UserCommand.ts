@@ -31,6 +31,7 @@ interface Options {
     disable: boolean | undefined
     env: string | undefined
     sort: string | undefined
+    lang: string | undefined
 }
 
 class UserAddCmd extends Cmd {
@@ -43,6 +44,7 @@ class UserAddCmd extends Cmd {
             .option('-a --access <acl>', 'access control list')
             .option('-m --module <module_name>', 'module to launch by default')
             .option('-d --disable', 'user not abled to connect')
+            .option('-l --lang <language>', 'user language')
             .action(async (options: Options) => {
                 const dbUser = new DBUser()
                 dbUser.name = options.name
@@ -51,6 +53,7 @@ class UserAddCmd extends Cmd {
                 dbUser.access = options.access
                 dbUser.appli = options.module
                 dbUser.disable = options.disable || false
+                dbUser.lang = options.lang
                 await this.commandAdd(dbUser, options)
             })
     }
@@ -83,7 +86,7 @@ class UserListCmd extends Cmd {
 
             const dbClient = new DBClient(this.dbManager)
             dbClient.selectFromTable('List of users', 'cyk_user',
-                { fields: 'user_id,user_name,user_email,user_access,user_appli,user_disable', sort: options.sort || '1' })
+                { fields: 'user_id,user_name,user_email,user_access,user_appli,user_lang,user_disable', sort: options.sort || '1' })
 
         }
         catch (err) {
@@ -102,6 +105,7 @@ class UserUpdateCmd extends Cmd {
             .option('-e --email <email>', 'user email address')
             .option('-a --access <acl>', 'access control list')
             .option('-m --module <module_name>', 'module to launch by default')
+            .option('-l --lang <language>', 'user language')
             .option('-d --disable', 'user not able to connect')
             .action(async (options: Options) => {
                 const dbUser = new DBUser()
@@ -110,6 +114,7 @@ class UserUpdateCmd extends Cmd {
                 dbUser.email = options.email
                 dbUser.access = options.access
                 dbUser.appli = options.module
+                dbUser.lang = options.lang
                 dbUser.disable = options.disable
                 await this.commandUpdate(dbUser, options)
             })
@@ -126,6 +131,7 @@ class UserUpdateCmd extends Cmd {
             if (dbUser2.email !== undefined) dbUser1.email = dbUser2.email
             if (dbUser2.access !== undefined) dbUser1.access = dbUser2.access
             if (dbUser2.appli !== undefined) dbUser1.appli = dbUser2.appli
+            if (dbUser2.lang !== undefined) dbUser1.lang = dbUser2.lang
             if (dbUser2.disable !== undefined) dbUser1.disable = dbUser2.disable
             // logger.debug('dbUser1 before dbUserUpdate : ', dbUser1)
             await this.dbManager.dbUserUpdate(dbUser1)

@@ -1,4 +1,4 @@
-<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<?xml-model href="cyklang.xsd" ?>
 <module>
     <map name="hash">
         <key>nom</key><value>CHANE</value>

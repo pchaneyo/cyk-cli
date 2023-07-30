@@ -99,6 +99,7 @@
             <xs:element name="type" type="typeType"/>
             <xs:element name="module_object" type="moduleObject"/>
             <xs:element name="moduleobject" type="moduleObject"/>
+            <xs:element name="map" type="mapType"/>
             <!-- browser only -->
             <xs:element name="form" type="formComponent"/>
             <xs:element name="dialog" type="dialogComponent"/>
@@ -270,6 +271,30 @@
         <xs:attribute name="module" type="identifier"/>
         <xs:attribute name="import" type="xs:string"/>
     </xs:complexType>
+
+    <xs:complexType name="mapType" mixed="true">
+        <xs:annotation>
+            <xs:documentation>
+                (key,value) pairs. Tag content is string litteral
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:group ref="mapKeyValue" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name"/>
+       
+    </xs:complexType>
+
+    <xs:group name="mapKeyValue">
+        <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="key"/>
+            <xs:element name="value"/>
+        </xs:sequence>
+    </xs:group>
 
     <xs:complexType name="let_set" mixed="true">
         <xs:annotation>
