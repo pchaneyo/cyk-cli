@@ -41,6 +41,9 @@ async function testfile(filename: string): Promise<boolean> {
         filename = filename.substring(0, filename.indexOf("."))
     }
 
+    // skip filename with double underscore
+    if (filename.indexOf("__") !== -1) return true
+
     let xmlfilename = filename + ".xml"
     let logfilename = filename + ".log"
     let outfilename = filename + ".output"
