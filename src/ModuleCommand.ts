@@ -37,7 +37,7 @@ function getModuleDBName(filePath: string): string {
     // result = path.basename(filePath, '.xml')
 
     const result = path.parse(filePath).name
-    const identifierRegex = /^[_a-zA-Z][_a-zA-Z0-9]*$/
+    const identifierRegex = /^[_a-zA-Z][-_a-zA-Z0-9]*$/
     if (result.match(identifierRegex) === null) throw 'filename ' + result + ' does not match identifier syntax'
     return result
 }
