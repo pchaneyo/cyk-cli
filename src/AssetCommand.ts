@@ -283,7 +283,7 @@ class AssetUpload extends Cmd {
             if (mimetype === false) throw 'mimetype false for ' + upload
             dbAsset.mimetype = mimetype
             dbAsset.route = route
-
+            
             // const fstat = fs.statSync(fileName)
             dbAsset.last_update = upload.mtime
 

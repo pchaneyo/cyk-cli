@@ -44,12 +44,8 @@ async function runFile(filename: string): Promise<void> {
     if (filename.indexOf("__") !== -1) return
 
     let xmlfilename = filename + ".xml"
-    // let logfilename = filename + ".log"
-    // let outfilename = filename + ".output"
 
     let xml = fs.readFileSync(xmlfilename)
-
-    // fs.writeFileSync(logfilename, "")
 
     try {
         if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
@@ -60,12 +56,6 @@ async function runFile(filename: string): Promise<void> {
         const login = await dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
         const dbManager = new DBManager(structure.scope, dbRemote)
         await dbManager.initialize()
-        // const tag = parseXML(xmlfilename, xml.toString())
-        // const moduleInstruction = new ModuleInstruction(tag, dbManager)
-        // await moduleInstruction.parse(structure.scope)
-        // await moduleInstruction.execute(structure.scope)
-
-        // structure.scope.addInstructionType(new PrintInstructionType(logfilename))
 
         const user_lang = login.content.user_lang
         if (user_lang && user_lang.trim() !== '') {
@@ -99,24 +89,4 @@ async function runFile(filename: string): Promise<void> {
         }
         console.log(err)
     }
-
-    // let log = fs.readFileSync(logfilename)
-    // if (fs.existsSync(outfilename) === true ) {
-    //     let out = fs.readFileSync(outfilename)
-
-    //     if (log.toString() === out.toString()) {
-    //         console.log("test " + xmlfilename + " SUCCESS")
-    //         result = true
-    //     }
-    //     else {
-    //         console.log("test " + xmlfilename + " FAILURE")
-    //         result = false
-    //     }
-    // }
-    // else {
-    //     console.log("test " + xmlfilename + " output file not found ")
-    //     result = false
-    // }
-
-    // return result
 }

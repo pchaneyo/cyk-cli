@@ -15,4 +15,21 @@
     <print>"format 2 : " + format("Nom : {0} Final", "CYK")</print>
     <print>"format 3 : " + format("Nom : {{ {0} Prénom {1} }}", "CYK", "Philippe")</print>
 
+    <object name="person">
+        <string name="name">"CYK"</string>
+        <string name="surname">"Philippe"</string>
+        <object name="adresses">
+            <object>
+                <string name="town">"Saint-Denis"</string>
+                <string name="department">"Reunion"</string>
+            </object>
+            <object>
+                <string name="town">"Paris"</string>
+                <string name="department">"Paris"</string>
+            </object>
+        </object>
+    </object>
+
+    <print>json(person)</print>
+    
 </module>
