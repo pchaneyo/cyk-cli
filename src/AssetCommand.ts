@@ -38,7 +38,7 @@ class AssetList extends Cmd {
 
             const dbClient = new DBClient(this.dbManager)
             dbClient.selectFromTable('List of Assets', 'cyk_asset',
-                { fields: 'asset_id,asset_route,asset_last_update,asset_mimetype', sort: options.sort || '1' }
+                { fields: 'asset_id,asset_route,asset_auth,asset_access,asset_mimetype,asset_last_update', sort: options.sort || '1' }
             )
         }
         catch (err) {
@@ -209,7 +209,7 @@ class AssetUpload extends Cmd {
             const { variable: row } = rows.list[ind]
             const record = row.data as ObjectData
             const asset_route = (record.variables.getData('asset_route') as PrimitiveData).value as string
-            const asset_last_update = (record.variables.getData('asset_last_update') as PrimitiveData).value as Date
+            const asset_last_update = (record.variables.getData('asset_last_update') as PrimitiveData)?.value as Date
             // logger.debug('asset_route ' + asset_route,'asset_last_update ' + asset_last_update)
             result.push({ path: asset_route, mtime: asset_last_update })
         }
@@ -318,7 +318,7 @@ class AssetUpload extends Cmd {
             const form = new FormData()
             form.append('uploadFile', file)
 
-            const route = '/upload/cyk_asset/asset_content?asset_id=' + dbAsset.id
+            const route = '/api/upload/cyk_asset/asset_content?asset_id=' + dbAsset.id
             const resp = await this.dbRemote?.apiServer.post(route, form)
             if (resp.status === 200) {
                 logger.info(fileName + ' uploaded')

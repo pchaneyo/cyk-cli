@@ -20,8 +20,8 @@ export class TableCommand extends Command {
         this.addCommand(new TableImportCmd())
         this.addCommand(new TableList('list', 'list database tables'))
         this.addCommand(new TableList('l', '(l)ist database tables'))
-        this.addCommand(new TableQuery('query', 'query select table content'))
-        this.addCommand(new TableQuery('q', 'query select table content'))
+        this.addCommand(new TableData('data', 'table (d)ata'))
+        this.addCommand(new TableData('d', 'table (d)ata'))
     }
 }
 
@@ -273,30 +273,30 @@ class TableList extends Cmd {
 
         const dbClient = new DBClient(this.dbManager)
         dbClient.selectFromTable('List of Tables', 'cyk_table',
-            { fields: 'table_id,table_name,table_description,table_access', sort: options.sort || '1' }
+            { fields: 'table_id,table_name,table_auth,table_access,table_description', sort: options.sort || '1' }
         )
     }
 }
 
 //--------------------------------------------------------------------------------------------------------------------
-// class TableQuery
+// class TableData
 //--------------------------------------------------------------------------------------------------------------------
 
-class TableQuery extends Cmd {
+class TableData extends Cmd {
 
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-            .argument('<table>', 'table to query')
+            .argument('<table>', 'table name')
             .option('--where <clause_where_sql>', 'criteria in SQL syntax')
             .option('-s --sort <columns>', 'sort by columns positions (begins by 0) separated by comma')
             .option('-w --width <colwidth>', 'columns widths separated by comma')
             .action(async (table, options) => {
-                this.commandQuery(table, options)
+                this.commandData(table, options)
             })
     }
 
-    async commandQuery(table: string, options: any) {
+    async commandData(table: string, options: any) {
         try {
             await this.prologue(options)
             if (this.dbManager === undefined) throw 'dbManager undefined'

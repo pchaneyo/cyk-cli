@@ -4,59 +4,76 @@ import * as fs from "fs"
 import loglevel from 'loglevel'
 import { Cmd } from './Cmd'
 import { Command } from 'commander'
+import { DBClient } from "./DBClient"
 const logger = loglevel.getLogger("QueryCommand.ts")
 logger.setLevel("debug")
 
 export class QueryCommand extends Command {
     constructor(name: string) {
         super(name)
+        this.description('query management')
+        this.addCommand(new QueryList('list', 'list queries'))
+        this.addCommand(new QueryList('l', 'list queries'))
     }
 }
 
-function parseXmlFile(filepath: string, basename: string, xmlSource: string): Tag {
-    const tag = parseXML(filepath, xmlSource)
-    if (tag.name !== 'DB.QUERY') {
-        throw Error('tag ' + tag.name + ', should be <db.query>')
+//--------------------------------------------------------------------------------------------------------------------
+// class TableList
+//--------------------------------------------------------------------------------------------------------------------
+
+class QueryList extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+            .option('-s --sort <columns>', 'sort list by column numbers (begins with 0) separated by comma')
+            .action(async (options: any) => {
+                await this.commandList(options)
+            })
     }
-    const name = tag.attributes.NAME
-    if (name === undefined) {
-        throw Error('name attribute is missing')
+
+    async commandList(options: any) {
+        await this.prologue(options)
+        if (this.dbManager === undefined) throw 'dbManager undefined'
+
+        const dbClient = new DBClient(this.dbManager)
+        dbClient.selectFromTable('List of Queries', 'cyk_query',
+            { fields: 'query_id,query_name,query_auth,query_access,query_description', sort: options.sort || '1' }
+        )
     }
-    if (basename !== name + '.xml') {
-        throw Error('filename ' + filepath + ' and name ' + name + ' do not correspond')
-    }
-    return tag
 }
 
-async function executeXml(structure: Structure, tag: Tag, xmlSource: string) {
-    try {
-        logger.debug('executeXml ' + tag.attributes.NAME)
-        // structure.setInstructionType("print", new PrintInstructionType(logfilename))
-        const dbQueryInstructionType = structure.scope.getInstructionType('db.query')
-        if (dbQueryInstructionType === undefined) {
-            throw Error('dbQueryInstructionType not found')
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// class queryData
+//--------------------------------------------------------------------------------------------------------------------
+
+class queryData extends Cmd {
+
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+            .argument('<query>', 'query name')
+            .option('--where <clause_where_sql>', 'criteria in SQL syntax')
+            .option('-s --sort <columns>', 'sort by columns positions (begins by 0) separated by comma')
+            .option('-w --width <colwidth>', 'columns widths separated by comma')
+            .action(async (query, options) => {
+                this.commandData(query, options)
+            })
+    }
+
+    async commandData(query: string, options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            const dbQuery = await this.dbManager.dbQueryExist(query)
+            if (dbQuery === undefined) throw 'query ' + query + ' not found'
+
+            //DBClient
         }
-
-        const scopeParse = new Scope(structure, structure.scope, undefined)
-        const dbQueryInst = <DBQueryInstruction>await dbQueryInstructionType.parseInstruction(tag, scopeParse)
-        dbQueryInst.source = xmlSource
-        const scopeExecute = new Scope(structure, structure.scope, undefined)
-        await dbQueryInst.execute(scopeExecute)
+        catch (err) {
+            logger.error(err)
+        }
     }
-    catch (err) {
-        logger.error(err)
-    }
-}
-
-async function testQuery(structure: Structure, queryName: string) {
-    const xmlScript = `
-    <block>
-    <object name='result'/>
-    <db.execute query='${queryName}' result='result' />
-    <print>string(result)</print>
-    </block>
-    `
-    const script = new Script(structure.scope, 'test', xmlScript)
-    await script.parseInstructions()
-    await script.execute()
 }

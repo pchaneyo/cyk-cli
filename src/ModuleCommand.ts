@@ -185,7 +185,7 @@ class ModuleList extends Cmd {
 
             const dbClient = new DBClient(this.dbManager)
             dbClient.selectFromTable('List of Modules', 'cyk_module',
-                { fields: 'module_id,module_dbname,module_access,module_description', sort: options.sort || '1' })
+                { fields: 'module_id,module_dbname,module_auth,module_access,module_description', sort: options.sort || '1' })
 
         }
         catch (err) {

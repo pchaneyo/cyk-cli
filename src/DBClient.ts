@@ -10,6 +10,10 @@ export class DBClient {
         this.dbManager = dbManager
     }
 
+    async runQuery() {
+
+    }
+    
     async selectFromTable(title: string, tableName: string, options:
         { fields: string, sort?: string | undefined, where?: string | undefined, width?: string | undefined }) {
 
@@ -232,6 +236,10 @@ class List {
         else {
             result = value.toString()
         }
+
+        // replace \n with a space
+        result = result.replace(/\n/, ' ') 
+
         if (width !== undefined && width !== 0) {
             if (result.length >= width) {
                 result = result.substring(0, width)
