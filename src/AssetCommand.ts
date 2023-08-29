@@ -54,13 +54,15 @@ class AssetList extends Cmd {
 interface FileDescriptor {
     path: string
     mtime: Date
+    id?: number
 }
 class AssetUpload extends Cmd {
 
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-            .option('-d --dest <destination>', 'route of destination')
+            .option('-d --dest <destination>', 'destination path, directory name')
+            .option('-c --clean', 'clean destination path before uploading')
             .option('-y --yes', 'upload list is automatically confirmed')
             .argument('[sources...]', 'local files or directories to upload as assets to the server')
             .action(async (sources: any, options: any) => {
@@ -92,6 +94,10 @@ class AssetUpload extends Cmd {
             if (dest.substring(0, 1) !== '/') dest = '/' + dest
             if (dest.substring(dest.length - 1) !== '/') dest = dest + '/'
 
+            if (options.clean) {
+                await this.cleanDestination(dest)
+            }
+
             for (let ind = 0; ind < sources.length; ind++) {
                 const source = sources[ind]
                 if (fs.existsSync(source) === false) throw 'source ' + source + ' does not exist'
@@ -108,6 +114,22 @@ class AssetUpload extends Cmd {
         }
         catch (err) {
             logger.error(err)
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // cleanDestination
+    //----------------------------------------------------------------------------------------------
+
+    async cleanDestination(dest: string) {
+
+        const remoteList = await this.scanAssets()
+        for(let ind = 0; ind < remoteList.length; ind++) {
+            const fd = remoteList[ind]
+            if (fd.path.startsWith(dest)) {
+                const url = '/api/admin/assets/' + fd.id
+                await this.dbRemote?.apiServer.delete(url)
+            }
         }
     }
 
@@ -131,8 +153,7 @@ class AssetUpload extends Cmd {
 
         this.scanDir(dirName, localList)
 
-        const remoteList: FileDescriptor[] = []
-        await this.scanAssets(remoteList)
+        const remoteList = await this.scanAssets()
 
         const uploadList = this.buildUploadList(dirName, dest, localList, remoteList)
 
@@ -193,8 +214,8 @@ class AssetUpload extends Cmd {
     // scanAssets
     //----------------------------------------------------------------------------------------------
 
-    async scanAssets(result: FileDescriptor[]) {
-
+    async scanAssets() {
+        const result: FileDescriptor[] = []
         if (this.dbManager === undefined) throw 'dbManager undefined'
         const dbReq = new DBExecuteRequest()
         dbReq.selectFromTable = 'cyk_asset'
@@ -208,11 +229,13 @@ class AssetUpload extends Cmd {
         for (let ind = 0; ind < rows.list.length; ind++) {
             const { variable: row } = rows.list[ind]
             const record = row.data as ObjectData
+            const asset_id = (record.variables.getData('asset_id') as PrimitiveData).value as number
             const asset_route = (record.variables.getData('asset_route') as PrimitiveData).value as string
             const asset_last_update = (record.variables.getData('asset_last_update') as PrimitiveData)?.value as Date
             // logger.debug('asset_route ' + asset_route,'asset_last_update ' + asset_last_update)
-            result.push({ path: asset_route, mtime: asset_last_update })
+            result.push({ path: asset_route, mtime: asset_last_update, id: asset_id })
         }
+        return result
     }
 
     //----------------------------------------------------------------------------------------------
