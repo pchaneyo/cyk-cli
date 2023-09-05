@@ -11,7 +11,8 @@ export class UserCommand extends Command {
     constructor(name: string) {
         super(name)
         this.description('manage users in cyk_user table').version('0.1')
-        this.addCommand(new UserAddCmd())
+        this.addCommand(new UserAddCmd('add', 'add a new user'))
+        this.addCommand(new UserAddCmd('a', 'add a new user'))
         this.addCommand(new UserUpdateCmd('update', 'update user by id all fields except password'))
         this.addCommand(new UserUpdateCmd('u', 'shortcut for (u)pdate'))
         this.addCommand(new UserDeleteCmd('delete', 'delete user by id and name. Both options are mandatory to avoid typing error'))
@@ -35,9 +36,9 @@ interface Options {
 }
 
 class UserAddCmd extends Cmd {
-    constructor() {
-        super('add')
-        this.description('add a new user')
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
             .requiredOption('-n --name <name>', 'user name')
             .option('-e --email <email>', 'user email address')
             .option('-p --passwd <password>', 'initial password')
