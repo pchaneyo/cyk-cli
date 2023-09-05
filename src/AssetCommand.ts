@@ -19,7 +19,7 @@ export class AssetCommand extends Command {
         this.description(description)
         this.addCommand(new AssetList('list', 'list assets'))
         this.addCommand(new AssetList('l', '(l)ist assets'))
-        this.addCommand(new AssetUpload('upload', 'upload assets from current directory'))
+        this.addCommand(new AssetUpload('upload', 'upload assets from sources'))
         this.addCommand(new AssetUpload('u', '(u)pload assets'))
     }
 }
@@ -61,6 +61,7 @@ class AssetUpload extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
+            .option('-a --auth <auth_schema>', 'authentication schema : basic | token | any, default is no authentication')
             .option('-d --dest <destination>', 'destination path, directory name')
             .option('-c --clean', 'clean destination path before uploading')
             .option('-y --yes', 'upload list is automatically confirmed')
@@ -89,6 +90,12 @@ class AssetUpload extends Cmd {
 
             if (sources.length === 0) throw 'no source to upload'
 
+            if ( options.auth && ' basic | token | any '.indexOf(options.auth) === -1 ) {
+                throw 'valid authentication schemas are : basic | token | any'
+            }
+            logger.debug('options : ', options)
+            logger.debug('auth : ' + options.auth)
+
             let dest = "/"
             if (options.dest !== undefined) dest = options.dest
             if (dest.substring(0, 1) !== '/') dest = '/' + dest
@@ -108,7 +115,7 @@ class AssetUpload extends Cmd {
                 else if (filestat.isFile() === true) {
                     const base = path.parse(source).base
                     logger.debug('upload file ' + source + ' to ' + dest + base)
-                    await this.uploadAsset({ path: source, mtime: filestat.mtime }, dest + base)
+                    await this.uploadAsset({ path: source, mtime: filestat.mtime }, dest + base, options.auth)
                 }
             }
         }
@@ -168,7 +175,7 @@ class AssetUpload extends Cmd {
         }
 
         if (uploadConfirmed === true) {
-            await this.uploadFiles(dirName, uploadList, dest)
+            await this.uploadFiles(dirName, uploadList, dest, options.auth)
         }
 
         // const rl = readline.createInterface(process.stdin, process.stdout)
@@ -281,12 +288,12 @@ class AssetUpload extends Cmd {
     // uploadFiles
     //----------------------------------------------------------------------------------------------
 
-    async uploadFiles(dirName: string, uploadList: FileDescriptor[], dest: string) {
+    async uploadFiles(dirName: string, uploadList: FileDescriptor[], dest: string, auth: string | undefined) {
         for (let ind = 0; ind < uploadList.length; ind++) {
             const upload = uploadList[ind]
             const route = dest + upload.path.substring(dirName.length)
             logger.debug('upload ' + upload.path + ' to ' + route)
-            await this.uploadAsset(upload, route)
+            await this.uploadAsset(upload, route, auth)
         }
     }
 
@@ -294,8 +301,8 @@ class AssetUpload extends Cmd {
     // uploadAsset
     //----------------------------------------------------------------------------------------------
 
-    async uploadAsset(upload: FileDescriptor, route: string) {
-        logger.debug('uploadAsset ' + upload.path + ' to route ' + route + ' with mimetype ' + this.mimetypeLookup(upload.path))
+    async uploadAsset(upload: FileDescriptor, route: string, auth?: string) {
+        logger.debug('uploadAsset ' + upload.path + ' to route ' + route + ' with mimetype ' + this.mimetypeLookup(upload.path) + ', auth : ' + auth)
 
         try {
             let dbAsset: DBAsset | undefined = await this.dbManager?.dbAssetExist(route)
@@ -306,6 +313,7 @@ class AssetUpload extends Cmd {
             if (mimetype === false) throw 'mimetype false for ' + upload
             dbAsset.mimetype = mimetype
             dbAsset.route = route
+            dbAsset.auth = auth
             
             // const fstat = fs.statSync(fileName)
             dbAsset.last_update = upload.mtime
