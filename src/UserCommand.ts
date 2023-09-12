@@ -17,6 +17,7 @@ export class UserCommand extends Command {
         this.addCommand(new UserUpdateCmd('u', 'shortcut for (u)pdate'))
         this.addCommand(new UserDeleteCmd('delete', 'delete user by id and name. Both options are mandatory to avoid typing error'))
         this.addCommand(new UserPasswdCmd('passwd', 'change user password'))
+        this.addCommand(new UserPasswdCmd('p', 'shortcut for (p)asswd'))
         this.addCommand(new UserListCmd('list', 'list users'))
         this.addCommand(new UserListCmd('l', 'shortcut for (l)ist'))
     }
@@ -41,7 +42,7 @@ class UserAddCmd extends Cmd {
         this.description(description)
             .requiredOption('-n --name <name>', 'user name')
             .option('-e --email <email>', 'user email address')
-            .option('-p --passwd <password>', 'initial password')
+            .option('-p --password <password>', 'initial password')
             .option('-a --access <acl>', 'access control list')
             .option('-m --module <module_name>', 'module to launch by default')
             .option('-d --disable', 'user not abled to connect')
@@ -63,7 +64,11 @@ class UserAddCmd extends Cmd {
             await this.prologue(options)
             if (this.dbManager === undefined) throw 'dbManager undefined'
             const result = await this.dbManager.dbUserInsert(dbUser)
-            logger.debug(result)
+            logger.debug('ID', result)
+            if (dbUser.password) {
+                await this.dbManager.dbUserPasswd(result, dbUser.password)
+                logger.info('password changed for user ' + dbUser.name)
+            }
         }
         catch (err) {
             logger.error(err)
@@ -174,7 +179,7 @@ class UserDeleteCmd extends Cmd {
 
 class UserPasswdCmd extends Cmd {
     constructor(name: string, description: string) {
-        super('passwd')
+        super(name)
 
         this.description(description)
             .requiredOption('-i --id <id>', 'user ID')
