@@ -31,5 +31,42 @@
     </object>
 
     <print>json(person)</print>
+
+    <string name="var1"/>
+    <string name="var2"/>
+    <print>"var1 = " + var1</print>
+    <print>"var2 = " + var2</print>
+
+
+    <if>
+        <condition>var1 == var2</condition>
+        <then>
+            <print>"var1 == var2"</print>
+        </then>
+    </if>
+
+    <set name="var2">var1</set>
+    <print>"after set var2 from var1"</print>
+
+    <if>
+        <condition>var1 == var2</condition>
+        <then>
+            <print>"var1 == var2"</print>
+        </then>
+    </if>
+
+    <string name="var3">var1</string>
+
+    <if>
+        <condition>var1 == var3</condition>
+        <then>
+            <print>"var1 == var3"</print>
+        </then>
+        <else>
+            <print>"var1 !== var3"</print>
+        </else>
+    </if>
+    
+
     
 </module>

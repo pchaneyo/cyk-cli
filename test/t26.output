@@ -3,3 +3,10 @@ date :  <b>Gras</b> <i>Italic </i>
 format 1 : Format sans paramètre
 format 2 : Nom : CYK Final
 format 3 : Nom : { CYK Prénom Philippe }
+{"name":"CYK","surname":"Philippe","adresses":[{"town":"Saint-Denis","department":"Reunion"},{"town":"Paris","department":"Paris"}]}
+var1 = undefined
+var2 = undefined
+var1 == var2
+after set var2 from var1
+var1 == var2
+var1 == var3
