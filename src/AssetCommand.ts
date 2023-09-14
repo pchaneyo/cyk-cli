@@ -19,8 +19,9 @@ export class AssetCommand extends Command {
         this.description(description)
         this.addCommand(new AssetList('list', 'list assets'))
         this.addCommand(new AssetList('l', '(l)ist assets'))
-        this.addCommand(new AssetUpload('upload', 'upload assets from sources'))
-        this.addCommand(new AssetUpload('u', '(u)pload assets'))
+        this.addCommand(new AssetU('upload', 'upload asset content from source files to a <destination> path'))
+        this.addCommand(new AssetU('update', 'update properties of asset identified by its <id>'))
+        this.addCommand(new AssetU('u', '(u)pload assets content from sources or (u)pdate asset properties'))
     }
 }
 
@@ -28,6 +29,7 @@ class AssetList extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
+            .option('-d --dest <destination>', 'filter assets whose pathname begins with destination')
             .option('-s --sort <columns>', 'sort list by column numbers (begins by 0) separated by comma')
             .action(async (options: any) => { await this.commandList(options) })
     }
@@ -38,7 +40,11 @@ class AssetList extends Cmd {
 
             const dbClient = new DBClient(this.dbManager)
             dbClient.selectFromTable('List of Assets', 'cyk_asset',
-                { fields: 'asset_id,asset_route,asset_auth,asset_access,asset_mimetype,asset_last_update', sort: options.sort || '1' }
+                {
+                    fields: 'asset_id,asset_route,asset_auth,asset_access,asset_mimetype,asset_last_update', sort: options.sort || '1',
+                    where: (options.dest ? "asset_route like '" + options.dest + "%'" : undefined)
+                }
+
             )
         }
         catch (err) {
@@ -47,27 +53,28 @@ class AssetList extends Cmd {
     }
 }
 
-//----------------------------------------------------------------------------------------------
-// class AssetUpload
-//----------------------------------------------------------------------------------------------
-
 interface FileDescriptor {
     path: string
     mtime: Date
     id?: number
 }
-class AssetUpload extends Cmd {
+/**
+ * class AssetU
+ */
+class AssetU extends Cmd {
 
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-            .option('-a --auth <auth_schema>', 'authentication schema : basic | token | any, default is no authentication')
+            .option('-i --id <id>', 'asset id to update properties')
+            .option('--auth <auth_schema>', 'authentication schema : basic | token | cookie | any | none, default is none')
+            .option('--access <access>', 'access rights required')
             .option('-d --dest <destination>', 'destination path, directory name')
             .option('-c --clean', 'clean destination path before uploading')
             .option('-y --yes', 'upload list is automatically confirmed')
             .argument('[sources...]', 'local files or directories to upload as assets to the server')
             .action(async (sources: any, options: any) => {
-                await this.commandUpload(sources, options)
+                await this.commandU(sources, options)
             })
     }
 
@@ -82,6 +89,90 @@ class AssetUpload extends Cmd {
         return result
     }
 
+    /**
+     * method commandU
+     * @param sources 
+     * @param options 
+     */
+    async commandU(sources: string[], options: any) {
+        if (sources.length > 0) {
+            // upload
+            logger.debug('upload sources :', sources)
+            await this.commandUpload(sources, options)
+        }
+        else {
+            // update
+            logger.debug('update', options)
+            await this.commandUpdate(options)
+        }
+    }
+
+    /**
+     * method commandUpdate
+     * @param options 
+     */
+    async commandUpdate(options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            if (options.id === undefined) throw '<id_or_route> of asset to update is missing'
+
+            const dbAsset = await this.dbManager.dbAssetExist(options.id)
+            if (dbAsset === undefined) throw 'Asset ' + options.id + ' not found'
+
+            let dclAuth: string | undefined
+
+            if (options.auth) {
+                if (' basic | token | cookie | any | none | null '.indexOf(' ' + options.auth + ' ') === -1) {
+                    throw 'valid authentication schemas are : basic | token | cookie | any | null'
+                }
+                dclAuth = "<string name='asset_auth'>"
+                if (' none | null '.indexOf(' ' + options.auth + ' ') === -1)
+                    dclAuth += ` "${options.auth}" `
+                else
+                    dclAuth += ' null '
+                dclAuth += "</string>"
+                // dbAsset.auth = options.auth === 'none' ? null : options.auth
+            }
+
+            let dclAccess: string | undefined
+
+            if (options.access) {
+
+                dclAccess = `<string name='asset_access'> `
+                if (' null | none '.indexOf(' ' + options.access + ' ') === -1)
+                    dclAccess += `"${options.access}"`
+                else
+                    dclAccess += ' null '
+                dclAccess += "</string>"
+            }
+            // await this.dbManager.dbAssetUpdate(dbAsset)
+
+            const inst = `
+            <db.update table='cyk_asset'>
+                <object>
+                    <number name='asset_id'>${dbAsset.id}</number>
+                    ${dclAuth}
+                    ${dclAccess ? dclAccess : ''}
+                </object>
+            </db.update>
+            `
+
+            const dbClient = new DBClient(this.dbManager)
+            dbClient.execInstructions(inst)
+
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+
+    /**
+     * method commandUpload
+     * @param sources 
+     * @param options 
+     */
     async commandUpload(sources: string[], options: any) {
 
         try {
@@ -90,8 +181,8 @@ class AssetUpload extends Cmd {
 
             if (sources.length === 0) throw 'no source to upload'
 
-            if ( options.auth && ' basic | token | any '.indexOf(options.auth) === -1 ) {
-                throw 'valid authentication schemas are : basic | token | any'
+            if (options.auth && ' basic | token | cookie | any | none'.indexOf(options.auth) === -1) {
+                throw 'valid authentication schemas are : basic | token | cookie | any | none'
             }
             logger.debug('options : ', options)
             logger.debug('auth : ' + options.auth)
@@ -131,7 +222,7 @@ class AssetUpload extends Cmd {
     async cleanDestination(dest: string) {
 
         const remoteList = await this.scanAssets()
-        for(let ind = 0; ind < remoteList.length; ind++) {
+        for (let ind = 0; ind < remoteList.length; ind++) {
             const fd = remoteList[ind]
             if (fd.path.startsWith(dest)) {
                 const url = '/api/admin/assets/' + fd.id
@@ -314,7 +405,8 @@ class AssetUpload extends Cmd {
             dbAsset.mimetype = mimetype
             dbAsset.route = route
             dbAsset.auth = auth
-            
+            if (dbAsset.auth === 'none') dbAsset.auth = undefined
+
             // const fstat = fs.statSync(fileName)
             dbAsset.last_update = upload.mtime
 

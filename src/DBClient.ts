@@ -1,5 +1,6 @@
-import { BasicType, DBColumn, DBExecuteRequest, DBManager, DBTable, ObjectData, parseXML, PrimitiveData } from "@cyklang/core";
+import { BasicType, DBColumn, DBExecuteRequest, DBManager, DBTable, ObjectData, parseXML, PrimitiveData, Script, XmlError } from "@cyklang/core";
 import loglevel from "loglevel";
+import { errorconsole } from "./console";
 const logger = loglevel.getLogger('DBClient.ts')
 logger.setLevel('debug')
 // DBManager wrapper class
@@ -8,6 +9,39 @@ export class DBClient {
     dbManager: DBManager
     constructor(dbManager: DBManager) {
         this.dbManager = dbManager
+    }
+
+    /**
+     * method execInstructions
+     * @param source 
+     */
+    async execInstructions(source: string) {
+        const script = `<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+        <module>
+        ` + source + `
+        </module>`
+        await this.execScript(script)
+    }
+
+    /**
+     * method execScript
+     * @param source 
+     */
+    async execScript(source: string) {
+        try {
+            const script = new Script(this.dbManager.scope, '', source)
+            await script.parseInstructions()
+            await script.execute()
+        }
+        catch (err) {
+            console.log(source)
+            console.log()
+            if (err instanceof XmlError) {
+                let xmlError = <XmlError>err
+                errorconsole(xmlError)
+            }
+            console.log(err)
+        }
     }
 
     async runQuery() {

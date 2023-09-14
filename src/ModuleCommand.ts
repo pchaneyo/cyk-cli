@@ -14,11 +14,11 @@ export class ModuleCommand extends Command {
         super(name)
         this.description('manage modules')
         // upload
-        this.addCommand(new ModuleUpload('upload', `Upload local module file(s) to the database.
+        this.addCommand(new ModuleU('upload', `Upload local module file(s) to the database.
 Module name is the base name of the file. If a module with the same name already exists, it will be updated.
 Otherwise, a new module is inserted in the database. To rename a module, use option --id to indicate the module you want to rename`)
         )
-        this.addCommand(new ModuleUpload('u', 'shortcut for (u)pload'))
+        this.addCommand(new ModuleU('u', 'shortcut for (u)pload'))
         // download
         this.addCommand(new ModuleDownload('download', 'download module files to the current directory'))
         this.addCommand(new ModuleDownload('d', 'shortcut for (d)ownload'))
@@ -45,16 +45,92 @@ interface UploadOptions {
     id: string | undefined
     env: string | undefined
 }
-class ModuleUpload extends Cmd {
+
+/**
+ * class ModuleU
+ */
+class ModuleU extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-            .option('-i --id <id>', 'module ID to upload')
+            .option('--auth <auth_schema>', 'authentication schema : basic | token | cookie | any | none, default is none')
+            .option('--access <access_right>', 'access rights required')
+            .option('-i --id <id>', 'module ID to upload or update')
             .argument('[files...]', 'local module file(s) to upload to the server')
             .action(async (files: any, options: any) => {
-                await this.commandUpload(files, options)
+                await this.commandU(files, options)
             })
     }
+
+    async commandU(files: string[], options: any) {
+        if (files.length > 0) {
+            await this.commandUpload(files, options)
+        }
+        else {
+            await this.commandUpdate(options)
+        }
+    }
+
+    /**
+     * method commandUpdate
+     * @param options 
+     */
+    async commandUpdate(options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            if (options.id === undefined) throw '<id_or_route> of module to update is missing'
+
+            const dbModule = await this.dbManager.getModule(options.id)
+
+            let dclAuth: string | undefined
+            if (options.auth) {
+                dclAuth = "<string name='module_auth'>"
+                if (' none | null '.indexOf(' ' + options.auth + ' ') === -1)
+                    dclAuth += ` "${options.auth}" `
+                else
+                    dclAuth += ' null '
+                dclAuth += "</string>"
+            }
+
+            let dclAccess: string | undefined
+
+            if (options.access) {
+
+                dclAccess = `<string name='module_access'> `
+                if (' null | none '.indexOf(' ' + options.access + ' ') === -1)
+                    dclAccess += `"${options.access}"`
+                else
+                    dclAccess += ' null '
+                dclAccess += "</string>"
+            }
+
+
+            const inst = `
+            <db.update table='cyk_module'>
+                <object>
+                    <number name='module_id'>${dbModule.id}</number>
+                    ${dclAuth}
+                    ${dclAccess ? dclAccess : ''}
+                </object>
+            </db.update>
+            `
+
+            const dbClient = new DBClient(this.dbManager)
+            dbClient.execInstructions(inst)
+
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+
+    /**
+     * method commandUpload
+     * @param files 
+     * @param options 
+     */
     async commandUpload(files: string[], options: UploadOptions) {
         try {
             await this.prologue(options)
