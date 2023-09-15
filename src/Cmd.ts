@@ -3,6 +3,7 @@ import { Command } from "commander";
 import dotenv from 'dotenv'
 import loglevel from 'loglevel'
 import { NodeCrypto } from "./NodeCrypto";
+import { DBClient } from "./DBClient";
 const logger = loglevel.getLogger('Cmd.ts')
 logger.setLevel('debug')
 
@@ -34,5 +35,63 @@ export class Cmd extends Command {
         return login
 
 
+    }
+
+    /**
+     * method updateAuthAccess
+     * @param tableName 
+     * @param prefix 
+     * @param id 
+     * @param options 
+     */
+    async updateAuthAccess(tableName: string, prefix: string, id: string, options: any) {
+
+        try {
+
+            let dclAuth: string | undefined
+
+            if (options.auth) {
+                if (' basic | token | cookie | any | none | null '.indexOf(' ' + options.auth + ' ') === -1) {
+                    throw 'valid authentication schemas are : basic | token | cookie | any | null'
+                }
+                dclAuth = `<string name='${prefix}_auth'>`
+                if (' none | null '.indexOf(' ' + options.auth + ' ') === -1)
+                    dclAuth += ` "${options.auth}" `
+                else
+                    dclAuth += ' null '
+                dclAuth += "</string>"
+            }
+
+            let dclAccess: string | undefined
+
+            if (options.access) {
+
+                dclAccess = `<string name='${prefix}_access'> `
+                if (' null | none '.indexOf(' ' + options.access + ' ') === -1)
+                    dclAccess += `"${options.access}"`
+                else
+                    dclAccess += ' null '
+                dclAccess += "</string>"
+            }
+
+            const inst = `
+            <db.update table='${tableName}'>
+                <object>
+                    <number name='${prefix}_id'>${id}</number>
+                    ${dclAuth}
+                    ${dclAccess ? dclAccess : ''}
+                </object>
+            </db.update>
+            `
+
+            if (! this.dbManager) throw 'prologue() has not been called before'
+
+            const dbClient = new DBClient(this.dbManager)
+            dbClient.execInstructions(inst)
+        }
+        catch (err) {
+            logger.error(err)
+            throw err
+        }
     }
 }

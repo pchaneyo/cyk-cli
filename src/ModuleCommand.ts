@@ -84,42 +84,7 @@ class ModuleU extends Cmd {
 
             const dbModule = await this.dbManager.getModule(options.id)
 
-            let dclAuth: string | undefined
-            if (options.auth) {
-                dclAuth = "<string name='module_auth'>"
-                if (' none | null '.indexOf(' ' + options.auth + ' ') === -1)
-                    dclAuth += ` "${options.auth}" `
-                else
-                    dclAuth += ' null '
-                dclAuth += "</string>"
-            }
-
-            let dclAccess: string | undefined
-
-            if (options.access) {
-
-                dclAccess = `<string name='module_access'> `
-                if (' null | none '.indexOf(' ' + options.access + ' ') === -1)
-                    dclAccess += `"${options.access}"`
-                else
-                    dclAccess += ' null '
-                dclAccess += "</string>"
-            }
-
-
-            const inst = `
-            <db.update table='cyk_module'>
-                <object>
-                    <number name='module_id'>${dbModule.id}</number>
-                    ${dclAuth}
-                    ${dclAccess ? dclAccess : ''}
-                </object>
-            </db.update>
-            `
-
-            const dbClient = new DBClient(this.dbManager)
-            dbClient.execInstructions(inst)
-
+            await this.updateAuthAccess('cyk_module', 'module', dbModule.id || '', options)
         }
         catch (err) {
             logger.error(err)

@@ -22,6 +22,47 @@ export class TableCommand extends Command {
         this.addCommand(new TableList('l', '(l)ist database tables'))
         this.addCommand(new TableData('data', 'table (d)ata'))
         this.addCommand(new TableData('d', 'table (d)ata'))
+        this.addCommand(new TableUpdate('update', 'update table properties'))
+        this.addCommand(new TableUpdate('u', 'shortcut for (u)pdate table properties'))
+    }
+}
+
+/**
+ * class TableUpdate
+ */
+class TableUpdate extends Cmd {
+
+    /**
+     * 
+     * @param name 
+     * @param description 
+     */
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+        .option('-n --name <table_name>', 'name of the table whose properties are to be changed')
+        .option('--auth <auth_schema>', 'authentication schema : basic | token | cookie | any | none, default is none')
+        .option('--access <access>', 'access rights required')
+        .action(async (options: any) => {
+            await this.commandUpdate(options)
+        })
+    }
+
+    async commandUpdate(options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            if ( ! options.name ) throw '<table_name> is missing'
+
+            const dbTable = await this.dbManager.dbTableExist(options.name)
+            if ( ! dbTable ) throw 'Table ' + options.name + ' not found'
+
+            await this.updateAuthAccess('cyk_table', 'table', dbTable.id || '', options)
+        }
+        catch (err) {
+            logger.error(err)
+        }
     }
 }
 

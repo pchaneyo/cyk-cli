@@ -121,46 +121,7 @@ class AssetU extends Cmd {
             const dbAsset = await this.dbManager.dbAssetExist(options.id)
             if (dbAsset === undefined) throw 'Asset ' + options.id + ' not found'
 
-            let dclAuth: string | undefined
-
-            if (options.auth) {
-                if (' basic | token | cookie | any | none | null '.indexOf(' ' + options.auth + ' ') === -1) {
-                    throw 'valid authentication schemas are : basic | token | cookie | any | null'
-                }
-                dclAuth = "<string name='asset_auth'>"
-                if (' none | null '.indexOf(' ' + options.auth + ' ') === -1)
-                    dclAuth += ` "${options.auth}" `
-                else
-                    dclAuth += ' null '
-                dclAuth += "</string>"
-                // dbAsset.auth = options.auth === 'none' ? null : options.auth
-            }
-
-            let dclAccess: string | undefined
-
-            if (options.access) {
-
-                dclAccess = `<string name='asset_access'> `
-                if (' null | none '.indexOf(' ' + options.access + ' ') === -1)
-                    dclAccess += `"${options.access}"`
-                else
-                    dclAccess += ' null '
-                dclAccess += "</string>"
-            }
-            // await this.dbManager.dbAssetUpdate(dbAsset)
-
-            const inst = `
-            <db.update table='cyk_asset'>
-                <object>
-                    <number name='asset_id'>${dbAsset.id}</number>
-                    ${dclAuth}
-                    ${dclAccess ? dclAccess : ''}
-                </object>
-            </db.update>
-            `
-
-            const dbClient = new DBClient(this.dbManager)
-            dbClient.execInstructions(inst)
+            await this.updateAuthAccess('cyk_asset', 'assert', dbAsset.id || '', options)
 
         }
         catch (err) {
