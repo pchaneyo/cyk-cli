@@ -66,7 +66,7 @@ class AssetU extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-            .option('-i --id <id>', 'asset id to update properties')
+            .option('-i --id <id>', 'asset id or pathname whose properties are updated')
             .option('--auth <auth_schema>', 'authentication schema : basic | token | cookie | any | none, default is none')
             .option('--access <access>', 'access rights required')
             .option('-d --dest <destination>', 'destination path, directory name')
@@ -97,12 +97,12 @@ class AssetU extends Cmd {
     async commandU(sources: string[], options: any) {
         if (sources.length > 0) {
             // upload
-            logger.debug('upload sources :', sources)
+            // logger.debug('upload sources :', sources)
             await this.commandUpload(sources, options)
         }
         else {
             // update
-            logger.debug('update', options)
+            // logger.debug('update', options)
             await this.commandUpdate(options)
         }
     }
@@ -118,10 +118,12 @@ class AssetU extends Cmd {
 
             if (options.id === undefined) throw '<id_or_route> of asset to update is missing'
 
+            if (! options.id.startsWith('/')) throw '-i --id only pathname is supported at the moment'
+
             const dbAsset = await this.dbManager.dbAssetExist(options.id)
             if (dbAsset === undefined) throw 'Asset ' + options.id + ' not found'
 
-            await this.updateAuthAccess('cyk_asset', 'assert', dbAsset.id || '', options)
+            await this.updateAuthAccess('cyk_asset', 'asset', dbAsset.id || '', options)
 
         }
         catch (err) {
@@ -145,8 +147,8 @@ class AssetU extends Cmd {
             if (options.auth && ' basic | token | cookie | any | none'.indexOf(options.auth) === -1) {
                 throw 'valid authentication schemas are : basic | token | cookie | any | none'
             }
-            logger.debug('options : ', options)
-            logger.debug('auth : ' + options.auth)
+            // logger.debug('options : ', options)
+            // logger.debug('auth : ' + options.auth)
 
             let dest = "/"
             if (options.dest !== undefined) dest = options.dest
@@ -208,7 +210,7 @@ class AssetU extends Cmd {
             dirName = source + '/'
         }
 
-        logger.debug('options', options)
+        // logger.debug('options', options)
 
         this.scanDir(dirName, localList)
 
@@ -354,7 +356,7 @@ class AssetU extends Cmd {
     //----------------------------------------------------------------------------------------------
 
     async uploadAsset(upload: FileDescriptor, route: string, auth?: string) {
-        logger.debug('uploadAsset ' + upload.path + ' to route ' + route + ' with mimetype ' + this.mimetypeLookup(upload.path) + ', auth : ' + auth)
+        // logger.debug('uploadAsset ' + upload.path + ' to route ' + route + ' with mimetype ' + this.mimetypeLookup(upload.path) + ', auth : ' + auth)
 
         try {
             let dbAsset: DBAsset | undefined = await this.dbManager?.dbAssetExist(route)
