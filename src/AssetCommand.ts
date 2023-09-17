@@ -7,11 +7,43 @@ import path from "path"
 import mime from 'mime-types'
 import inquirer from 'inquirer'
 // import readline from 'readline'
-import { DBAsset, DBExecuteRequest, ObjectData, parseXML, PrimitiveData } from "@cyklang/core"
+import { DBAsset, DBExecuteRequest, DBManager, ObjectData, parseXML, PrimitiveData } from "@cyklang/core"
 import FormData from 'form-data'
 
 const logger = getLogger('AssetCommand.ts')
 logger.setLevel('debug')
+
+
+//----------------------------------------------------------------------------------------------
+// scanAssets
+//----------------------------------------------------------------------------------------------
+
+const scanAssets = async (dbManager: DBManager | undefined, dest?: string): Promise<FileDescriptor[]> => {
+
+    const result: FileDescriptor[] = []
+    if (dbManager === undefined) throw 'dbManager undefined'
+    const dbReq = new DBExecuteRequest()
+    dbReq.selectFromTable = 'cyk_asset'
+    const pFields = dbReq.parameters.addVariable('fields', dbManager.scope.structure.stringDataType)
+    pFields.data = new PrimitiveData(dbManager.scope.structure.stringDataType, "asset_id,asset_route,asset_last_update,asset_mimetype")
+    const xmlResult = await dbManager.dbExecute(dbReq)
+    if (xmlResult === undefined || xmlResult === null) throw 'xmlResult null or undefined'
+    const tag = parseXML('scanAssets', xmlResult)
+    const objResult = await dbManager.scope.structure.objectDataType.parseData(tag, dbManager.scope) as ObjectData
+    const rows = (objResult.variables.getData('cyk_asset') as ObjectData).variables
+    for (let ind = 0; ind < rows.list.length; ind++) {
+        const { variable: row } = rows.list[ind]
+        const record = row.data as ObjectData
+        const asset_id = (record.variables.getData('asset_id') as PrimitiveData).value as number
+        const asset_route = (record.variables.getData('asset_route') as PrimitiveData).value as string
+        const asset_last_update = (record.variables.getData('asset_last_update') as PrimitiveData)?.value as Date
+        // logger.debug('asset_route ' + asset_route,'asset_last_update ' + asset_last_update)
+
+        if (!dest || asset_route.startsWith(dest))
+            result.push({ path: asset_route, mtime: asset_last_update, id: asset_id })
+    }
+    return result
+}
 
 export class AssetCommand extends Command {
     constructor(name: string, description: string) {
@@ -22,7 +54,90 @@ export class AssetCommand extends Command {
         this.addCommand(new AssetU('upload', 'upload asset content from source files to a <destination> path'))
         this.addCommand(new AssetU('update', 'update properties of asset identified by its <id>'))
         this.addCommand(new AssetU('u', '(u)pload assets content from sources or (u)pdate asset properties'))
+        this.addCommand(new AssetDelete('delete', 'delete an asset'))
     }
+}
+
+/**
+ * class AssetDelete
+ */
+class AssetDelete extends Cmd {
+    constructor(name: string, description: string) {
+        super(name)
+        this.description(description)
+            .option('-i --id <id_pathname>', 'asset id or pathname to delete')
+            .option('-d --dest <destination>', 'delete all assets whose pathname begins with dest')
+            .action(async (options: any) => {
+                if (options.id)
+                    await this.commandDeleteOne(options)
+                else if (options.dest) {
+                    await this.commandDeletePathname(options)
+                }
+                else {
+                    logger.error('one of --id or --dest options is required')
+                }
+            })
+    }
+
+    /**
+     * 
+     * @param options 
+     */
+    async commandDeleteOne(options: any) {
+        try {
+            await this.prologue(options)
+            if (this.dbManager === undefined) throw 'dbManager undefined'
+
+            if (options.id === undefined) throw '<id_or_pathname> of asset to delete is missing'
+
+            if (!options.id.startsWith('/')) throw '-i --id only pathname is supported at the moment'
+
+            const dbAsset = await this.dbManager.dbAssetExist(options.id)
+            if (dbAsset === undefined) throw 'Asset ' + options.id + ' not found'
+
+            await this.dbManager.dbAssetDelete(dbAsset)
+
+            logger.info('asset ' + dbAsset.id + ' ' + dbAsset.route + ' deleted')
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+
+    /**
+     * 
+     * @param options 
+     */
+    async commandDeletePathname(options: any) {
+
+        try {
+            await this.prologue(options)
+            if (! this.dbManager) throw 'dbManager undefined'
+            const dbClient = new DBClient(this.dbManager)
+            const list = await dbClient.selectFromTable('Assets to delete', 'cyk_asset',
+                {
+                    fields: 'asset_id,asset_route,asset_auth,asset_access,asset_mimetype,asset_last_update', sort: options.sort || '1',
+                    where: (options.dest ? "asset_route like '" + options.dest + "%'" : undefined)
+                }
+
+            );
+            const reply = await inquirer.prompt({type: 'confirm', name: 'confirm', message: 'Do you want to delete these ' + list.length +  ' file(s)'})
+            if (reply.confirm) {
+                for(let ind = 0; ind < list.length; ind++) {
+                    const asset = list[ind]
+                    logger.info('delete ' + asset.asset_route)
+                    const url = '/api/admin/assets/' + asset.asset_id
+                    await this.dbRemote?.apiServer.delete(url)
+                }
+            }
+
+        }
+        catch (err) {
+            logger.error(err)
+        }
+
+    }
+
 }
 
 class AssetList extends Cmd {
@@ -116,9 +231,9 @@ class AssetU extends Cmd {
             await this.prologue(options)
             if (this.dbManager === undefined) throw 'dbManager undefined'
 
-            if (options.id === undefined) throw '<id_or_route> of asset to update is missing'
+            if (options.id === undefined) throw '<id_or_pathname> of asset to update is missing'
 
-            if (! options.id.startsWith('/')) throw '-i --id only pathname is supported at the moment'
+            if (!options.id.startsWith('/')) throw '-i --id only pathname is supported at the moment'
 
             const dbAsset = await this.dbManager.dbAssetExist(options.id)
             if (dbAsset === undefined) throw 'Asset ' + options.id + ' not found'
@@ -184,7 +299,7 @@ class AssetU extends Cmd {
 
     async cleanDestination(dest: string) {
 
-        const remoteList = await this.scanAssets()
+        const remoteList = await scanAssets(this.dbManager)
         for (let ind = 0; ind < remoteList.length; ind++) {
             const fd = remoteList[ind]
             if (fd.path.startsWith(dest)) {
@@ -214,7 +329,7 @@ class AssetU extends Cmd {
 
         this.scanDir(dirName, localList)
 
-        const remoteList = await this.scanAssets()
+        const remoteList = await scanAssets(this.dbManager)
 
         const uploadList = this.buildUploadList(dirName, dest, localList, remoteList)
 
@@ -266,35 +381,6 @@ class AssetU extends Cmd {
                 logger.info(localDesc.path)
                 result.push(localDesc)
             }
-        }
-        return result
-    }
-
-
-    //----------------------------------------------------------------------------------------------
-    // scanAssets
-    //----------------------------------------------------------------------------------------------
-
-    async scanAssets() {
-        const result: FileDescriptor[] = []
-        if (this.dbManager === undefined) throw 'dbManager undefined'
-        const dbReq = new DBExecuteRequest()
-        dbReq.selectFromTable = 'cyk_asset'
-        const pFields = dbReq.parameters.addVariable('fields', this.dbManager.scope.structure.stringDataType)
-        pFields.data = new PrimitiveData(this.dbManager.scope.structure.stringDataType, "asset_id,asset_route,asset_last_update,asset_mimetype")
-        const xmlResult = await this.dbManager.dbExecute(dbReq)
-        if (xmlResult === undefined || xmlResult === null) throw 'xmlResult null or undefined'
-        const tag = parseXML('scanAssets', xmlResult)
-        const objResult = await this.dbManager.scope.structure.objectDataType.parseData(tag, this.dbManager.scope) as ObjectData
-        const rows = (objResult.variables.getData('cyk_asset') as ObjectData).variables
-        for (let ind = 0; ind < rows.list.length; ind++) {
-            const { variable: row } = rows.list[ind]
-            const record = row.data as ObjectData
-            const asset_id = (record.variables.getData('asset_id') as PrimitiveData).value as number
-            const asset_route = (record.variables.getData('asset_route') as PrimitiveData).value as string
-            const asset_last_update = (record.variables.getData('asset_last_update') as PrimitiveData)?.value as Date
-            // logger.debug('asset_route ' + asset_route,'asset_last_update ' + asset_last_update)
-            result.push({ path: asset_route, mtime: asset_last_update, id: asset_id })
         }
         return result
     }
