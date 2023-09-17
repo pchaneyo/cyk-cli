@@ -1,4 +1,4 @@
-import { BasicType, DBColumn, DBExecuteRequest, DBManager, DBTable, ObjectData, parseXML, PrimitiveData, Script, XmlError } from "@cyklang/core";
+import { BasicType, DBColumn, DBExecuteRequest, DBManager, DBTable, ObjectData, parseXML, PrimitiveData, Script, variable2json, XmlError } from "@cyklang/core";
 import loglevel from "loglevel";
 import { errorconsole } from "./console";
 const logger = loglevel.getLogger('DBClient.ts')
@@ -47,9 +47,11 @@ export class DBClient {
     async runQuery() {
 
     }
-    
+
     async selectFromTable(title: string, tableName: string, options:
-        { fields: string, sort?: string | undefined, where?: string | undefined, width?: string | undefined }) {
+        { fields: string, sort?: string | undefined, where?: string | undefined, width?: string | undefined }): Promise<any[]> {
+
+        let result: any[] = []
 
         try {
 
@@ -107,8 +109,13 @@ export class DBClient {
 
             const objDataset = objXmlResult.variables.getData(tableName) as ObjectData
             for (let ind = 0; ind < objDataset.variables.length(); ind++) {
-                const record = (objDataset.variables.at(ind)?.data as ObjectData)
-                list.addObjectData(record)
+                const variable = objDataset.variables.at(ind)
+                if (variable) {
+                    const record = (variable?.data as ObjectData)
+                    list.addObjectData(record)
+                    result.push(variable2json(variable))
+                }
+
             }
             logger.info(list.renderList(title))
 
@@ -116,6 +123,7 @@ export class DBClient {
         catch (err) {
             logger.error(err)
         }
+        return result
     }
 
     async deleteModule(dbname: string) {
@@ -124,7 +132,7 @@ export class DBClient {
             const dbModule = await this.dbManager.dbModuleExist(dbname)
 
             if (dbModule === undefined) {
-               throw ('Module ' + dbname + ' not found')
+                throw ('Module ' + dbname + ' not found')
             }
             await this.dbManager.dbModuleDelete(dbModule)
         }
@@ -217,7 +225,7 @@ class List {
         }
         this.lines.push(this.renderSeparator())
         this.lines.push('Number of lines : ' + this.rows.length)
-        
+
         return this.lines.join('\n')
     }
 
@@ -272,7 +280,7 @@ class List {
         }
 
         // replace \n with a space
-        result = result.replace(/\n/, ' ') 
+        result = result.replace(/\n/, ' ')
 
         if (width !== undefined && width !== 0) {
             if (result.length >= width) {
