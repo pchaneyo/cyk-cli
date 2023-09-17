@@ -1,0 +1,18 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<module>
+    <print>objson('150')</print>
+    <string name="chaine" literal=""><![CDATA[ 
+        {
+            "user_id": 1,
+            "user_name": "cyk",
+            "user_email": "cyk@gmail.com",
+            "user_password": "$2b$10$Et1b0DodTNKxW/jvUFC8be8JrRXULHWC5RnwOjVhUXmVKv.CyfFW.",
+            "user_access": "admin",
+            "user_appli": null,
+            "user_disable": false,
+            "user_lang": null
+          }
+        ]]>
+    </string>
+    <print>json(objson(chaine))</print>
+</module>
