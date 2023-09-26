@@ -9,6 +9,7 @@ import { TestCommand } from './TestCommand'
 import { RunCommand } from './RunCommand'
 import { InitCommand } from './InitCommand'
 import { AssetCommand } from './AssetCommand'
+import { OpenCommand } from './OpenCommand'
 const logger = loglevel.getLogger("index.ts")
 logger.setLevel("debug")
 
@@ -29,5 +30,6 @@ program.addCommand(new TableCommand('table'))
 program.addCommand(new TableCommand('t'))
 program.addCommand(new TestCommand())
 program.addCommand(new RunCommand())
+program.addCommand(new OpenCommand())
 
 program.parse()
