@@ -5,8 +5,8 @@ const logger = loglevel.getLogger('OpenCommand.ts')
 logger.setLevel('debug')
 
 export class OpenCommand extends Cmd {
-    constructor() {
-        super('open')
+    constructor(name: string) {
+        super(name)
         this.description('open browser').version('0.1')
             .argument('<module>', 'module to execute')
             .action(async (module: any, options: any) => {

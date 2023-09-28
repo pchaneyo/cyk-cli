@@ -8,8 +8,8 @@ loglevel.setLevel('debug')
 const logger = loglevel.getLogger('RunCommand.ts');
 
 export class RunCommand extends Cmd {
-    constructor() {
-        super('run')
+    constructor(name: string) {
+        super(name)
         this.description('run module').version('0.2')
             .argument('<files...>', 'local module file(s) to run')
             .action(async (files: any, options: any) => {

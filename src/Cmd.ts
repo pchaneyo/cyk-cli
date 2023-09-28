@@ -4,6 +4,9 @@ import dotenv from 'dotenv'
 import loglevel from 'loglevel'
 import { NodeCrypto } from "./NodeCrypto";
 import { DBClient } from "./DBClient";
+import { exec, spawn } from 'child_process';
+import {red, green, bold} from 'kolorist'
+
 const logger = loglevel.getLogger('Cmd.ts')
 logger.setLevel('debug')
 
@@ -23,7 +26,7 @@ export class Cmd extends Command {
 
         const structure = new Structure()
         if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
-        logger.debug('Cmd.DBREMOTE_URL ' + process.env.DBREMOTE_URL)
+        logger.info('Cyk server: ' + process.env.DBREMOTE_URL)
         const nodeCrypto = new NodeCrypto()
         this.dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
         const login = await this.dbRemote.signin(process.env.USER_NAME, undefined, process.env.USER_PASSWORD)
@@ -84,7 +87,7 @@ export class Cmd extends Command {
             </db.update>
             `
 
-            if (! this.dbManager) throw 'prologue() has not been called before'
+            if (!this.dbManager) throw 'prologue() has not been called before'
 
             const dbClient = new DBClient(this.dbManager)
             dbClient.execInstructions(inst)
@@ -93,5 +96,63 @@ export class Cmd extends Command {
             logger.error(err)
             throw err
         }
+    }
+
+    /**
+     * method executeCommand
+     * @param command 
+     * @returns 
+     */
+    executeCommand(command: string): Promise<{ stdout: string, stderr: string }> {
+        return new Promise((resolve, reject) => {
+            exec(command, (error, stdout, stderr) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve({ stdout, stderr });
+            });
+        });
+    }
+
+    /**
+     * method runShellCommand
+     * @param command 
+     */
+    async runShellCommand(command: string, args: string[]) {
+        try {
+            await this.spawnCommand(command, args)
+            // console.log(command)
+            // const result = await this.executeCommand(command);
+            // console.log(result.stdout);
+            // if (result.stderr && result.stderr.trim() !== '')
+            //     console.error(result.stderr);
+        } catch (error) {
+            console.error('Error running "' + command + '":', error);
+            throw error
+        }
+    }
+
+    /**
+     * 
+     * @param command 
+     * @param args 
+     * @returns 
+     */
+    spawnCommand(command: string, args: string[]): Promise<void> {
+        console.log()
+        console.log([command, ...args, '...'].join(' '))
+        const child_process = spawn(command, args, { stdio: 'inherit' })
+        return new Promise((resolve, reject) => {
+            child_process.on('close', (code) => {
+                if (code === 0) {
+                    console.log(green('*') + ' ' + [command, ...args].join(' '))
+                    resolve()
+                }
+                else {
+                    reject(new Error([command, ...args].join(' ') + ' --> Error ' + code))
+                }
+            })
+        })
     }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env ts-node
-import { DBModule, parseXML } from "@cyklang/core"
+import { DBManager, DBModule, parseXML } from "@cyklang/core"
 import * as fs from "fs"
 import loglevel from 'loglevel'
 import path from "path"
@@ -115,36 +115,45 @@ class ModuleU extends Cmd {
             else {
                 for (let ind = 0; ind < files.length; ind++) {
                     const file = files[ind]
-                    const dbname = getModuleDBName(file)
-                    const source = fs.readFileSync(file).toString()
-                    const tag = parseXML(dbname, source)
-                    const dbModuleExist = await this.dbManager.dbModuleExist(dbname)
-                    if (dbModuleExist === undefined) {
-                        // insert
-                        const dbModule = new DBModule()
-                        dbModule.source = source
-                        dbModule.dbname = dbname
-                        dbModule.access = tag.attributes.ACCESS
-                        dbModule.description = tag.attributes.DESCRIPTION
-                        logger.debug('module insert ' + dbname + ' access ' + dbModule.access + ' description ' + dbModule.description)
-                        const id = await this.dbManager.dbModuleInsert(dbModule)
-                        logger.info('module ' + dbname + ' added with ID ' + id)
-                    }
-                    else {
-                        // update
-                        dbModuleExist.source = source
-                        dbModuleExist.access = tag.attributes.ACCESS
-                        dbModuleExist.description = tag.attributes.DESCRIPTION
-                        logger.debug('module update ' + dbname + ' access ' + dbModuleExist.access + ' description ' + dbModuleExist.description)
-                        await this.dbManager.dbModuleUpdate(dbModuleExist)
-                        logger.info('module ' + dbname + ' updated')
-                    }
+                    await uploadModule(file, this.dbManager)
                 }
             }
         }
         catch (err) {
             logger.error(err)
         }
+    }
+}
+
+/**
+ * 
+ * @param file 
+ * @param dbManager 
+ */
+export async function uploadModule(file: string, dbManager: DBManager) {
+    const dbname = getModuleDBName(file)
+    const source = fs.readFileSync(file).toString()
+    const tag = parseXML(dbname, source)
+    const dbModuleExist = await dbManager.dbModuleExist(dbname)
+    if (dbModuleExist === undefined) {
+        // insert
+        const dbModule = new DBModule()
+        dbModule.source = source
+        dbModule.dbname = dbname
+        dbModule.access = tag.attributes.ACCESS
+        dbModule.description = tag.attributes.DESCRIPTION
+        // logger.debug('module insert ' + dbname + ' access ' + dbModule.access + ' description ' + dbModule.description)
+        const id = await dbManager.dbModuleInsert(dbModule)
+        logger.info('module ' + dbname + ' added with ID ' + id)
+    }
+    else {
+        // update
+        dbModuleExist.source = source
+        dbModuleExist.access = tag.attributes.ACCESS
+        dbModuleExist.description = tag.attributes.DESCRIPTION
+        // logger.debug('module update ' + dbname + ' access ' + dbModuleExist.access + ' description ' + dbModuleExist.description)
+        await dbManager.dbModuleUpdate(dbModuleExist)
+        logger.info('module ' + dbname + ' updated')
     }
 }
 
