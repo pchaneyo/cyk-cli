@@ -7,7 +7,7 @@ import path from "path"
 import mime from 'mime-types'
 import inquirer from 'inquirer'
 // import readline from 'readline'
-import { DBAsset, DBExecuteRequest, DBManager, ObjectData, parseXML, PrimitiveData } from "@cyklang/core"
+import { DBAsset, DBExecuteRequest, DBManager, DBRemote, ObjectData, parseXML, PrimitiveData } from "@cyklang/core"
 import FormData from 'form-data'
 
 const logger = getLogger('AssetCommand.ts')
@@ -112,7 +112,7 @@ class AssetDelete extends Cmd {
 
         try {
             await this.prologue(options)
-            if (! this.dbManager) throw 'dbManager undefined'
+            if (!this.dbManager) throw 'dbManager undefined'
             const dbClient = new DBClient(this.dbManager)
             const list = await dbClient.selectFromTable('Assets to delete', 'cyk_asset',
                 {
@@ -121,9 +121,9 @@ class AssetDelete extends Cmd {
                 }
 
             );
-            const reply = await inquirer.prompt({type: 'confirm', name: 'confirm', message: 'Do you want to delete these ' + list.length +  ' file(s)'})
+            const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Do you want to delete these ' + list.length + ' file(s)' })
             if (reply.confirm) {
-                for(let ind = 0; ind < list.length; ind++) {
+                for (let ind = 0; ind < list.length; ind++) {
                     const asset = list[ind]
                     logger.info('delete ' + asset.asset_route)
                     const url = '/api/admin/assets/' + asset.asset_id
@@ -168,7 +168,7 @@ class AssetList extends Cmd {
     }
 }
 
-interface FileDescriptor {
+export interface FileDescriptor {
     path: string
     mtime: Date
     id?: number
@@ -193,16 +193,7 @@ class AssetU extends Cmd {
             })
     }
 
-    mimetypeLookup(filename: string): string | false {
-        let result: string | false
-        if (path.extname(filename) === '.cyk') {
-            result = 'application/xml'
-        }
-        else {
-            result = mime.lookup(filename)
-        }
-        return result
-    }
+
 
     /**
      * method commandU
@@ -271,7 +262,7 @@ class AssetU extends Cmd {
             if (dest.substring(dest.length - 1) !== '/') dest = dest + '/'
 
             if (options.clean) {
-                await this.cleanDestination(dest)
+                await cleanDestination(dest, this.dbManager, this.dbRemote)
             }
 
             for (let ind = 0; ind < sources.length; ind++) {
@@ -279,12 +270,12 @@ class AssetU extends Cmd {
                 if (fs.existsSync(source) === false) throw 'source ' + source + ' does not exist'
                 const filestat = fs.lstatSync(source)
                 if (filestat.isDirectory() === true) {
-                    await this.uploadDirectory(source, dest, options)
+                    await uploadDirectory(source, dest, options, this.dbManager, this.dbRemote)
                 }
                 else if (filestat.isFile() === true) {
                     const base = path.parse(source).base
                     logger.debug('upload file ' + source + ' to ' + dest + base)
-                    await this.uploadAsset({ path: source, mtime: filestat.mtime }, dest + base, options.auth)
+                    await uploadAsset({ path: source, mtime: filestat.mtime }, dest + base, this.dbManager, this.dbRemote, options.auth)
                 }
             }
         }
@@ -292,212 +283,236 @@ class AssetU extends Cmd {
             logger.error(err)
         }
     }
+}
 
-    //----------------------------------------------------------------------------------------------
-    // cleanDestination
-    //----------------------------------------------------------------------------------------------
+/**
+ * function cleanDestination
+ * @param dest 
+ * @param dbManager 
+ * @param dbRemote 
+ */
+async function cleanDestination(dest: string, dbManager: DBManager | undefined, dbRemote: DBRemote | undefined) {
 
-    async cleanDestination(dest: string) {
-
-        const remoteList = await scanAssets(this.dbManager)
-        for (let ind = 0; ind < remoteList.length; ind++) {
-            const fd = remoteList[ind]
-            if (fd.path.startsWith(dest)) {
-                const url = '/api/admin/assets/' + fd.id
-                await this.dbRemote?.apiServer.delete(url)
-            }
+    const remoteList = await scanAssets(dbManager)
+    for (let ind = 0; ind < remoteList.length; ind++) {
+        const fd = remoteList[ind]
+        if (fd.path.startsWith(dest)) {
+            const url = '/api/admin/assets/' + fd.id
+            await dbRemote?.apiServer.delete(url)
         }
     }
+}
+/**
+ * function uploadDirectory
+ * @param source 
+ * @param dest 
+ * @param options {yes: no confirmation, auth: basic/token/cookie/undefined}
+ * @param dbManager 
+ * @param dbRemote 
+ */
+export async function uploadDirectory(source: string, dest: string, options: any, 
+    dbManager: DBManager | undefined, dbRemote: DBRemote | undefined) {
 
-    //----------------------------------------------------------------------------------------------
-    // uploadDirectory
-    //----------------------------------------------------------------------------------------------
+    const localList: FileDescriptor[] = []
+    let dirName: string
+    if (source.substring(source.length - 1) === '/') {
+        // trailing directory separator
+        dirName = source
+    }
+    else {
+        dirName = source + '/'
+    }
 
-    async uploadDirectory(source: string, dest: string, options: any) {
+    // logger.debug('options', options)
 
-        const localList: FileDescriptor[] = []
-        let dirName: string
-        if (source.substring(source.length - 1) === '/') {
-            // trailing directory separator
-            dirName = source
+    scanDir(dirName, localList)
+
+    const remoteList = await scanAssets(dbManager)
+
+    const uploadList = buildUploadList(dirName, dest, localList, remoteList)
+
+    // logger.info(fileNames.join('\n'))
+    if (uploadList.length === 0) throw 'None file to upload'
+
+    let uploadConfirmed = (options.yes !== undefined)
+
+    if (uploadConfirmed === false) {
+        const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Do you want to upload this(these) ' + uploadList.length + ' file(s) ?' })
+        if (reply.confirm === true) uploadConfirmed = true
+    }
+
+    if (uploadConfirmed === true) {
+        await uploadFiles(dirName, uploadList, dest, dbManager, dbRemote, options.auth)
+    }
+}
+/**
+ * function buildUploadList
+ * @param dirName 
+ * @param dest 
+ * @param localList 
+ * @param remoteList 
+ * @returns 
+ */
+function buildUploadList(dirName: string, dest: string, localList: FileDescriptor[], remoteList: FileDescriptor[]): FileDescriptor[] {
+    const result: FileDescriptor[] = []
+    const remoteMap = new Map<string, FileDescriptor>()
+    for (let ind = 0; ind < remoteList.length; ind++) {
+        const remote = remoteList[ind]
+        remoteMap.set(remote.path, remote)
+    }
+    for (let ind = 0; ind < localList.length; ind++) {
+        const localDesc = localList[ind]
+        const route = dest + localDesc.path.substring(dirName.length)
+        const remoteDesc = remoteMap.get(route)
+
+        if (remoteDesc === undefined || remoteDesc.mtime.getTime() + 1000 < localDesc.mtime.getTime()) {
+            // if (remoteDesc === undefined) logger.debug('remoteDesc undefined')
+            // else logger.debug('remoteDesc.mtime ' + remoteDesc.mtime.getTime(), 'localDesc.mtime ' + localDesc.mtime.getTime())
+            // logger.info(localDesc.path)
+            result.push(localDesc)
+        }
+    }
+    return result
+}
+/**
+ * function scanDir
+ * @param dirName 
+ * @param result 
+ */
+function scanDir(dirName: string, result: FileDescriptor[]) {
+    const files = fs.readdirSync(dirName)
+    for (let ind = 0; ind < files.length; ind++) {
+        const fileName = files[ind]
+        if (file2exclude(fileName) === true) continue
+        const fstat = fs.statSync(dirName + fileName)
+        if (fstat.isDirectory() === true) {
+            scanDir(dirName + fileName + '/', result)
         }
         else {
-            dirName = source + '/'
-        }
-
-        // logger.debug('options', options)
-
-        this.scanDir(dirName, localList)
-
-        const remoteList = await scanAssets(this.dbManager)
-
-        const uploadList = this.buildUploadList(dirName, dest, localList, remoteList)
-
-        // logger.info(fileNames.join('\n'))
-        if (uploadList.length === 0) throw 'None file to upload'
-
-        let uploadConfirmed = (options.yes !== undefined)
-
-        if (uploadConfirmed === false) {
-            const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Do you want to upload this(these) ' + uploadList.length + ' file(s) ?' })
-            if (reply.confirm === true) uploadConfirmed = true
-        }
-
-        if (uploadConfirmed === true) {
-            await this.uploadFiles(dirName, uploadList, dest, options.auth)
-        }
-
-        // const rl = readline.createInterface(process.stdin, process.stdout)
-        // rl.question('Do you want to upload this(these) ' + uploadList.length + ' file(s) (Y/N/y/n) ?', async (reply) => {
-        //     rl.close()
-        //     if (reply !== 'Y' && reply !== 'y') {
-        //         logger.info('upload cancelled')
-        //         return
-        //     }
-
-        //     await this.uploadFiles(dirName, uploadList, dest)
-        // })
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // buildUploadList
-    //----------------------------------------------------------------------------------------------
-
-    buildUploadList(dirName: string, dest: string, localList: FileDescriptor[], remoteList: FileDescriptor[]): FileDescriptor[] {
-        const result: FileDescriptor[] = []
-        const remoteMap = new Map<string, FileDescriptor>()
-        for (let ind = 0; ind < remoteList.length; ind++) {
-            const remote = remoteList[ind]
-            remoteMap.set(remote.path, remote)
-        }
-        for (let ind = 0; ind < localList.length; ind++) {
-            const localDesc = localList[ind]
-            const route = dest + localDesc.path.substring(dirName.length)
-            const remoteDesc = remoteMap.get(route)
-
-            if (remoteDesc === undefined || remoteDesc.mtime.getTime() + 1000 < localDesc.mtime.getTime()) {
-                if (remoteDesc === undefined) logger.debug('remoteDesc undefined')
-                else logger.debug('remoteDesc.mtime ' + remoteDesc.mtime.getTime(), 'localDesc.mtime ' + localDesc.mtime.getTime())
-                logger.info(localDesc.path)
-                result.push(localDesc)
+            if (mimetypeLookup(fileName) === false) {
+                logger.info(fileName + ' file extension is unknown and will not be uploaded')
+                continue
             }
-        }
-        return result
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // scanDir
-    //----------------------------------------------------------------------------------------------
-
-    scanDir(dirName: string, result: FileDescriptor[]) {
-        const files = fs.readdirSync(dirName)
-        for (let ind = 0; ind < files.length; ind++) {
-            const fileName = files[ind]
-            if (this.file2exclude(fileName) === true) continue
-            const fstat = fs.statSync(dirName + fileName)
-            if (fstat.isDirectory() === true) {
-                this.scanDir(dirName + fileName + '/', result)
-            }
-            else {
-                if (this.mimetypeLookup(fileName) === false) {
-                    logger.info(fileName + ' file extension is unknown and will not be uploaded')
-                    continue
-                }
-                //const dbAssetExist = this.dbManager?.dbAssetExist()
-                result.push({ path: dirName + fileName, mtime: fstat.mtime })
-                // logger.debug(dirName + '/' + fileName)
-            }
+            //const dbAssetExist = this.dbManager?.dbAssetExist()
+            result.push({ path: dirName + fileName, mtime: fstat.mtime })
+            // logger.debug(dirName + '/' + fileName)
         }
     }
+}
 
-    //----------------------------------------------------------------------------------------------
-    // file2exclude
-    //----------------------------------------------------------------------------------------------
-
-    ignorePatterns = ['.git', 'node_modules']
-
-    file2exclude(fileName: string): boolean {
-        let result = false
-        this.ignorePatterns.forEach((pattern) => {
-            if (fileName === pattern) result = true
-        })
-        return result
+const ignorePatterns = ['.git', 'node_modules']
+/**
+ * function file2exclude
+ * @param fileName 
+ * @returns 
+ */
+function file2exclude(fileName: string): boolean {
+    let result = false
+    ignorePatterns.forEach((pattern) => {
+        if (fileName === pattern) result = true
+    })
+    return result
+}
+/**
+ * function uploadFiles
+ * @param dirName 
+ * @param uploadList 
+ * @param dest 
+ * @param dbManager 
+ * @param dbRemote 
+ * @param auth 
+ */
+async function uploadFiles(dirName: string, uploadList: FileDescriptor[], dest: string, dbManager: DBManager | undefined, dbRemote: DBRemote | undefined, auth: string | undefined) {
+    for (let ind = 0; ind < uploadList.length; ind++) {
+        const upload = uploadList[ind]
+        const route = dest + upload.path.substring(dirName.length)
+        // logger.debug('upload ' + upload.path + ' to ' + route)
+        await uploadAsset(upload, route, dbManager, dbRemote, auth)
     }
+}
 
-    //----------------------------------------------------------------------------------------------
-    // uploadFiles
-    //----------------------------------------------------------------------------------------------
+/**
+ * function uploadAsset
+ * @param upload 
+ * @param route 
+ * @param dbManager 
+ * @param dbRemote 
+ * @param auth 
+ */
+export async function uploadAsset(upload: FileDescriptor, route: string, dbManager: DBManager | undefined, dbRemote: DBRemote | undefined, auth?: string) {
+    // logger.debug('uploadAsset ' + upload.path + ' to route ' + route + ' with mimetype ' + this.mimetypeLookup(upload.path) + ', auth : ' + auth)
 
-    async uploadFiles(dirName: string, uploadList: FileDescriptor[], dest: string, auth: string | undefined) {
-        for (let ind = 0; ind < uploadList.length; ind++) {
-            const upload = uploadList[ind]
-            const route = dest + upload.path.substring(dirName.length)
-            logger.debug('upload ' + upload.path + ' to ' + route)
-            await this.uploadAsset(upload, route, auth)
+    try {
+        let dbAsset: DBAsset | undefined = await dbManager?.dbAssetExist(route)
+        if (dbAsset === undefined) {
+            dbAsset = new DBAsset()
+        }
+        const mimetype = mimetypeLookup(upload.path)
+        if (mimetype === false) throw 'mimetype false for ' + upload
+        dbAsset.mimetype = mimetype
+        dbAsset.route = route
+        dbAsset.auth = auth
+        if (dbAsset.auth === 'none') dbAsset.auth = undefined
+
+        // const fstat = fs.statSync(fileName)
+        dbAsset.last_update = upload.mtime
+
+        // const contentBuffer = fs.readFileSync(fileName)
+        // dbAsset.content = contentBuffer
+        // logger.debug('dbAsset.content length ' + dbAsset.content.length)
+
+        if (dbAsset.id === undefined) {
+            dbAsset.id = await dbManager?.dbAssetInsert(dbAsset)
+            logger.info('inserted asset ' + dbAsset.route)
+        }
+        else {
+            await dbManager?.dbAssetUpdate(dbAsset)
+            logger.info('updated asset ' + dbAsset.route)
+        }
+
+        await uploadAssetContent(dbAsset, upload.path, dbRemote)
+    }
+    catch (err) {
+        logger.error(err)
+    }
+}
+
+/**
+ * function mimetypeLookup
+ * @param filename 
+ * @returns 
+ */
+function mimetypeLookup(filename: string): string | false {
+    let result: string | false
+    if (path.extname(filename) === '.cyk') {
+        result = 'application/xml'
+    }
+    else {
+        result = mime.lookup(filename)
+    }
+    return result
+}
+
+/**
+ * function uploadAssetContent
+ * @param dbAsset 
+ * @param fileName 
+ * @param dbRemote 
+ */
+async function uploadAssetContent(dbAsset: DBAsset, fileName: string, dbRemote: DBRemote | undefined) {
+    // logger.debug('uploadAssetContent file ' + fileName + ' to path ' + path)
+    try {
+        const file = fs.createReadStream(fileName)
+        const form = new FormData()
+        form.append('uploadFile', file)
+
+        const route = '/api/upload/cyk_asset/asset_content?asset_id=' + dbAsset.id
+        const resp = await dbRemote?.apiServer.post(route, form)
+        if (resp.status === 200) {
+            logger.info(fileName + ' uploaded')
         }
     }
-
-    //----------------------------------------------------------------------------------------------
-    // uploadAsset
-    //----------------------------------------------------------------------------------------------
-
-    async uploadAsset(upload: FileDescriptor, route: string, auth?: string) {
-        // logger.debug('uploadAsset ' + upload.path + ' to route ' + route + ' with mimetype ' + this.mimetypeLookup(upload.path) + ', auth : ' + auth)
-
-        try {
-            let dbAsset: DBAsset | undefined = await this.dbManager?.dbAssetExist(route)
-            if (dbAsset === undefined) {
-                dbAsset = new DBAsset()
-            }
-            const mimetype = this.mimetypeLookup(upload.path)
-            if (mimetype === false) throw 'mimetype false for ' + upload
-            dbAsset.mimetype = mimetype
-            dbAsset.route = route
-            dbAsset.auth = auth
-            if (dbAsset.auth === 'none') dbAsset.auth = undefined
-
-            // const fstat = fs.statSync(fileName)
-            dbAsset.last_update = upload.mtime
-
-            // const contentBuffer = fs.readFileSync(fileName)
-            // dbAsset.content = contentBuffer
-            // logger.debug('dbAsset.content length ' + dbAsset.content.length)
-
-            if (dbAsset.id === undefined) {
-                dbAsset.id = await this.dbManager?.dbAssetInsert(dbAsset)
-                logger.info('inserted asset ' + dbAsset.id + ' route ' + dbAsset.route)
-            }
-            else {
-                await this.dbManager?.dbAssetUpdate(dbAsset)
-                logger.info('updated asset ' + dbAsset.route)
-            }
-
-            await this.uploadAssetContent(dbAsset, upload.path)
-        }
-        catch (err) {
-            logger.error(err)
-        }
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // uploadAssetContent
-    //----------------------------------------------------------------------------------------------
-
-    async uploadAssetContent(dbAsset: DBAsset, fileName: string) {
-        logger.debug('uploadAssetContent file ' + fileName + ' to path ' + path)
-        try {
-            const file = fs.createReadStream(fileName)
-            const form = new FormData()
-            form.append('uploadFile', file)
-
-            const route = '/api/upload/cyk_asset/asset_content?asset_id=' + dbAsset.id
-            const resp = await this.dbRemote?.apiServer.post(route, form)
-            if (resp.status === 200) {
-                logger.info(fileName + ' uploaded')
-            }
-        }
-        catch (err) {
-            logger.error(err)
-        }
+    catch (err) {
+        logger.error(err)
     }
 }

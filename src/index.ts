@@ -10,15 +10,17 @@ import { RunCommand } from './RunCommand'
 import { InstallCommand } from './InstallCommand'
 import { AssetCommand } from './AssetCommand'
 import { OpenCommand } from './OpenCommand'
+import { UninstallCommand } from './UninstallCommand'
 const logger = loglevel.getLogger("index.ts")
 logger.setLevel("debug")
 
 const program = new Command()
 program.name('cyk').description('cyklang CLI')
-    .version('0.2')
+    .version('0.5.6')
 
 program.addCommand(new InstallCommand('install'))
 program.addCommand(new InstallCommand('i'))
+program.addCommand(new UninstallCommand('uninstall'))
 program.addCommand(new AssetCommand('asset', 'manage assets'))
 program.addCommand(new AssetCommand('a', 'manage assets'))
 program.addCommand(new ModuleCommand('module'))

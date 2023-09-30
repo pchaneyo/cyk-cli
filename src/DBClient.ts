@@ -135,6 +135,7 @@ export class DBClient {
                 throw ('Module ' + dbname + ' not found')
             }
             await this.dbManager.dbModuleDelete(dbModule)
+            logger.info('module ' + dbname + ' (id ' + dbModule.id + ' deleted)')
         }
         catch (err) {
             logger.error(err)

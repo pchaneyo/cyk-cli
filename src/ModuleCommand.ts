@@ -147,6 +147,7 @@ export async function uploadModule(file: string, dbManager: DBManager) {
         logger.info('module ' + dbname + ' added with ID ' + id)
     }
     else {
+        logger.debug('module exists : ' + dbModuleExist.dbname + ', id ' + dbModuleExist.id)
         // update
         dbModuleExist.source = source
         dbModuleExist.access = tag.attributes.ACCESS
@@ -271,5 +272,16 @@ class ModuleDelete extends Cmd {
             logger.error(err)
         }
     }
+}
+
+/**
+ * function deleteModule
+ * @param dbname 
+ * @param dbManager 
+ */
+export async function deleteModule(dbname: string, dbManager: DBManager) {
+
+    const dbClient = new DBClient(dbManager)
+    await dbClient.deleteModule(dbname)
 }
 

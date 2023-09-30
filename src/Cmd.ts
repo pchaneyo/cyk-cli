@@ -5,7 +5,8 @@ import loglevel from 'loglevel'
 import { NodeCrypto } from "./NodeCrypto";
 import { DBClient } from "./DBClient";
 import { exec, spawn } from 'child_process';
-import {red, green, bold} from 'kolorist'
+import { red, green, bold } from 'kolorist'
+import * as fs from 'fs'
 
 const logger = loglevel.getLogger('Cmd.ts')
 logger.setLevel('debug')
@@ -115,44 +116,64 @@ export class Cmd extends Command {
         });
     }
 
-    /**
-     * method runShellCommand
-     * @param command 
-     */
-    async runShellCommand(command: string, args: string[]) {
-        try {
-            await this.spawnCommand(command, args)
-            // console.log(command)
-            // const result = await this.executeCommand(command);
-            // console.log(result.stdout);
-            // if (result.stderr && result.stderr.trim() !== '')
-            //     console.error(result.stderr);
-        } catch (error) {
-            console.error('Error running "' + command + '":', error);
-            throw error
-        }
-    }
 
-    /**
-     * 
-     * @param command 
-     * @param args 
-     * @returns 
-     */
-    spawnCommand(command: string, args: string[]): Promise<void> {
-        console.log()
-        console.log([command, ...args, '...'].join(' '))
-        const child_process = spawn(command, args, { stdio: 'inherit' })
-        return new Promise((resolve, reject) => {
-            child_process.on('close', (code) => {
-                if (code === 0) {
-                    console.log(green('*') + ' ' + [command, ...args].join(' '))
-                    resolve()
-                }
-                else {
-                    reject(new Error([command, ...args].join(' ') + ' --> Error ' + code))
-                }
-            })
+
+}
+
+
+/**
+ * method runShellCommand
+ * @param command 
+ */
+export async function runShellCommand(command: string, args: string[]) {
+    try {
+        await spawnCommand(command, args)
+        // console.log(command)
+        // const result = await this.executeCommand(command);
+        // console.log(result.stdout);
+        // if (result.stderr && result.stderr.trim() !== '')
+        //     console.error(result.stderr);
+    } catch (error) {
+        console.error('Error running "' + command + '":', error);
+        throw error
+    }
+}
+
+/**
+ * function spawnCommand
+ * @param command 
+ * @param args 
+ * @returns 
+ */
+export function spawnCommand(command: string, args: string[]): Promise<void> {
+    console.log()
+    console.log([command, ...args, '...'].join(' '))
+    const child_process = spawn(command, args, { stdio: 'inherit' })
+    return new Promise((resolve, reject) => {
+        child_process.on('close', (code) => {
+            if (code === 0) {
+                console.log(green('*') + ' ' + [command, ...args].join(' '))
+                resolve()
+            }
+            else {
+                reject(new Error([command, ...args].join(' ') + ' --> Error ' + code))
+            }
         })
+    })
+}
+
+/**
+ * function readPackageJson
+ * @returns 
+ */
+export async function readPackageJson(): Promise<any> {
+    try {
+        if (!fs.existsSync("package.json")) throw 'package.json not found'
+        const fileContent = fs.readFileSync("package.json")
+        return JSON.parse(fileContent.toString())
+    }
+    catch (err) {
+        console.error(err)
+        throw err
     }
 }
