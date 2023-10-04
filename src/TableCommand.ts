@@ -8,8 +8,10 @@ import { Cmd } from "./Cmd"
 import { DBClient } from "./DBClient"
 import { Stream } from "form-data"
 import FormData from 'form-data'
+import inquirer from 'inquirer'
+import { TableDataCommand } from "./TableDataCommand"
 
-const logger = loglevel.getLogger("TableCommand.ts")
+export const logger = loglevel.getLogger("TableCommand.ts")
 logger.setLevel("debug")
 
 export class TableCommand extends Command {
@@ -20,8 +22,7 @@ export class TableCommand extends Command {
         this.addCommand(new TableImportCmd())
         this.addCommand(new TableList('list', 'list database tables'))
         this.addCommand(new TableList('l', '(l)ist database tables'))
-        this.addCommand(new TableData('data', 'table (d)ata'))
-        this.addCommand(new TableData('d', 'table (d)ata'))
+        this.addCommand(new TableDropCommand('drop', 'drop table'))
         this.addCommand(new TableUpdate('update', 'update table properties'))
         this.addCommand(new TableUpdate('u', 'shortcut for (u)pdate table properties'))
     }
@@ -40,12 +41,12 @@ class TableUpdate extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
-        .option('-n --name <table_name>', 'name of the table whose properties are to be changed')
-        .option('--auth <auth_schema>', 'authentication schema : basic | token | cookie | any | none, default is none')
-        .option('--access <access>', 'access rights required')
-        .action(async (options: any) => {
-            await this.commandUpdate(options)
-        })
+            .option('-n --name <table_name>', 'name of the table whose properties are to be changed')
+            .option('--auth <auth_schema>', 'authentication schema : basic | token | cookie | any | none, default is none')
+            .option('--access <access>', 'access rights required')
+            .action(async (options: any) => {
+                await this.commandUpdate(options)
+            })
     }
 
     async commandUpdate(options: any) {
@@ -53,10 +54,10 @@ class TableUpdate extends Cmd {
             await this.prologue(options)
             if (this.dbManager === undefined) throw 'dbManager undefined'
 
-            if ( ! options.name ) throw '<table_name> is missing'
+            if (!options.name) throw '<table_name> is missing'
 
             const dbTable = await this.dbManager.dbTableExist(options.name)
-            if ( ! dbTable ) throw 'Table ' + options.name + ' not found'
+            if (!dbTable) throw 'Table ' + options.name + ' not found'
 
             await this.updateAuthAccess('cyk_table', 'table', dbTable.id || '', options)
         }
@@ -319,63 +320,46 @@ class TableList extends Cmd {
     }
 }
 
-//--------------------------------------------------------------------------------------------------------------------
-// class TableData
-//--------------------------------------------------------------------------------------------------------------------
-
-class TableData extends Cmd {
-
+class TableDropCommand extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
             .argument('<table>', 'table name')
-            .option('--where <clause_where_sql>', 'criteria in SQL syntax')
-            .option('-s --sort <columns>', 'sort by columns positions (begins by 0) separated by comma')
-            .option('-w --width <colwidth>', 'columns widths separated by comma')
             .action(async (table, options) => {
-                this.commandData(table, options)
+                await this.commandDrop(table, options)
             })
     }
 
-    async commandData(table: string, options: any) {
+    async commandDrop(table: string, options: any) {
         try {
             await this.prologue(options)
-            if (this.dbManager === undefined) throw 'dbManager undefined'
-
+            if (!this.dbManager) throw 'dbManager undefined'
+            
             const dbTable = await this.dbManager.dbTableExist(table)
-            if (dbTable === undefined) throw 'table ' + table + ' not found'
-
-            let fields = ''
-
-            for (let ind = 0; ind < dbTable.columns.length; ind++) {
-                const dbColumn = dbTable.columns[ind]
-                let ok = false
-                let fieldName = dbColumn.name
-                if (dbColumn.dbType === 'text' || dbColumn.dbType === 'bytea') {
-                    ok = false
-                    fieldName = 'length(' + dbColumn.name + ')'
-                }
-                else {
-                    ok = true
-                }
-                if (ok === true) {
-                    if (fields !== '') fields += ','
-                    fields += fieldName
-                }
+            if (!dbTable) {
+                console.log('table ' + table + ' does not exist')
+                return
             }
-
-            logger.debug('commandQuery', table)
-            const dbClient = new DBClient(this.dbManager)
-            let title = 'Table ' + table
-            if (options.where !== undefined) {
-                title += ' where ' + options.where
+            const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Drop table ' + table + '?' })
+            if (reply.confirm && this.dbManager) {
+                await dropTable(table, this.dbManager)
             }
-            dbClient.selectFromTable(title, table,
-                { fields: fields, width: options.width, sort: options.sort || '1', where: options.where })
         }
-        catch (err) {
+        catch(err) {
             logger.error(err)
         }
     }
 }
+
+/**
+ * function dropTable
+ * @param table 
+ * @param dbManager 
+ */
+export async function dropTable(table: string, dbManager: DBManager) {
+    const dbTable = await dbManager.dbTableExist(table)
+    if (dbTable)
+        await dbManager.dbTableDelete(dbTable)
+}
+
 

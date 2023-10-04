@@ -11,12 +11,13 @@ import { InstallCommand } from './InstallCommand'
 import { AssetCommand } from './AssetCommand'
 import { OpenCommand } from './OpenCommand'
 import { UninstallCommand } from './UninstallCommand'
+import { TableDataCommand } from './TableDataCommand'
 const logger = loglevel.getLogger("index.ts")
 logger.setLevel("debug")
 
 const program = new Command()
 program.name('cyk').description('cyklang CLI')
-    .version('0.5.6')
+    .version('0.6.0')
 
 program.addCommand(new InstallCommand('install'))
 program.addCommand(new InstallCommand('i'))
@@ -31,6 +32,8 @@ program.addCommand(new QueryCommand('query'))
 program.addCommand(new QueryCommand('q'))
 program.addCommand(new TableCommand('table'))
 program.addCommand(new TableCommand('t'))
+program.addCommand(new TableDataCommand('data', 'show table data'))
+program.addCommand(new TableDataCommand('d', 'show table data'))
 program.addCommand(new TestCommand())
 program.addCommand(new RunCommand('run'))
 program.addCommand(new RunCommand('r'))
