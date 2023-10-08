@@ -115,9 +115,6 @@ export class Cmd extends Command {
             });
         });
     }
-
-
-
 }
 
 
@@ -154,6 +151,31 @@ export function spawnCommand(command: string, args: string[]): Promise<void> {
             if (code === 0) {
                 console.log(green('*') + ' ' + [command, ...args].join(' '))
                 resolve()
+            }
+            else {
+                reject(new Error([command, ...args].join(' ') + ' --> Error ' + code))
+            }
+        })
+    })
+}
+
+/**
+ * function spawnCommandData
+ * @param command 
+ * @param args 
+ * @returns 
+ */
+export function spawnCommandData(command: string, args: string[]): Promise<string> {
+    let result = ''
+    const child_process = spawn(command, args)
+    return new Promise((resolve, reject) => {
+        child_process.stdout.on('data', (data) => {
+            result += String(data)
+        })
+        child_process.on('close', (code) => {
+            if (code === 0) {
+                // console.log(green('*') + ' ' + [command, ...args].join(' '))
+                resolve(result)
             }
             else {
                 reject(new Error([command, ...args].join(' ') + ' --> Error ' + code))

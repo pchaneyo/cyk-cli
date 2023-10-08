@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import loglevel from 'loglevel'
 import path from 'path'
 import { AssetCommand } from './AssetCommand'
-import { Cmd, spawnCommand } from './Cmd'
+import { Cmd, spawnCommand, spawnCommandData } from './Cmd'
 import { InstallCommand } from './InstallCommand'
 import { ModuleCommand } from "./ModuleCommand"
 import { OpenCommand } from './OpenCommand'
@@ -48,11 +48,37 @@ async function startServer() {
             await spawnCommand('docker', ['compose', 'up', '-d'])
         }
         if (orchestrator === 'kubernetes') {
+
+            // apply resource files
+            await spawnCommand('kubectl', ['apply', '-f', path.join(process.cwd(), 'k8s')])
+
+            // wait for the services to be available
+
+            while (true) {
+
+                const services = await spawnCommandData('kubectl', ['get', 'svc', '-o', 'name'])
+
+                if (services.includes('service/nodejs') && services.includes('service/postgres')) {
+                    const availNodejs = await serviceAvailable('nodejs')
+                    const availPostgres = await serviceAvailable('postgres')
+                    if (availNodejs && availPostgres) break
+                }
+                    
+                // wait for 1 second
+                logger.info('Wait for nodejs and postgres services...')
+                await new Promise<void>((resolve) =>
+                    setTimeout(() => {
+                        resolve();
+                    }, 1000)
+                );
+            }
+
+            // port-forward
             const portForwardPath = path.join(process.cwd(), 'k8s', 'port-forward')
             if (!fs.existsSync(portForwardPath) || !fs.statSync(portForwardPath).isFile())
                 throw portForwardPath + ' file not found'
             const config = JSON.parse(fs.readFileSync(portForwardPath).toString())
-            if (! config.postgres || ! config.nodejs) 
+            if (!config.postgres || !config.nodejs)
                 throw portForwardPath + ' : file format incorrect'
             spawnCommand('kubectl', ['port-forward', 'svc/postgres', config.postgres + ':5432'])
             logger.info('Postgresql proxy at localhost:' + config.postgres)
@@ -66,6 +92,23 @@ async function startServer() {
     catch (err) {
         console.error(err)
     }
+}
+
+/**
+ * function serviceAvailable
+ * @param service 
+ * @returns 
+ */
+async function serviceAvailable(service: string): Promise<boolean> {
+    
+    const descNodejs = await spawnCommandData('kubectl', ['describe', 'service', service])
+    const lines = descNodejs.split('\n')
+    for(const line of lines) {
+        if (line.includes('Endpoints')) {
+            return ! line.includes('<none>')
+        }
+    }
+    return false
 }
 
 /**
@@ -121,7 +164,7 @@ class StopCommand extends Command {
  */
 const program = new Command()
 program.name('cyk').description('cyklang CLI')
-    .version('0.7.1')
+    .version('0.7.3')
 program.addCommand(new StartCommand('start'))
 program.addCommand(new StopCommand('stop'))
 program.addCommand(new InstallCommand('install'))
