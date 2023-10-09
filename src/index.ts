@@ -52,18 +52,35 @@ async function startServer() {
             // apply resource files
             await spawnCommand('kubectl', ['apply', '-f', path.join(process.cwd(), 'k8s')])
 
+            // port-forward
+            const portForwardPath = path.join(process.cwd(), 'k8s', 'port-forward')
+            if (!fs.existsSync(portForwardPath) || !fs.statSync(portForwardPath).isFile())
+                throw portForwardPath + ' file not found'
+            const portForwardContent = JSON.parse(fs.readFileSync(portForwardPath).toString())
+
             // wait for the services to be available
 
             while (true) {
 
-                const services = await spawnCommandData('kubectl', ['get', 'svc', '-o', 'name'])
+                const declared_services = await spawnCommandData('kubectl', ['get', 'svc', '-o', 'name'])
 
-                if (services.includes('service/nodejs') && services.includes('service/postgres')) {
-                    const availNodejs = await serviceAvailable('nodejs')
-                    const availPostgres = await serviceAvailable('postgres')
-                    if (availNodejs && availPostgres) break
+                let ok = true
+
+                for(const service in portForwardContent) {
+                    if (! Object.prototype.hasOwnProperty.call(portForwardContent, service)) continue
+                    if (! declared_services.includes(`service/${service}`)) {
+                        ok = false
+                        break
+                    }
+                    const avail = await serviceAvailable(service)
+                    if (! avail) {
+                        ok = false
+                        break
+                    }
                 }
-                    
+
+                if (ok) break
+
                 // wait for 1 second
                 logger.info('Wait for nodejs and postgres services...')
                 await new Promise<void>((resolve) =>
@@ -73,17 +90,11 @@ async function startServer() {
                 );
             }
 
-            // port-forward
-            const portForwardPath = path.join(process.cwd(), 'k8s', 'port-forward')
-            if (!fs.existsSync(portForwardPath) || !fs.statSync(portForwardPath).isFile())
-                throw portForwardPath + ' file not found'
-            const config = JSON.parse(fs.readFileSync(portForwardPath).toString())
-            if (!config.postgres || !config.nodejs)
-                throw portForwardPath + ' : file format incorrect'
-            spawnCommand('kubectl', ['port-forward', 'svc/postgres', config.postgres + ':5432'])
-            logger.info('Postgresql proxy at localhost:' + config.postgres)
-            spawnCommand('kubectl', ['port-forward', 'svc/nodejs', config.nodejs + ':3000'])
-            logger.info('Nodejs proxy at localhost:' + config.nodejs)
+            for(const service in portForwardContent) {
+                spawnCommand('kubectl', ['port-forward', `svc/${service}`, portForwardContent[service]])
+                logger.info(`${service} proxy via localhost ${portForwardContent[service].split(':')[0]}`)
+            }
+
         }
         if (!orchestrator) {
             logger.error('No cyk server is defined in current folder ' + process.cwd())
@@ -100,12 +111,12 @@ async function startServer() {
  * @returns 
  */
 async function serviceAvailable(service: string): Promise<boolean> {
-    
+
     const descNodejs = await spawnCommandData('kubectl', ['describe', 'service', service])
     const lines = descNodejs.split('\n')
-    for(const line of lines) {
+    for (const line of lines) {
         if (line.includes('Endpoints')) {
-            return ! line.includes('<none>')
+            return !line.includes('<none>')
         }
     }
     return false
@@ -164,7 +175,7 @@ class StopCommand extends Command {
  */
 const program = new Command()
 program.name('cyk').description('cyklang CLI')
-    .version('0.7.3')
+    .version('0.7.4')
 program.addCommand(new StartCommand('start'))
 program.addCommand(new StopCommand('stop'))
 program.addCommand(new InstallCommand('install'))
