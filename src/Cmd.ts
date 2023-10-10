@@ -145,7 +145,7 @@ export async function runShellCommand(command: string, args: string[]) {
 export function spawnCommand(command: string, args: string[]): Promise<void> {
     console.log()
     console.log([command, ...args, '...'].join(' '))
-    const child_process = spawn(command, args, { stdio: 'inherit' })
+    const child_process = spawn(command, args, { stdio: 'inherit', shell: process.platform === 'win32' })
     return new Promise((resolve, reject) => {
         child_process.on('close', (code) => {
             if (code === 0) {
@@ -167,7 +167,7 @@ export function spawnCommand(command: string, args: string[]): Promise<void> {
  */
 export function spawnCommandData(command: string, args: string[]): Promise<string> {
     let result = ''
-    const child_process = spawn(command, args)
+    const child_process = spawn(command, args, { shell: process.platform === 'win32' })
     return new Promise((resolve, reject) => {
         child_process.stdout.on('data', (data) => {
             result += String(data)

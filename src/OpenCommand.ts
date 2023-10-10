@@ -8,18 +8,24 @@ export class OpenCommand extends Cmd {
     constructor(name: string) {
         super(name)
         this.description('open browser').version('0.1')
-            .argument('<module>', 'module to execute')
-            .action(async (module: any, options: any) => {
-                await this.openBrowser(module, options)
+            .argument('<module_path>', 'module to execute or pathname')
+            .action(async (module_path: any, options: any) => {
+                await this.openBrowser(module_path, options)
             })
     }
 
-    async openBrowser(module: string, options: any) {
+    async openBrowser(module_path: string, options: any) {
         try {
             await this.prologue(options)
 
             if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
-            const url = process.env.DBREMOTE_URL + '/cyk/#/run/' + module;
+            let url = process.env.DBREMOTE_URL
+            if (module_path.startsWith('/')) {
+                url += module_path
+            }
+            else {
+                url += '/cyk/#/run/' + module_path
+            }
             const open = await import('open');
             open.default(url)
         }
