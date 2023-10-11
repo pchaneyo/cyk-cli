@@ -105,3 +105,6 @@ dist
 
 # nodejs build
 build
+
+# cyklang.xsd
+cyklang.xsd
