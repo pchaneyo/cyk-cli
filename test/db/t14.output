@@ -48,3 +48,5 @@ user1 <number name="user_id">
 <string name="user_appli">
 </string>
 <boolean name="user_disable">false</boolean>
+<string name="user_lang">
+</string>

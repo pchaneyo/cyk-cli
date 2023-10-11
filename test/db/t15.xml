@@ -1,26 +1,24 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
     <print>"test de if()"</print>
     <print>if(2+2 == 4, "2+2==4", "2+2!==4")</print>
 
-    <db.query name="actors_by_film">
+    <db.query name="t_actors_by_film">
         <number name="film_id"/>
         <string name="__fields__">"
             film_id: number;
             actor_id: number: key;
             title: string;
-            image_uri: string;
             first_name: string;
             last_name: string
             "
         </string>
         <string name="__sql__" literal="">
-            select film.film_id, title, actor.actor_id actor_id,
-actor.image_uri,
+            select t_film.film_id, title, t_actor.actor_id actor_id,
 first_name, last_name 
-from film_actor join film on film.film_id = film_actor.film_id
-join actor on actor.actor_id = film_actor.actor_id
-where film_actor.film_id = {{ film_id }}
+from t_film_actor join t_film on t_film.film_id = t_film_actor.film_id
+join t_actor on t_actor.actor_id = t_film_actor.actor_id
+where t_film_actor.film_id = {{ film_id }}
         </string>
     </db.query>
 
@@ -30,11 +28,11 @@ where film_actor.film_id = {{ film_id }}
         <number name="film_id">103</number>
     </db.execute> -->
 
-    <db.runquery name="actors_by_film" result="actors_by_film">
+    <db.runquery name="t_actors_by_film" result="actors_by_film">
         <number name="film_id">103</number>
     </db.runquery>
 
-    <print>string(actors_by_film)</print>
+    <print>string(actors_by_film.resultset)</print>
     <print>actors_by_film.resultset.length()</print>
     <!-- <object name="films_actors"/>
     <db.execute query="films_actors" result="films_actors">

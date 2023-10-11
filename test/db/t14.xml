@@ -1,4 +1,4 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
     <object name="obj1">
         <string name="name">"obj1_name"</string>
@@ -73,7 +73,7 @@
 
     <print>"========= TEST OF newDBRow ======="</print>
 
-    <object name="actress">newDBRow("actor")</object>
+    <object name="actress">newDBRow("t_actor")</object>
     <print>"actress "+string(actress)</print>
 
     <object name="user1">newDBRow("cyk_user")</object>

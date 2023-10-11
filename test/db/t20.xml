@@ -1,4 +1,4 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
     <object name="settings"/>
     <function name="__init__">

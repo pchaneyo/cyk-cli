@@ -1,7 +1,7 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
 
-    <db.table name="actor">
+    <db.table name="t_actor">
         <number name="actor_id" type="int" primary="" generated='by default'/>
         <string name="first_name" type="varchar(50)"/>
         <string name="last_name" type="text" />
@@ -10,7 +10,7 @@
         <boolean name="cyk_disable" type="boolean"/>
     </db.table>
 
-    <db.table name="film">
+    <db.table name="t_film">
         <number name="film_id" type="int" primary="" generated='by default'/>
         <string name="title" type="varchar(255)" />
         <string name="description" type="text" />
@@ -19,23 +19,45 @@
         <number name="language_id" type="int"/>
     </db.table>
 
-    <db.table name="film_actor">
-        <number name="actor_id" type="int" primary=""/>
-        <number name="film_id" type="int" primary=""/>
+    <db.table name="t_film_actor">
+        <number name="id" type="int" primary="" generated="by default"/>
+        <number name="actor_id" type="int"/>
+        <number name="film_id" type="int"/>
         <number name="length" type="int"/>
     </db.table>
 
-    <db.query name="films_actors">
+    <!-- <object name="result"/>
+
+    <db.query name="t_film_actor_truncate">
+        <string name="__fields__" literal="">*</string>
+        <string name="__sql__" literal="">truncate table t_film_actor</string>
+    </db.query>
+    <db.runquery name="t_film_actor_truncate" result="result"></db.runquery>
+
+    <db.query name="t_film_truncate">
+        <string name="__fields__" literal="">*</string>
+        <string name="__sql__" literal="">truncate table t_film</string>
+    </db.query>
+    <db.runquery name="t_film_truncate" result="result"></db.runquery>
+
+    <db.query name="t_actor_truncate">
+        <string name="__fields__" literal="">*</string>
+        <string name="__sql__" literal="">truncate table t_actor</string>
+    </db.query>
+    <db.runquery name="t_actor_truncate" result="result"></db.runquery> -->
+ 
+
+    <db.query name="t_films_actors">
         <number name="length_from">0</number>
         <number name="length_to">999</number>
-        <string name="__entities__">"actor film"</string>
+        <string name="__entities__">"t_actor t_film"</string>
         <string name="__sql__" literal="">
-            SELECT * FROM public.actor 
-            join film_actor on film_actor.actor_id = actor.actor_id 
-            join film on film_actor.film_id = film.film_id
-            where film.length between {{ length_from }}  and {{ length_to }}
+            SELECT * FROM public.t_actor 
+            join t_film_actor on t_film_actor.actor_id = t_actor.actor_id 
+            join t_film on t_film_actor.film_id = t_film.film_id
+            where t_film.length between {{ length_from }}  and {{ length_to }}
             -- and actor.actor_id = 2
-            ORDER BY actor.actor_id ASC ;
+            ORDER BY t_actor.actor_id ASC ;
         </string>
     </db.query>
     
@@ -49,7 +71,7 @@
         <object name="actor">actor_maria</object>
     </db.execute> -->
 
-    <db.insert table="actor" returning_into="actor_maria">
+    <db.insert table="t_actor" returning_into="actor_maria">
         <object name="actor">actor_maria</object>
     </db.insert>
 
@@ -65,7 +87,7 @@
         <object> new_film </object>
     </db.execute> -->
 
-    <db.insert table="film" returning_into="new_film">
+    <db.insert table="t_film" returning_into="new_film">
         <object>new_film</object>
     </db.insert>
 
@@ -77,7 +99,7 @@
         <object name="film"> new_film </object>
     </db.execute> -->
 
-    <db.update table="film">
+    <db.update table="t_film">
         <object name="film"> new_film </object>
     </db.update>
 
@@ -88,7 +110,7 @@
         </object>
     </db.execute> -->
 
-    <db.insert table="film_actor">
+    <db.insert table="t_film_actor">
         <object>
             <number name="actor_id">actor_maria.actor_id</number>
             <number name="film_id">new_film.film_id</number>
@@ -102,24 +124,24 @@
         <number name="length_to">60</number>
     </db.execute> -->
 
-    <db.runquery name="films_actors" result="films_actors">
+    <db.runquery name="t_films_actors" result="films_actors">
         <number name="length_from">60</number>
         <number name="length_to">60</number>
     </db.runquery>
 
-    <print>"films_actors.resultset.at(0).actor.last_name " + films_actors.resultset.at(0).actor.last_name</print>
+    <print>"films_actors.resultset.at(0).t_actor.last_name " + films_actors.resultset.at(0).t_actor.last_name</print>
     <call object="films_actors.resultset" method="foreach">
         <function>
             <object name="result" />
             <block>
-                <print>"actor " + result.actor.actor_id + " " + result.actor.first_name + " " + result.actor.last_name 
-                    + ", film " + result.film.film_id + " " + result.film.title 
+                <print>"actor " + result.t_actor.actor_id + " " + result.t_actor.first_name + " " + result.t_actor.last_name 
+                    + ", film " + result.t_film.film_id + " " + result.t_film.title 
                 </print>
             </block>
         </function>
     </call>
 
-    <print>"string(films_actors) : "+string(films_actors)</print>
+    <print>"string(films_actors.resultset) : "+string(films_actors.resultset)</print>
 
 
 </module>

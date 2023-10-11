@@ -1,9 +1,6 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
-    <object name="dbresult"/>
-    <!-- <db.execute select_from_table="year" result="dbresult">
-        <string name="where">"year_num = 2021"</string>
-    </db.execute> -->
+    <!-- <object name="dbresult"/>
     <db.select table="year" result="dbresult">
         <string name="where">"year_num = 2021"</string>
     </db.select>
@@ -25,7 +22,10 @@
         <else>
             <print>"TEST KO"</print>
         </else>
-    </if>
+    </if> -->
+
+    <string name="year_begin_date">"2021-01-01"</string>
+    <string name="year_end_date">"2021-12-31"</string>
 
     <object name="monthlabel">
         <string name="_01">"Janvier"</string>

@@ -1,4 +1,4 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="http://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
     <object name="dates">
         <datetime name="datebirth">datetime(&quot;11/04/1963&quot;)</datetime>

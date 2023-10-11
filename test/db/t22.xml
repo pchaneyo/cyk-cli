@@ -1,18 +1,18 @@
-<?xml-model href="cyklang.xsd" ?>
-<module dbname="t22">
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<module>
     <function name="get_tables" returns="result: object">
         <block>
 
-            <object name="result_setting"/>
-            <db.select table="setting" result="result_setting"/>
-            <!-- <db.execute select_from_table="setting" result="result_setting"/> -->
+            <object name="result_t_actor"/>
+            <db.select table="t_actor" result="result_t_actor"/>
+            <!-- <db.execute select_from_table="t_actor" result="result_t_actor"/> -->
 
             <object name="result_">
                 <string name="name">"CYK"</string>
                 <string name="surname">"Philippe"</string>
-                <object name="setting">result_setting.setting</object>
+                <object name="t_actor">result_t_actor.t_actor</object>
                 <object name="meta">
-                    <string name="setting">result_setting.meta.setting</string>
+                    <string name="t_actor">result_t_actor.meta.t_actor</string>
                 </object>
             </object>
             <set name="result">result_</set>

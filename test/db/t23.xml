@@ -1,9 +1,9 @@
-<?xml-model href="cyklang.xsd" ?>
-<module dbname="t23">
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<module>
     <function name="call_get_tables">
         <block>
-            <object name="settings"/>
-            <db.call module="t22" method="get_tables" returns="settings"/>
+            <object name="t_actor"/>
+            <db.call module="t22" method="get_tables" returns="t_actor"/>
 
             <!-- <db.execute module="t22" method="get_tables" returns="settings">
             </db.execute> -->

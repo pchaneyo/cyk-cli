@@ -324,6 +324,7 @@ class TableDropCommand extends Cmd {
     constructor(name: string, description: string) {
         super(name)
         this.description(description)
+            .option('-y --yes', 'confirmation is not required')
             .argument('<table>', 'table name')
             .action(async (table, options) => {
                 await this.commandDrop(table, options)
@@ -334,18 +335,25 @@ class TableDropCommand extends Cmd {
         try {
             await this.prologue(options)
             if (!this.dbManager) throw 'dbManager undefined'
-            
+
             const dbTable = await this.dbManager.dbTableExist(table)
             if (!dbTable) {
                 console.log('table ' + table + ' does not exist')
                 return
             }
-            const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Drop table ' + table + '?' })
-            if (reply.confirm && this.dbManager) {
+            let dropConfirmed = (options.yes !== undefined)
+            if (dropConfirmed === false) {
+                const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Drop table ' + table + '?' })
+                if (reply.confirm) {
+                    dropConfirmed = true
+                }
+            }
+
+            if (dropConfirmed) {
                 await dropTable(table, this.dbManager)
             }
         }
-        catch(err) {
+        catch (err) {
             logger.error(err)
         }
     }
@@ -358,8 +366,10 @@ class TableDropCommand extends Cmd {
  */
 export async function dropTable(table: string, dbManager: DBManager) {
     const dbTable = await dbManager.dbTableExist(table)
-    if (dbTable)
-        await dbManager.dbTableDelete(dbTable)
+    if (dbTable) { 
+        await dbManager.dbTableDelete(dbTable) 
+        console.log('table ' + dbTable.name + ' dropped')
+    }
 }
 
 

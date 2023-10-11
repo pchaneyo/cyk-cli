@@ -1,0 +1,23 @@
+New film ID 1
+films_actors.resultset.at(0).t_actor.last_name CHANE YOU KAYE
+actor 1 Maria CHANE YOU KAYE, film 1 La mélodie du bonheur
+string(films_actors.resultset) : <object>
+    <object name="t_actor">
+        <number name="actor_id">1</number>
+        <string name="first_name" literal="">Maria</string>
+        <string name="last_name" literal="">CHANE YOU KAYE</string>
+        <datetime name="last_update">
+        </datetime>
+        <string name="cyk_remark" literal="">remarque</string>
+        <boolean name="cyk_disable">
+        </boolean>
+    </object>
+    <object name="t_film">
+        <number name="film_id">1</number>
+        <string name="title" literal="">La mélodie du bonheur</string>
+        <string name="description" literal="">Le film préféré de Mao</string>
+        <number name="release_year">1965</number>
+        <number name="length">60</number>
+        <number name="language_id">1</number>
+    </object>
+</object>
