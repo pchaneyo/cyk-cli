@@ -22,11 +22,16 @@ export class Cmd extends Command {
 
     async prologue(options: any): Promise<SigninResponse> {
 
-        const dotenvOutput = dotenv.config({ path: options.env })
-        if (dotenvOutput.error !== undefined) throw dotenvOutput.error
+        if (options.env || fs.existsSync('.env')) {
+            const dotenvOutput = dotenv.config({ path: options.env })
+            if (dotenvOutput.error !== undefined) throw dotenvOutput.error
+        }
 
         const structure = new Structure()
-        if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
+        if (! process.env.DBREMOTE_URL) throw 'DBREMOTE_URL environment variable undefined'
+        if (! process.env.USER_NAME) throw 'USER_NAME environment variable undefined'
+        if (! process.env.USER_PASSWORD) throw 'USER_PASSWORD environment variable undefined'
+        
         logger.info('Cyk server: ' + process.env.DBREMOTE_URL)
         const nodeCrypto = new NodeCrypto()
         this.dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
