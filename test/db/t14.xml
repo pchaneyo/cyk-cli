@@ -1,4 +1,4 @@
-<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<?xml-model href="../../../../../VueProjects/docs-vuepress/docs/.vuepress/public/cyklang.xsd" ?>
 <module>
     <object name="obj1">
         <string name="name">"obj1_name"</string>

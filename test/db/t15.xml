@@ -1,9 +1,9 @@
-<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<?xml-model href="../../../../../VueProjects/docs-vuepress/docs/.vuepress/public/cyklang.xsd" ?>
 <module>
     <print>"test de if()"</print>
     <print>if(2+2 == 4, "2+2==4", "2+2!==4")</print>
 
-    <db.query name="t_actors_by_film">
+    <query name="t_actors_by_film">
         <number name="film_id"/>
         <string name="__fields__">"
             film_id: number;
@@ -20,7 +20,7 @@ from t_film_actor join t_film on t_film.film_id = t_film_actor.film_id
 join t_actor on t_actor.actor_id = t_film_actor.actor_id
 where t_film_actor.film_id = {{ film_id }}
         </string>
-    </db.query>
+    </query>
 
     <object name="actors_by_film"/>
 
@@ -28,9 +28,10 @@ where t_film_actor.film_id = {{ film_id }}
         <number name="film_id">103</number>
     </db.execute> -->
 
-    <db.runquery name="t_actors_by_film" result="actors_by_film">
+    <runquery name="t_actors_by_film" result="actors_by_film">
         <number name="film_id">103</number>
-    </db.runquery>
+    </runquery>
+    
 
     <print>string(actors_by_film.resultset)</print>
     <print>actors_by_film.resultset.length()</print>

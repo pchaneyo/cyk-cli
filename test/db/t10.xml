@@ -26,28 +26,7 @@
         <number name="length" type="int"/>
     </db.table>
 
-    <!-- <object name="result"/>
-
-    <db.query name="t_film_actor_truncate">
-        <string name="__fields__" literal="">*</string>
-        <string name="__sql__" literal="">truncate table t_film_actor</string>
-    </db.query>
-    <db.runquery name="t_film_actor_truncate" result="result"></db.runquery>
-
-    <db.query name="t_film_truncate">
-        <string name="__fields__" literal="">*</string>
-        <string name="__sql__" literal="">truncate table t_film</string>
-    </db.query>
-    <db.runquery name="t_film_truncate" result="result"></db.runquery>
-
-    <db.query name="t_actor_truncate">
-        <string name="__fields__" literal="">*</string>
-        <string name="__sql__" literal="">truncate table t_actor</string>
-    </db.query>
-    <db.runquery name="t_actor_truncate" result="result"></db.runquery> -->
- 
-
-    <db.query name="t_films_actors">
+    <query name="t_films_actors">
         <number name="length_from">0</number>
         <number name="length_to">999</number>
         <string name="__entities__">"t_actor t_film"</string>
@@ -59,7 +38,7 @@
             -- and actor.actor_id = 2
             ORDER BY t_actor.actor_id ASC ;
         </string>
-    </db.query>
+    </query>
     
     <object name="actor_maria">
         <string name="first_name">"Maria" </string>
@@ -124,10 +103,10 @@
         <number name="length_to">60</number>
     </db.execute> -->
 
-    <db.runquery name="t_films_actors" result="films_actors">
+    <runquery name="t_films_actors" result="films_actors">
         <number name="length_from">60</number>
         <number name="length_to">60</number>
-    </db.runquery>
+    </runquery>
 
     <print>"films_actors.resultset.at(0).t_actor.last_name " + films_actors.resultset.at(0).t_actor.last_name</print>
     <call object="films_actors.resultset" method="foreach">

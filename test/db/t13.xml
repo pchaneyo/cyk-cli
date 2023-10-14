@@ -10,10 +10,23 @@
                 <number name="length_from">60</number>
                 <number name="length_to">60</number>
             </db.execute> -->
-            <db.runquery name="t_films_actors"  result="films_actors">
+            <query name="t_films_actors">
+                <number name="length_from">0</number>
+                <number name="length_to">999</number>
+                <string name="__entities__">"t_actor t_film"</string>
+                <string name="__sql__" literal="">
+                    SELECT * FROM public.t_actor 
+                    join t_film_actor on t_film_actor.actor_id = t_actor.actor_id 
+                    join t_film on t_film_actor.film_id = t_film.film_id
+                    where t_film.length between {{ length_from }}  and {{ length_to }}
+                    -- and actor.actor_id = 2
+                    ORDER BY t_actor.actor_id ASC ;
+                </string>
+            </query>
+            <runquery name="t_films_actors"  result="films_actors">
                 <number name="length_from">60</number>
                 <number name="length_to">60</number>
-            </db.runquery>
+            </runquery>
             <print>"index = "+index</print>
             <sleep>500</sleep>
             
