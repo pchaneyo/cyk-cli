@@ -17,6 +17,7 @@ export function errorconsole(xmlError: XmlError) {
             msg += ":" + (xmlError.tag.column + 1)
         }
         msg += ") ===============\n"
+        msg += xmlError.message
         console.log(msg)
     }
 }

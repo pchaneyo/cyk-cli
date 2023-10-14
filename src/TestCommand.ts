@@ -11,15 +11,15 @@ export class TestCommand extends Cmd {
     constructor() {
         super('test')
         this.description('test script').version('0.1')
-        .argument('<files...>', 'local module file(s) to test run')
-        .action(async(files: any, options: any) => {
-            await this.testRun(files, options)
-        })
+            .argument('<files...>', 'local module file(s) to test run')
+            .action(async (files: any, options: any) => {
+                await this.testRun(files, options)
+            })
     }
     async testRun(files: string[], options: any) {
         try {
             const signinResponse = await this.prologue(options)
-            for (let ind=0; ind < files.length; ind++) {
+            for (let ind = 0; ind < files.length; ind++) {
                 const result = await testfile(files[ind])
                 if (result === false) {
                     logger.debug('*********** FAILURE ' + files[ind] + ' ***************')
@@ -50,12 +50,12 @@ async function testfile(filename: string): Promise<boolean> {
 
     let xml = fs.readFileSync(xmlfilename)
 
-    
+
     fs.writeFileSync(logfilename, "")
     //console.log(xml.toString())
     try {
         if (process.env.DBREMOTE_URL === undefined) throw 'DBREMOTE_URL undefined'
-        logger.trace('DBREMOTE_URL '+process.env.DBREMOTE_URL)
+        logger.trace('DBREMOTE_URL ' + process.env.DBREMOTE_URL)
         const structure = new Structure()
         const nodeCrypto = new NodeCrypto()
         const dbRemote = new DBRemote(structure.scope, process.env.DBREMOTE_URL, nodeCrypto)
@@ -67,7 +67,7 @@ async function testfile(filename: string): Promise<boolean> {
         let script = new Script(structure.scope, xmlfilename, xml.toString())
         const user_lang = login.content.user_lang
         if (user_lang && user_lang.trim() !== '') {
-            
+
             const langfilename = filename + "__" + user_lang + ".xml"
 
             if (fs.existsSync(langfilename)) {
@@ -97,11 +97,12 @@ async function testfile(filename: string): Promise<boolean> {
             let xmlError = <XmlError>err
             errorconsole(xmlError)
         }
-        console.log(err)
+        else
+            console.log(err)
     }
 
     let log = fs.readFileSync(logfilename)
-    if (fs.existsSync(outfilename) === true ) {
+    if (fs.existsSync(outfilename) === true) {
         let out = fs.readFileSync(outfilename)
 
         if (log.toString() === out.toString()) {
