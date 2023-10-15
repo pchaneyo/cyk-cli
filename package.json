@@ -17,7 +17,7 @@
    "author": "",
    "license": "ISC",
    "dependencies": {
-      "@cyklang/core": "^0.5.4",
+      "@cyklang/core": "^0.6.0",
       "commander": "^9.4.0",
       "dotenv": "^16.0.1",
       "form-data": "^4.0.0",

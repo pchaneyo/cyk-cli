@@ -1,4 +1,10 @@
 test de if()
 2+2==4
-
-0
+<object>
+    <number name="film_id">1</number>
+    <number name="actor_id">1</number>
+    <string name="title" literal="">La mélodie du bonheur</string>
+    <string name="first_name" literal="">Maria</string>
+    <string name="last_name" literal="">CHANE YOU KAYE</string>
+</object>
+actors_by_film.resultset.length(): 1
