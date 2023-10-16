@@ -5,6 +5,7 @@ import loglevel from 'loglevel'
 import { Cmd } from './Cmd'
 import { Command } from 'commander'
 import { DBClient } from "./DBClient"
+import inquirer from 'inquirer'
 const logger = loglevel.getLogger("QueryCommand.ts")
 logger.setLevel("debug")
 
@@ -14,6 +15,7 @@ export class QueryCommand extends Command {
         this.description('query management')
         this.addCommand(new QueryList('list', 'list queries'))
         this.addCommand(new QueryList('l', 'list queries'))
+        this.addCommand(new QueryDelete('delete'))
     }
 }
 
@@ -42,7 +44,47 @@ class QueryList extends Cmd {
     }
 }
 
+/**
+ * class QueryDelete
+ */
+class QueryDelete extends Cmd {
+    constructor(name: string) {
+        super(name)
+        this.description('delete query from cyk_query table')
+        .option('-y --yes', 'confirmation is not required')
+        .argument('<query>', 'query name')
+        .action(async (query, options) => {
+            await this.commandDelete(query, options)
+        })
+    }
 
+    async commandDelete(query: string, options: any) {
+        try {
+            await this.prologue(options)
+            if (! this.dbManager) throw 'dbManager undefined'
+
+            const dbQuery = await this.dbManager.dbQueryExist(query)
+            if (! dbQuery ) {
+                console.log('query ' + query + ' does not exist ')
+                return
+            }
+            let deleteConfirmed = (options.yes !== undefined)
+            if (deleteConfirmed === false) {
+                const reply = await inquirer.prompt({ type: 'confirm', name: 'confirm', message: 'Delete query ' + query + '?' })
+                if (reply.confirm) {
+                    deleteConfirmed = true
+                }
+            }
+            if (deleteConfirmed) {
+                await this.dbManager.dbQueryDelete(dbQuery)
+                console.log('Query ' + query + ' has been deleted')
+            }
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------------------------
 // class queryData

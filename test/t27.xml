@@ -1,4 +1,4 @@
-<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<?xml-model href="../../../../VueProjects/docs-vuepress/docs/.vuepress/public/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <module>
     <print>objson('150')</print>
     <string name="chaine" literal=""><![CDATA[ 
@@ -15,4 +15,25 @@
         ]]>
     </string>
     <print>json(objson(chaine))</print>
+
+    <object name="resp"/>
+
+    <fetch method="get" returns="resp" >
+        <string name="origin">"https://api.openweathermap.org"</string>
+        <string name="pathname">"/data/2.5/weather"</string>
+        <object name="search">
+            <string name="q">"paris,fr"</string>
+            <string name="units">"metric"</string>
+            <string name="lang">"fr"</string>
+            <string name="APPID">"3e2dfabc1469f6ea7bb01bf852fd4cc3"</string>
+        </object>
+    </fetch>
+    <print>'Paris coordinates : ' + string(resp.json.coord)</print>
+<!-- 
+    <print>"icon: " + resp.json.weather.at(0).icon 
+        + ", description: " 
+        + resp.json.weather.at(0).description 
+        + ", temp: " + resp.json.main.temp + "°C"
+    </print> -->
+
 </module>
