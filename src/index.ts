@@ -15,6 +15,7 @@ import { TableDataCommand } from './TableDataCommand'
 import { TestCommand } from './TestCommand'
 import { UninstallCommand } from './UninstallCommand'
 import { UserCommand } from './UserCommand'
+import { CronCommand } from './CronCommand'
 
 const logger = loglevel.getLogger("index.ts")
 logger.setLevel("debug")
@@ -175,7 +176,7 @@ class StopCommand extends Command {
  */
 const program = new Command()
 program.name('cyk').description('cyklang CLI')
-    .version('0.8.2')
+    .version('0.8.3')
 program.addCommand(new StartCommand('start'))
 program.addCommand(new StopCommand('stop'))
 program.addCommand(new InstallCommand('install'))
@@ -198,5 +199,7 @@ program.addCommand(new RunCommand('run'))
 program.addCommand(new RunCommand('r'))
 program.addCommand(new OpenCommand('open'))
 program.addCommand(new OpenCommand('o'))
+program.addCommand(new CronCommand('cron'))
+program.addCommand(new CronCommand('c'))
 
 program.parse()
