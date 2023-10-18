@@ -12,6 +12,8 @@ export class CronCommand extends Command {
         .addCommand(new CronList('l'))
         .addCommand(new CronAddCmd('add'))
         .addCommand(new CronAddCmd('a'))
+        .addCommand(new CronDeleteCmd('delete'))
+        .addCommand(new CronDeleteCmd('d'))
     }
 }
 
@@ -20,8 +22,20 @@ class CronList extends Cmd {
         super(name)
         this.description('List scheduled batches')
             .action(async (options: any) => {
-
+                await this.commandList(options)
             })
+    }
+
+    async commandList(options: any) {
+        try {
+            await this.prologue(options)
+
+            const json = await this.dbRemote?.apiServer.get('/api/admin/cron')
+            console.log(json)
+        }
+        catch (err) {
+            logger.error(err)
+        }
     }
 }
 
@@ -32,9 +46,68 @@ class CronAddCmd extends Cmd {
             .option('-s --schedule <schedule>', 'schedule in crontab format')
             .option('-m --module <module_name>', 'module name')
             .option('-f --function <function>', 'function called in the module')
-            .option('-p --param <parameter_name_value>', 'name and value separated by = character')
+            .option('-p --params <name_value_pairs>', 'URL encoded form without ? (question mark) ie "p1=val1&p2=val2"')
             .action(async (options: any) => {
-                console.log('options', options)
+                await this.commandAdd(options)
             })
     }
+    /**
+     * 
+     * @param options 
+     */
+    async commandAdd(options: any) {
+        try {
+
+            await this.prologue(options)
+            if (! this.dbRemote) throw 'dbRemote undefined'
+            const payload: any = {
+                schedule: options.schedule,
+                module: options.module,
+                function: options.function,
+                params: options.params
+            }
+            const response = await this.dbRemote.apiServer.post('/api/admin/cron', payload)
+            logger.debug(response)
+        }
+        catch (err) {
+            logger.error(err)
+        }
+    }
+
+}
+
+class CronDeleteCmd extends Cmd {
+    constructor(name: string) {
+        super(name)
+        this.description('delete a batch scheduling with cron')
+            .option('-s --schedule <schedule>', 'schedule in crontab format')
+            .option('-m --module <module_name>', 'module name')
+            .option('-f --function <function>', 'function called in the module')
+            .option('-p --params <name_value_pairs>', 'URL encoded form without ? (question mark) ie "p1=val1&p2=val2"')
+            .action(async (options: any) => {
+                await this.commandDelete(options)
+            })
+    }
+    /**
+     * 
+     * @param options 
+     */
+        async commandDelete(options: any) {
+            try {
+    
+                await this.prologue(options)
+                if (! this.dbRemote) throw 'dbRemote undefined'
+                const payload: any = {
+                    schedule: options.schedule,
+                    module: options.module,
+                    function: options.function,
+                    params: options.params
+                }
+                const response = await this.dbRemote.apiServer.delete('/api/admin/cron', payload)
+                logger.debug(response)
+            }
+            catch (err) {
+                logger.error(err)
+            }
+        }
 }
