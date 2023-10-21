@@ -31,7 +31,7 @@ class CronList extends Cmd {
             await this.prologue(options)
 
             const json = await this.dbRemote?.apiServer.get('/api/admin/cron')
-            console.log(json)
+            console.log(JSON.stringify(json))
         }
         catch (err) {
             logger.error(err)
@@ -80,11 +80,13 @@ class CronDeleteCmd extends Cmd {
     constructor(name: string) {
         super(name)
         this.description('delete a batch scheduling with cron')
+            .option('-i --id <cron_id>', 'id of the cron to delete (mandatory)')
             .option('-s --schedule <schedule>', 'schedule in crontab format')
             .option('-m --module <module_name>', 'module name')
             .option('-f --function <function>', 'function called in the module')
             .option('-p --params <name_value_pairs>', 'URL encoded form without ? (question mark) ie "p1=val1&p2=val2"')
             .action(async (options: any) => {
+                
                 await this.commandDelete(options)
             })
     }
@@ -97,13 +99,14 @@ class CronDeleteCmd extends Cmd {
     
                 await this.prologue(options)
                 if (! this.dbRemote) throw 'dbRemote undefined'
+                if (! options.id) throw 'id is missing'
                 const payload: any = {
                     schedule: options.schedule,
                     module: options.module,
                     function: options.function,
                     params: options.params
                 }
-                const response = await this.dbRemote.apiServer.delete('/api/admin/cron', payload)
+                const response = await this.dbRemote.apiServer.delete(`/api/admin/cron/${options.id}`, payload)
                 logger.debug(response)
             }
             catch (err) {

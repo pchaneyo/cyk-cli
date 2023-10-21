@@ -176,7 +176,7 @@ class StopCommand extends Command {
  */
 const program = new Command()
 program.name('cyk').description('cyklang CLI')
-    .version('0.8.3')
+    .version('0.9.1')
 program.addCommand(new StartCommand('start'))
 program.addCommand(new StopCommand('stop'))
 program.addCommand(new InstallCommand('install'))
