@@ -11,10 +11,12 @@
                 <number name="length_to">60</number>
             </db.execute> -->
             <query name="t_films_actors">
-                <number name="length_from">0</number>
-                <number name="length_to">999</number>
-                <string name="__entities__">"t_actor t_film"</string>
-                <string name="__sql__" literal="">
+                <object name="params">
+                    <number name="length_from">0</number>
+                    <number name="length_to">999</number>
+                </object>
+                <string name="entities">"t_actor t_film"</string>
+                <string name="sql" literal="">
                     SELECT * FROM public.t_actor 
                     join t_film_actor on t_film_actor.actor_id = t_actor.actor_id 
                     join t_film on t_film_actor.film_id = t_film.film_id

@@ -220,4 +220,17 @@
 
     <call function="caller"/>
 
+    <object name="list">
+        <object type="dossier">dos1</object>
+        <!-- <object>dos2</object>
+        <object>dos3</object> -->
+    </object>
+    <call object="list" method="push">
+        <object type="dossier_remorquage">dos2</object>
+    </call>
+    <call object="list" method="push">
+        <object type="dossier">dos3</object>
+    </call>
+    <print>"list: " + string(list)</print>
+
 </module>

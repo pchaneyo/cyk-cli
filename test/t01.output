@@ -44,3 +44,32 @@ Vidage de l'object pst1 :
 name id, value 100
 name libelle, value Prestation 2
 v_obj.nested.member = 888
+list: <object type="dossier">
+    <number name="id">1</number>
+    <string name="libelle" literal="">Dossier DUPONT</string>
+    <object name="prestation" type="prestation">
+        <number name="id">100</number>
+        <string name="libelle" literal="">Prestation 2</string>
+    </object>
+</object>
+<object type="dossier_remorquage">
+    <number name="id">2</number>
+    <string name="libelle" literal="">DURAND</string>
+    <object name="prestation" type="prestation">
+        <number name="id">
+        </number>
+        <string name="libelle">
+        </string>
+    </object>
+    <string name="lieu" literal="">Saint-Denis</string>
+</object>
+<object type="dossier">
+    <number name="id">300</number>
+    <string name="libelle" literal="">dossier 300</string>
+    <object name="prestation" type="prestation">
+        <number name="id">
+        </number>
+        <string name="libelle">
+        </string>
+    </object>
+</object>
