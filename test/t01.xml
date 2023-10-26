@@ -231,6 +231,10 @@
     <call object="list" method="push">
         <object type="dossier">dos3</object>
     </call>
+    <call object="list" method="push">
+        <object name="dossier_vide" type="dossier"></object>
+    </call>
     <print>"list: " + string(list)</print>
+    <print>"list.at(0): " + string(list.at(0))</print>
 
 </module>
