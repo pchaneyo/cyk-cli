@@ -237,4 +237,6 @@
     <print>"list: " + string(list)</print>
     <print>"list.at(0): " + string(list.at(0))</print>
 
+    <print>"meta(dossier): " +meta("dossier")</print>
+    <print>"meta(dossier_remorquage): " + meta("dossier_remorquage")</print>
 </module>
