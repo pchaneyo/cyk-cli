@@ -1,0 +1,4 @@
+chaine_vide: undefined
+chaine_vide: undefined
+[ ! chaine_vide ] is true
+! nombre_vide false

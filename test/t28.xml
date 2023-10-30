@@ -1,0 +1,27 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<module>
+
+    <string name="chaine_vide"/>
+    <print>"chaine_vide: " + chaine_vide</print>
+    <if>
+        <condition>! chaine_vide </condition>
+        <then>
+            <print>"chaine_vide: " +chaine_vide</print>
+            <print>"[ ! chaine_vide ] is true"</print>
+        </then>
+        <else>
+            <print>"[ ! chaine_vide ] is false"</print>
+        </else>
+    </if>
+
+    <number name="nombre_vide">1</number>
+    <if>
+        <condition>! nombre_vide</condition>
+        <then>
+            <print>"! nombre_vide true"</print>
+        </then>
+        <else>
+            <print>"! nombre_vide false"</print>
+        </else>
+    </if>
+</module>
