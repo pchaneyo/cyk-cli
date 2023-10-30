@@ -98,4 +98,16 @@
     <print>string(document)</print>
     <print>string(object(string(document)))</print>
 
+    <object type="m_t20.Dossier" name="dossier"/>
+    <print>"string(dossier): " + string(dossier)</print>
+
+    <object name="dcl">
+        <type name="Prestation">
+            <number name="pst_id"/>
+            <string name="pst_libelle"/>
+        </type>
+    </object>
+    <object type="dcl.Prestation" name="presta"/>
+    <print>"string(presta): " + string(presta)</print>
+
 </module>

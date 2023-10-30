@@ -28,4 +28,9 @@
         </block>
     </function>
 
+    <type name="Dossier">
+        <number name="id"/>
+        <string name="libelle"/>
+    </type>
+
 </module>

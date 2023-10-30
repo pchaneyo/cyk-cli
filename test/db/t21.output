@@ -21,3 +21,11 @@ chaine : 150
 </datetime>
 <datetime name="dtnull1">
 </datetime>
+string(dossier): <number name="id">
+</number>
+<string name="libelle">
+</string>
+string(presta): <number name="pst_id">
+</number>
+<string name="pst_libelle">
+</string>
