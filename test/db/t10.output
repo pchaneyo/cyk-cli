@@ -1,11 +1,11 @@
 New film ID 1
-films_actors.resultset.at(0).t_actor.last_name CHANE YOU KAYE
-actor 1 Maria CHANE YOU KAYE, film 1 La mélodie du bonheur
+films_actors.resultset.at(0).t_actor.last_name DUPONT
+actor 1 Maria DUPONT, film 1 La mélodie du bonheur
 string(films_actors.resultset) : <object>
     <object name="t_actor">
         <number name="actor_id">1</number>
         <string name="first_name" literal="">Maria</string>
-        <string name="last_name" literal="">CHANE YOU KAYE</string>
+        <string name="last_name" literal="">DUPONT</string>
         <datetime name="last_update">
         </datetime>
         <string name="cyk_remark" literal="">remarque</string>

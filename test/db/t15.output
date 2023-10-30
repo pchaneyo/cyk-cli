@@ -5,6 +5,6 @@ test de if()
     <number name="actor_id">1</number>
     <string name="title" literal="">La mélodie du bonheur</string>
     <string name="first_name" literal="">Maria</string>
-    <string name="last_name" literal="">CHANE YOU KAYE</string>
+    <string name="last_name" literal="">DUPONT</string>
 </object>
 actors_by_film.resultset.length(): 1

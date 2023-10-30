@@ -45,7 +45,7 @@
     
     <object name="actor_maria">
         <string name="first_name">"Maria" </string>
-        <string name='last_name'>'CHANE YOU KAYE'</string>
+        <string name='last_name'>'DUPONT'</string>
         <string name='cyk_remark'> 'remarque' </string>
     </object>
 
