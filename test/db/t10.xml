@@ -2,28 +2,28 @@
 <module>
 
     <db.table name="t_actor">
-        <number name="actor_id" type="int" primary="" generated='by default'/>
-        <string name="first_name" type="varchar(50)"/>
-        <string name="last_name" type="text" />
-        <datetime name="last_update" type="timestamp with time zone"/>
-        <string name="cyk_remark" type="varchar(255)" />
-        <boolean name="cyk_disable" type="boolean"/>
+        <number name="actor_id" dbtype="int" primary="" generated='by default'/>
+        <string name="first_name" dbtype="varchar(50)"/>
+        <string name="last_name" dbtype="text" />
+        <datetime name="last_update" dbtype="timestamp with time zone"/>
+        <string name="cyk_remark" dbtype="varchar(255)" />
+        <boolean name="cyk_disable" dbtype="boolean"/>
     </db.table>
 
     <db.table name="t_film">
-        <number name="film_id" type="int" primary="" generated='by default'/>
-        <string name="title" type="varchar(255)" />
-        <string name="description" type="text" />
-        <number name="release_year" type="int"/>
-        <number name="length" type="int" />
-        <number name="language_id" type="int"/>
+        <number name="film_id" dbtype="int" primary="" generated='by default'/>
+        <string name="title" dbtype="varchar(255)" />
+        <string name="description" dbtype="text" />
+        <number name="release_year" dbtype="int"/>
+        <number name="length" dbtype="int" />
+        <number name="language_id" dbtype="int"/>
     </db.table>
 
     <db.table name="t_film_actor">
-        <number name="id" type="int" primary="" generated="by default"/>
-        <number name="actor_id" type="int"/>
-        <number name="film_id" type="int"/>
-        <number name="length" type="int"/>
+        <number name="id" dbtype="int" primary="" generated="by default"/>
+        <number name="actor_id" dbtype="int"/>
+        <number name="film_id" dbtype="int"/>
+        <number name="length" dbtype="int"/>
     </db.table>
 
     <query name="t_films_actors">

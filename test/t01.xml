@@ -239,4 +239,17 @@
 
     <print>"meta(dossier): " +meta("dossier")</print>
     <print>"meta(dossier_remorquage): " + meta("dossier_remorquage")</print>
+
+    <function name="fct">
+        <object type="type"/>
+        <block>
+            <object name="obj">newobject(type)</object>
+            <print>"obj: " + string(obj)</print>
+        </block>
+    </function>
+
+    <call function="fct">
+        <object name="type">gettype(prestation)</object>
+    </call>
+    
 </module>

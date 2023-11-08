@@ -250,8 +250,8 @@ const commandImportExport = async (dbManager: DBManager, direction: 'from' | 'to
 function psqlCmd(dbTable: DBTable, direction: 'from' | 'to', options: Options,) {
 
     let lcols: string | undefined
-    for (let indj = 0; indj < dbTable.columns.length; indj++) {
-        const dbColumn = dbTable.columns[indj]
+    for (let indj = 0; indj < dbTable.dbColumns.columns.length; indj++) {
+        const dbColumn = dbTable.dbColumns.columns[indj]
         if (lcols === undefined) {
             lcols = "("
         }

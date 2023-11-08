@@ -72,7 +72,7 @@ export class DBClient {
                     if (order_by !== '') order_by += ','
                     order_by += colname
                 }
-                logger.debug('order_by ' + order_by)
+                // logger.debug('order_by ' + order_by)
                 request.parameters.addVariable('order_by', stringDataType).data = new PrimitiveData(stringDataType, order_by)
             }
 
@@ -95,6 +95,7 @@ export class DBClient {
 
             const tagDBTable = parseXML('dbTable', xmlMeta)
             const dbTable = new DBTable(tagDBTable)
+            await dbTable.parse(this.dbManager.scope)
 
             const fields = options.fields.split(',')
             const list = new List()
@@ -102,7 +103,7 @@ export class DBClient {
 
             for (let ind = 0; ind < fields.length; ind++) {
                 const field = fields[ind]
-                const dbColumn = dbTable.columns.filter((dbColumn) => dbColumn.name === field)[0]
+                const dbColumn = dbTable.dbColumns.columns.filter((dbColumn) => dbColumn.name === field)[0]
                 if (dbColumn === undefined) throw 'field ' + field + ' not found'
                 list.addDBColumn(dbColumn)
             }
@@ -187,7 +188,7 @@ class List {
             colws.push(colw)
         }
 
-        logger.debug('colws', colws.join(','))
+        // logger.debug('colws', colws.join(','))
 
         // calculate column.actualWidth
         let total_width = 0

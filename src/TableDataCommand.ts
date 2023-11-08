@@ -29,8 +29,8 @@ export class TableDataCommand extends Cmd {
 
             let fields = '';
 
-            for (let ind = 0; ind < dbTable.columns.length; ind++) {
-                const dbColumn = dbTable.columns[ind];
+            for (let ind = 0; ind < dbTable.dbColumns.columns.length; ind++) {
+                const dbColumn = dbTable.dbColumns.columns[ind];
                 let ok = false;
                 let fieldName = dbColumn.name;
                 if (dbColumn.dbType === 'text' || dbColumn.dbType === 'bytea') {
@@ -46,7 +46,7 @@ export class TableDataCommand extends Cmd {
                 }
             }
 
-            logger.debug('commandQuery', table);
+            // logger.debug('commandData:', table, 'fields: ', fields);
             const dbClient = new DBClient(this.dbManager);
             let title = 'Table ' + table;
             if (options.where !== undefined) {
