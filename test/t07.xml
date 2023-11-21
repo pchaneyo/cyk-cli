@@ -3,35 +3,36 @@
     <print>"begin"</print>
     <number name="jean">12345</number>
     <type name="form"/>
-    <type name="form.grid" />
-    <type name="form.field"/>
-    <type name="form.input" />
-    <type name="form.button" />
-    <type name="form.onclick"/>
-    <type name="form.template" literal=""/>
+    <type name="grid" />
+    <type name="field"/>
+    <type name="input" />
+    <type name="button" />
+    <type name="template" literal=""/>
+
     <form name="ident_form">
         <string name="tip">"information"</string>
-        <grid template-columns="1fr 1fr" column="1 / 3">
+        <grid grid-template-columns="1fr 1fr" grid-column="1 / 3">
             <input model="v1"></input>
         </grid>
         <input model="surname" label="Surname" />
         <input model="name" label="Name" />
         <button label="OK" icon="done">
-            <onclick>
+            <function name="onclick">
+                <block></block>
                 <!-- <closeform/> -->
-            </onclick>
+            </function>
         </button>
     </form>
     <print>"ident_form.tip " + ident_form.tip</print>
     <form name="f1">ident_form</form>
     <print>"f1.tip " + f1.tip</print>
-    
-    <form name="form1" template-columns="auto auto">
+
+    <form name="form1" grid-template-columns="auto auto">
         <string name="tip">"information"</string>
         <input model="v1" bg-color="green-1" label="Label Version" stack-label="" hint="Hint info V1" autogrow=""></input>
         <input model="v1" label="Label V1" stack-label="" hint="Hint V1" type="textarea"></input>
 
-        <grid template-columns="1fr 1fr" column="1 / 3">
+        <grid grid-template-columns="1fr 1fr" grid-column="1 / 3">
             <input model="v1"></input>
         </grid>
 
@@ -68,13 +69,13 @@
         <input model="numb" label="Number" stack-label="" type="number"></input>
 
         <button label="Ok" icon="event">
-            <onclick>
-                <function>
-                    <block>
-                        <print>"toto"</print>
-                    </block>
-                </function>
-            </onclick>
+
+            <function name="onclick">
+                <block>
+                    <print>"toto"</print>
+                </block>
+            </function>
+
         </button>
     </form>
     <print>"form1.tip " + form1.tip</print>

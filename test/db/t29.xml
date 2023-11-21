@@ -1,0 +1,12 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<module>
+    <object name="leo">
+                newDBRow("t_actor")
+    </object>
+    <print>"leo: " + string(leo)</print>
+    <set name="leo.first_name">"Leonardo"</set>
+    <set name="leo.last_name">"DI CAPRIO"</set>
+    <object name="result"/>
+    <call object="leo" method="dbinsert" returns="result"/>
+    <print>"result: " + string(result)</print>
+</module>

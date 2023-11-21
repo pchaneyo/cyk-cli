@@ -6,13 +6,13 @@
             <object name="result_t_actor"/>
             <db.select table="t_actor" result="result_t_actor"/>
             <!-- <db.execute select_from_table="t_actor" result="result_t_actor"/> -->
-
+            <print>"result_t_actor: " + string(result_t_actor)</print>
             <object name="result_">
                 <string name="name">"CYK"</string>
                 <string name="surname">"Philippe"</string>
-                <object name="t_actor">result_t_actor.t_actor</object>
+                <object name="t_actor">result_t_actor.resultset</object>
                 <object name="meta">
-                    <string name="t_actor">result_t_actor.meta.t_actor</string>
+                    <string name="t_actor">result_t_actor.meta.resultset</string>
                 </object>
             </object>
             <set name="result">result_</set>

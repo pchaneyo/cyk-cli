@@ -26,11 +26,13 @@ export class TableDataCommand extends Cmd {
 
             const dbTable = await this.dbManager.dbTableExist(table);
             if (dbTable === undefined) throw 'table ' + table + ' not found';
+            if (! dbTable.objectDataType ) throw 'dbTable.objectDataType undefind'
+            if (! dbTable.objectDataType.dbColumns ) throw 'dbTable.objectDataType.dbColumns undefined'
 
             let fields = '';
 
-            for (let ind = 0; ind < dbTable.dbColumns.columns.length; ind++) {
-                const dbColumn = dbTable.dbColumns.columns[ind];
+            for (let ind = 0; ind < dbTable.objectDataType.dbColumns.columns.length; ind++) {
+                const dbColumn = dbTable.objectDataType.dbColumns.columns[ind];
                 let ok = false;
                 let fieldName = dbColumn.name;
                 if (dbColumn.dbType === 'text' || dbColumn.dbType === 'bytea') {

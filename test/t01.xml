@@ -2,16 +2,16 @@
 <module>
 
     <type name="prestation">
-        <number name="id"/>
-        <string name="libelle"/>
+        <number name="pst_id"/>
+        <string name="pst_libelle"/>
     </type>
     <type name="dossier">
-        <number name="id" />
-        <string name="libelle" />
+        <number name="dos_id" />
+        <string name="dos_libelle" />
         <object type="prestation" name="prestation" />
     </type>
     <type name="dossier_remorquage" base="dossier">
-        <string name="lieu" />
+        <string name="dos_lieu" />
     </type>
 
     <function name="add" returns="c: number">
@@ -54,34 +54,34 @@
         </block>
     </function>
     <object type="dossier" name="dos1">
-        <number name="id">1</number>
-        <string name="libelle">"Dossier DUPONT"</string>
+        <number name="dos_id">1</number>
+        <string name="dos_libelle">"Dossier DUPONT"</string>
     </object>
     <!-- <let name="dos1.id">1</let>
         <let name="dos1.libelle">"DUPONT"</let> -->
-    <print>"******* Mon nom est " + dos1.libelle + " id " + dos1.id</print>
+    <print>"******* Mon nom est " + dos1.dos_libelle + " id " + dos1.dos_id</print>
     <object type="dossier_remorquage" name="dos2">
-        <number name="id">2</number>
+        <number name="dos_id">2</number>
     </object>
-    <let name="dos2.libelle">"DURAND"</let>
-    <let name="dos2.lieu">"Saint-Denis"</let>
-    <print>"Dossier remorquage : " + dos2.libelle + " lieu " + dos2.lieu</print>
+    <let name="dos2.dos_libelle">"DURAND"</let>
+    <let name="dos2.dos_lieu">"Saint-Denis"</let>
+    <print>"Dossier remorquage : " + dos2.dos_libelle + " lieu " + dos2.dos_lieu</print>
     <!-- <let name="dos1.lieu">"toto"</let> -->
     <if>
-        <condition><![CDATA[ dos1.id == 2 ]]></condition>
+        <condition><![CDATA[ dos1.dos_id == 2 ]]></condition>
         <then>
-            <print>"then de dos1.id == 1"</print>
+            <print>"then de dos1.dos_id == 1"</print>
         </then>
-        <condition>dos2.libelle == "DURAND"</condition>
+        <condition>dos2.dos_libelle == "DURAND"</condition>
         <then>
-            <print>"then dos2.libelle == DURAND"</print>
+            <print>"then dos2.dos_libelle == DURAND"</print>
         </then>
         <else>
             <print>"CASE else"</print>
         </else>
     </if>
     <block>
-        <print>"Nested block dos1.id " + dos1.id </print>
+        <print>"Nested block dos1.id " + dos1.dos_id </print>
     </block>
     <number name="result"/>
     <call function="add" returns="result">
@@ -100,19 +100,19 @@
     <print>"factorielle de " + Nombre + " = " + result</print>
     <print>"factorielle de 5 : " + fact(5)</print>
     <object type="prestation" name="pst1">
-        <number name="id">100</number>
-        <string name="libelle">"Prestation 1"</string>
+        <number name="pst_id">100</number>
+        <string name="pst_libelle">"Prestation 1"</string>
     </object>
     <object type="prestation" name="pst2">
     </object>
 
-    <print>"PST1 id="+pst1.id +" libelle="+pst1.libelle</print>
+    <print>"PST1 id="+pst1.pst_id +" libelle="+pst1.pst_libelle</print>
     <let name="pst2">pst1</let>
-    <let name="pst2.libelle">"Prestation 2"</let>
-    <print>"PST2 id="+pst2.id +" libelle="+pst2.libelle</print>
-    <print>"PST1 id="+pst1.id +" libelle="+pst1.libelle</print>
+    <let name="pst2.pst_libelle">"Prestation 2"</let>
+    <print>"PST2 id="+pst2.pst_id +" libelle="+pst2.pst_libelle</print>
+    <print>"PST1 id="+pst1.pst_id +" libelle="+pst1.pst_libelle</print>
     <let name="dos1.prestation">pst1</let>
-    <print>"dos1.prestation.libelle = "+dos1.prestation.libelle</print>
+    <print>"dos1.prestation.pst_libelle = "+dos1.prestation.pst_libelle</print>
 
     <object name="numbers">
         <number>150</number>
@@ -168,11 +168,11 @@
         <print>"total du tableau = "+total</print> -->
 
     <object type="dossier" name="dos3">
-        <number name="id">300</number>
-        <string name="libelle">"dossier 300"</string>
+        <number name="dos_id">300</number>
+        <string name="dos_libelle">"dossier 300"</string>
     </object>
 
-    <print>"dos3 " + dos3.id + " " + dos3.libelle</print>
+    <print>"dos3 " + dos3.dos_id + " " + dos3.dos_libelle</print>
 
     <string name="xml" literal=""><![CDATA[ 
         <number name="id">1000</number>
@@ -240,16 +240,23 @@
     <print>"meta(dossier): " +meta("dossier")</print>
     <print>"meta(dossier_remorquage): " + meta("dossier_remorquage")</print>
 
-    <function name="fct">
+    <!-- <function name="fct">
         <object type="type"/>
         <block>
             <object name="obj">newobject(type)</object>
             <print>"obj: " + string(obj)</print>
         </block>
-    </function>
+    </function> -->
 
-    <call function="fct">
+    <!-- <call function="fct">
         <object name="type">gettype(prestation)</object>
-    </call>
-    
+    </call> -->
+ 
+    <object name="dos4" type="dossier"/>
+    <object name="pst4" type="prestation"/>
+    <print>"dos4: " + string(dos4)</print>
+    <print>"pst4: " + string(pst4)</print>
+    <set name="dos4.prestation">pst4</set>
+    <print>"dos4: " + string(dos4)</print>
+
 </module>

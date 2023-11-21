@@ -44,10 +44,6 @@ export class DBClient {
         }
     }
 
-    async runQuery() {
-
-    }
-
     async selectFromTable(title: string, tableName: string, options:
         { fields: string, sort?: string | undefined, where?: string | undefined, width?: string | undefined }): Promise<any[]> {
 
@@ -96,6 +92,8 @@ export class DBClient {
             const tagDBTable = parseXML('dbTable', xmlMeta)
             const dbTable = new DBTable(tagDBTable)
             await dbTable.parse(this.dbManager.scope)
+            if (! dbTable.objectDataType ) throw 'dbTable.objectDataType undefind'
+            if (! dbTable.objectDataType.dbColumns ) throw 'dbTable.objectDataType.dbColumns undefined'
 
             const fields = options.fields.split(',')
             const list = new List()
@@ -103,7 +101,7 @@ export class DBClient {
 
             for (let ind = 0; ind < fields.length; ind++) {
                 const field = fields[ind]
-                const dbColumn = dbTable.dbColumns.columns.filter((dbColumn) => dbColumn.name === field)[0]
+                const dbColumn = dbTable.objectDataType.dbColumns.columns.filter((dbColumn) => dbColumn.name === field)[0]
                 if (dbColumn === undefined) throw 'field ' + field + ' not found'
                 list.addDBColumn(dbColumn)
             }
@@ -142,6 +140,24 @@ export class DBClient {
             logger.error(err)
         }
 
+    }
+
+    /**
+     * 
+     * @param sql 
+     */
+    async runQuery(sql: string) {
+        try {
+            const request = new DBExecuteRequest()
+            const xml = `<query>
+            
+            </query>
+            `
+
+        }
+        catch (err) {
+            logger.error(err)
+        }
     }
 }
 

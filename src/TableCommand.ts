@@ -249,9 +249,12 @@ const commandImportExport = async (dbManager: DBManager, direction: 'from' | 'to
 
 function psqlCmd(dbTable: DBTable, direction: 'from' | 'to', options: Options,) {
 
+    if (! dbTable.objectDataType ) throw 'dbTable.objectDataType undefind'
+    if (! dbTable.objectDataType.dbColumns ) throw 'dbTable.objectDataType.dbColumns undefined'
+
     let lcols: string | undefined
-    for (let indj = 0; indj < dbTable.dbColumns.columns.length; indj++) {
-        const dbColumn = dbTable.dbColumns.columns[indj]
+    for (let indj = 0; indj < dbTable.objectDataType.dbColumns.columns.length; indj++) {
+        const dbColumn = dbTable.objectDataType.dbColumns.columns[indj]
         if (lcols === undefined) {
             lcols = "("
         }
