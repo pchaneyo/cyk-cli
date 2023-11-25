@@ -35,6 +35,8 @@ actress <number name="actor_id">
 </string>
 <boolean name="cyk_disable">
 </boolean>
+<object name="t_actor__meta">
+</object>
 user1 <number name="user_id">
 </number>
 <string name="user_name">
@@ -50,3 +52,5 @@ user1 <number name="user_id">
 <boolean name="user_disable">false</boolean>
 <string name="user_lang">
 </string>
+<object name="cyk_user__meta">
+</object>

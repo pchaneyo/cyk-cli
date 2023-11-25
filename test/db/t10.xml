@@ -111,13 +111,13 @@
         <number name="length_to">60</number>
     </runquery>
 
-    <print>"films_actors.resultset.at(0).t_actor.last_name " + films_actors.resultset.at(0).t_actor.last_name</print>
+    <print>"films_actors.resultset.at(0).last_name " + films_actors.resultset.at(0).last_name</print>
     <call object="films_actors.resultset" method="foreach">
         <function>
             <object name="result" />
             <block>
-                <print>"actor " + result.t_actor.actor_id + " " + result.t_actor.first_name + " " + result.t_actor.last_name 
-                    + ", film " + result.t_film.film_id + " " + result.t_film.title 
+                <print>"actor " + result.actor_id + " " + result.first_name + " " + result.last_name 
+                    + ", film " + result.film_id + " " + result.title 
                 </print>
             </block>
         </function>

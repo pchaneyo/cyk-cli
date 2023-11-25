@@ -86,8 +86,8 @@ export class DBClient {
             const objXmlResult = (await objectDataType.parseData(tagXmlResult, this.dbManager.scope)) as ObjectData
             const objectMeta = (objXmlResult.variables.getData('meta')) as ObjectData
             if (objectMeta === undefined) throw 'objectMeta not found'
-            const xmlMeta = objectMeta.variables.getString(tableName)
-            if (xmlMeta === undefined) throw 'meta does not have ' + tableName + ' description'
+            const xmlMeta = objectMeta.variables.getString('resultset')
+            if (xmlMeta === undefined) throw 'meta does not have resultset description'
 
             const tagDBTable = parseXML('dbTable', xmlMeta)
             const dbTable = new DBTable(tagDBTable)
@@ -106,7 +106,7 @@ export class DBClient {
                 list.addDBColumn(dbColumn)
             }
 
-            const objDataset = objXmlResult.variables.getData(tableName) as ObjectData
+            const objDataset = objXmlResult.variables.getData('resultset') as ObjectData
             for (let ind = 0; ind < objDataset.variables.length(); ind++) {
                 const variable = objDataset.variables.at(ind)
                 if (variable) {
