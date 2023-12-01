@@ -1,4 +1,4 @@
-import { BasicType, DBColumn, DBExecuteRequest, DBManager, DBTable, ObjectData, parseXML, PrimitiveData, Script, variable2json, XmlError } from "@cyklang/core";
+import { BasicType, DBColumn, DBExecuteRequest, DBManager, DBTable, ObjectData, ObjectDataType, parseXML, PrimitiveData, Script, variable2json, XmlError } from "@cyklang/core";
 import loglevel from "loglevel";
 import { errorconsole } from "./console";
 const logger = loglevel.getLogger('DBClient.ts')
@@ -84,16 +84,12 @@ export class DBClient {
             const tagXmlResult = parseXML('xmlResult', xmlResult)
 
             const objXmlResult = (await objectDataType.parseData(tagXmlResult, this.dbManager.scope)) as ObjectData
-            const objectMeta = (objXmlResult.variables.getData('meta')) as ObjectData
-            if (objectMeta === undefined) throw 'objectMeta not found'
-            const xmlMeta = objectMeta.variables.getString('resultset')
-            if (xmlMeta === undefined) throw 'meta does not have resultset description'
-
-            const tagDBTable = parseXML('dbTable', xmlMeta)
-            const dbTable = new DBTable(tagDBTable)
-            await dbTable.parse(this.dbManager.scope)
-            if (! dbTable.objectDataType ) throw 'dbTable.objectDataType undefind'
-            if (! dbTable.objectDataType.dbColumns ) throw 'dbTable.objectDataType.dbColumns undefined'
+            const metaObject = (objXmlResult.variables.getData('meta')) as ObjectData
+            if (metaObject === undefined) throw 'objectMeta not found'
+            const typeObject = metaObject.variables.getData('resultset')
+            if (!typeObject || typeObject === null) throw 'meta resultset not found'
+            if (typeObject.type.name !== 'type') throw 'meta resulset is not type'
+            const objType = typeObject as ObjectDataType
 
             const fields = options.fields.split(',')
             const list = new List()
@@ -101,7 +97,7 @@ export class DBClient {
 
             for (let ind = 0; ind < fields.length; ind++) {
                 const field = fields[ind]
-                const dbColumn = dbTable.objectDataType.dbColumns.columns.filter((dbColumn) => dbColumn.name === field)[0]
+                const dbColumn = objType.dbColumns?.columns.filter((dbColumn) => dbColumn.name === field)[0]
                 if (dbColumn === undefined) throw 'field ' + field + ' not found'
                 list.addDBColumn(dbColumn)
             }
