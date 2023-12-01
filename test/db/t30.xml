@@ -1,0 +1,12 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
+<module>
+    <db.table name="cook_genre">
+        <string name="genre_name" primary=""/>
+    </db.table>
+
+    <db.table name="cook_recipe">
+        <number name="rcp_id" dbtype="int" generated="by default" label="ID recette" primary=""/>
+        <string name="rcp_name" label="Recette"/>
+        <string name="rcp_genre" label="Genre" parent_table="cook_genre"/>
+    </db.table>
+</module>
