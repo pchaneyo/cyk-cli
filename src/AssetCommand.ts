@@ -30,7 +30,7 @@ const scanAssets = async (dbManager: DBManager | undefined, dest?: string): Prom
     if (xmlResult === undefined || xmlResult === null) throw 'xmlResult null or undefined'
     const tag = parseXML('scanAssets', xmlResult)
     const objResult = await dbManager.scope.structure.objectDataType.parseData(tag, dbManager.scope) as ObjectData
-    const rows = (objResult.variables.getData('cyk_asset') as ObjectData).variables
+    const rows = (objResult.variables.getData('resultset') as ObjectData).variables
     for (let ind = 0; ind < rows.list.length; ind++) {
         const { variable: row } = rows.list[ind]
         const record = row.data as ObjectData
@@ -506,11 +506,10 @@ async function uploadAssetContent(dbAsset: DBAsset, fileName: string, dbRemote: 
         const form = new FormData()
         form.append('uploadFile', file)
 
-        const route = '/api/upload/cyk_asset/asset_content?asset_id=' + dbAsset.id
+        const route = `/api/admin/assets/${dbAsset.id}/content`
         const resp = await dbRemote?.apiServer.post(route, form)
-        if (resp.status === 200) {
-            logger.info(fileName + ' uploaded')
-        }
+        logger.debug("metadata", resp)
+
     }
     catch (err) {
         logger.error(err)
