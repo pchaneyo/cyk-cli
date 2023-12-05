@@ -8,5 +8,6 @@
     <set name="leo.last_name">"DI CAPRIO"</set>
     <object name="result"/>
     <call object="leo" method="dbinsert" returns="result"/>
-    <print>"result: " + string(result)</print>
+    <print>"result: " + string(result.first_name)</print>
+    <!-- <print>"objson: " + objson(result)</print> -->
 </module>

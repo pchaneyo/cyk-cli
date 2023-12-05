@@ -123,7 +123,7 @@
         </function>
     </call>
 
-    <print>"string(films_actors.resultset) : "+string(films_actors.resultset)</print>
+    <print>"string(films_actors.resultset.at(0).title) : "+string(films_actors.resultset.at(0).title)</print>
 
 
 </module>

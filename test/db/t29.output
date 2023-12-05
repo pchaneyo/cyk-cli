@@ -1,0 +1,15 @@
+leo: <number name="actor_id">
+</number>
+<string name="first_name">
+</string>
+<string name="last_name">
+</string>
+<datetime name="last_update">
+</datetime>
+<string name="cyk_remark">
+</string>
+<boolean name="cyk_disable">
+</boolean>
+<object name="t_actor__meta">
+</object>
+result: Leonardo

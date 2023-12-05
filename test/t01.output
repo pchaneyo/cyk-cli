@@ -1,6 +1,6 @@
 ******* Mon nom est Dossier DUPONT id 1
 Dossier remorquage : DURAND lieu Saint-Denis
-then dos2.libelle == DURAND
+then dos2.dos_libelle == DURAND
 Nested block dos1.id 1
 *** Function add BEGIN a 150 b 300
 else a gt b
@@ -27,7 +27,7 @@ factorielle de 5 : 120
 PST1 id=100 libelle=Prestation 1
 PST2 id=100 libelle=Prestation 2
 PST1 id=100 libelle=Prestation 2
-dos1.prestation.libelle = Prestation 2
+dos1.prestation.pst_libelle = Prestation 2
 sum 150
 sum 50
 sum 10
@@ -41,66 +41,73 @@ dos3 300 dossier 300
 <number name="id">1000</number>
 <string name="libelle" literal="">libellé dossier</string>
 Vidage de l'object pst1 :
-name id, value 100
-name libelle, value Prestation 2
+name pst_id, value 100
+name pst_libelle, value Prestation 2
 v_obj.nested.member = 888
 list: <object type="dossier">
-    <number name="id">1</number>
-    <string name="libelle" literal="">Dossier DUPONT</string>
+    <number name="dos_id">1</number>
+    <string name="dos_libelle" literal="">Dossier DUPONT</string>
     <object name="prestation" type="prestation">
-        <number name="id">100</number>
-        <string name="libelle" literal="">Prestation 2</string>
+        <number name="pst_id">100</number>
+        <string name="pst_libelle" literal="">Prestation 2</string>
     </object>
 </object>
 <object type="dossier_remorquage">
-    <number name="id">2</number>
-    <string name="libelle" literal="">DURAND</string>
+    <number name="dos_id">2</number>
+    <string name="dos_libelle" literal="">DURAND</string>
     <object name="prestation" type="prestation">
-        <number name="id">
-        </number>
-        <string name="libelle">
-        </string>
     </object>
-    <string name="lieu" literal="">Saint-Denis</string>
+    <string name="dos_lieu" literal="">Saint-Denis</string>
 </object>
 <object type="dossier">
-    <number name="id">300</number>
-    <string name="libelle" literal="">dossier 300</string>
+    <number name="dos_id">300</number>
+    <string name="dos_libelle" literal="">dossier 300</string>
     <object name="prestation" type="prestation">
-        <number name="id">
-        </number>
-        <string name="libelle">
-        </string>
     </object>
 </object>
 <object name="dossier_vide" type="dossier">
-    <number name="id">
+    <number name="dos_id">
     </number>
-    <string name="libelle">
+    <string name="dos_libelle">
     </string>
     <object name="prestation" type="prestation">
-        <number name="id">
-        </number>
-        <string name="libelle">
-        </string>
     </object>
 </object>
-list.at(0): <number name="id">1</number>
-<string name="libelle" literal="">Dossier DUPONT</string>
+list.at(0): <number name="dos_id">1</number>
+<string name="dos_libelle" literal="">Dossier DUPONT</string>
 <object name="prestation" type="prestation">
-    <number name="id">100</number>
-    <string name="libelle" literal="">Prestation 2</string>
+    <number name="pst_id">100</number>
+    <string name="pst_libelle" literal="">Prestation 2</string>
 </object>
-meta(dossier): <db.table name='dossier'>
-<number name='id' type='numeric' />
-<string name='libelle' type='text' />
-<object name='prestation' type='jsonb'/>
-</db.table>
-
-meta(dossier_remorquage): <db.table name='dossier_remorquage'>
-<number name='id' type='numeric' />
-<string name='libelle' type='text' />
-<object name='prestation' type='jsonb'/>
-<string name='lieu' type='text' />
-</db.table>
-
+meta(dossier): <columns>
+    <number name="dos_id">
+    </number>
+    <string name="dos_libelle">
+    </string>
+    <prestation name="prestation">
+    </prestation>
+</columns>
+meta(dossier_remorquage): <columns>
+    <string name="dos_lieu">
+    </string>
+</columns>
+dos4: <number name="dos_id">
+</number>
+<string name="dos_libelle">
+</string>
+<object name="prestation" type="prestation">
+</object>
+pst4: <number name="pst_id">
+</number>
+<string name="pst_libelle">
+</string>
+dos4: <number name="dos_id">
+</number>
+<string name="dos_libelle">
+</string>
+<object name="prestation" type="prestation">
+    <number name="pst_id">
+    </number>
+    <string name="pst_libelle">
+    </string>
+</object>
