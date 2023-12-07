@@ -32,8 +32,12 @@ export class RunCommand extends Cmd {
     }
 }
 
-
-async function runFile(filename: string): Promise<void> {
+/**
+ * 
+ * @param filename 
+ * @returns 
+ */
+export async function runFile(filename: string): Promise<void> {
     let result: boolean
 
     if (filename.indexOf(".") !== -1) {

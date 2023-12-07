@@ -6,6 +6,7 @@ import path from "path"
 import { Command } from 'commander'
 import { Cmd } from "./Cmd"
 import { DBClient } from "./DBClient"
+import { runFile } from "./RunCommand"
 const logger = loglevel.getLogger("ModuleCommand.ts")
 logger.setLevel("debug")
 
@@ -115,7 +116,26 @@ class ModuleU extends Cmd {
             else {
                 for (let ind = 0; ind < files.length; ind++) {
                     const file = files[ind]
-                    await uploadModule(file, this.dbManager)
+                    try {
+                        await uploadModule(file, this.dbManager)
+                    }
+                    catch (err) {
+                        logger.error('Error uploading module ' + file, err)
+                        throw err
+                    }
+                }
+                // run *_init.xml files
+                for (let ind = 0; ind < files.length; ind++) {
+                    const file = files[ind]
+                    if (file.endsWith('_init.xml')) {
+                        try {
+                            await runFile(file)
+                            logger.info('Run module: ', file)
+                        }
+                        catch (err) {
+                            logger.error('Error running module ' + file, err)
+                        }
+                    }
                 }
             }
         }
