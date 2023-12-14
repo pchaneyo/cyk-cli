@@ -6,7 +6,7 @@
 
     <db.table name="cook_recipe">
         <number name="rcp_id" dbtype="int" generated="by default" label="ID recette" primary=""/>
-        <string name="rcp_name" label="Recette"/>
+        <string name="rcp_name" dbtype="varchar(255)" label="Recette"/>
         <string name="rcp_genre" label="Genre"/>
         <foreignkey parent="cook_genre">
             <string name="genre_name">"rcp_genre"</string>
