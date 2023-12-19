@@ -53,16 +53,14 @@
             </if>
         </block>
     </function>
-    <object type="dossier" name="dos1">
-        <number name="dos_id">1</number>
-        <string name="dos_libelle">"Dossier DUPONT"</string>
-    </object>
+    <object type="dossier" name="dos1"/>
+    <set name="dos1.dos_id">1</set>
+    <set name="dos1.dos_libelle">"Dossier DUPONT"</set>
     <!-- <let name="dos1.id">1</let>
         <let name="dos1.libelle">"DUPONT"</let> -->
     <print>"******* Mon nom est " + dos1.dos_libelle + " id " + dos1.dos_id</print>
-    <object type="dossier_remorquage" name="dos2">
-        <number name="dos_id">2</number>
-    </object>
+    <object type="dossier_remorquage" name="dos2"/>
+    <set name="dos2.dos_id">2</set>
     <let name="dos2.dos_libelle">"DURAND"</let>
     <let name="dos2.dos_lieu">"Saint-Denis"</let>
     <print>"Dossier remorquage : " + dos2.dos_libelle + " lieu " + dos2.dos_lieu</print>
@@ -167,10 +165,9 @@
         </foreach>
         <print>"total du tableau = "+total</print> -->
 
-    <object type="dossier" name="dos3">
-        <number name="dos_id">300</number>
-        <string name="dos_libelle">"dossier 300"</string>
-    </object>
+    <object type="dossier" name="dos3"/>
+    <set name="dos3.dos_id">300</set>
+    <set name="dos3.dos_libelle">"dossier 300"</set>
 
     <print>"dos3 " + dos3.dos_id + " " + dos3.dos_libelle</print>
 

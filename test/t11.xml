@@ -17,9 +17,8 @@
             </block>
         </method>
     </type>
-    <object type="colorOrigin" name="co">
-        <string name="color">"red"</string>
-    </object>
+    <object type="colorOrigin" name="co"/>
+    <set name="co.color">"red"</set>
     <print>"co.x = " + co.x + ", co.y = "+co.y+", co.color = "+co.color+", co.resume = "+co.resume</print>
     
 </module>
