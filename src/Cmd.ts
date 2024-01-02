@@ -57,40 +57,56 @@ export class Cmd extends Command {
 
         try {
 
-            let dclAuth: string | undefined
+            let setAuth: string | undefined
 
             if (options.auth) {
                 if (' basic | token | cookie | any | none | null '.indexOf(' ' + options.auth + ' ') === -1) {
-                    throw 'valid authentication schemas are : basic | token | cookie | any | null'
+                    throw 'valid authentication schemas are : basic | token | cookie | any | none | null'
                 }
-                dclAuth = `<string name='${prefix}_auth'>`
+                setAuth = `<set name="record.${prefix}_auth">`
                 if (' none | null '.indexOf(' ' + options.auth + ' ') === -1)
-                    dclAuth += ` "${options.auth}" `
+                    setAuth += ` "${options.auth}" `
                 else
-                    dclAuth += ' null '
-                dclAuth += "</string>"
+                    setAuth += ' null '
+                setAuth += "</set>"
             }
 
-            let dclAccess: string | undefined
+            let setAccess: string | undefined
 
             if (options.access) {
 
-                dclAccess = `<string name='${prefix}_access'> `
+                setAccess = `<set name="record.${prefix}_access">`
                 if (' null | none '.indexOf(' ' + options.access + ' ') === -1)
-                    dclAccess += `"${options.access}"`
+                    setAccess += ` "${options.access}" `
                 else
-                    dclAccess += ' null '
-                dclAccess += "</string>"
+                    setAccess += ' null '
+                setAccess += "</set>"
             }
 
             const inst = `
-            <db.update table='${tableName}'>
-                <object>
-                    <number name='${prefix}_id'>${id}</number>
-                    ${dclAuth}
-                    ${dclAccess ? dclAccess : ''}
-                </object>
-            </db.update>
+
+            <object name="result_select"/>
+
+            <db.select table='${tableName}' result='result_select'>
+                <string name='where'>"${prefix}_id = ${id}"</string>
+            </db.select>
+
+            <if>
+                <condition>result_select.resultset.length() == 0</condition>
+                <then>
+                    <print>"ID not found in the table: ${id} / ${tableName}"</print>
+                </then>
+                <else>
+                    <object name="record">result_select.resultset.at(0)</object>
+
+                    ${setAuth}
+                    ${setAccess}
+
+                    <db.update table='${tableName}'>
+                        <object>record</object>
+                    </db.update>
+                </else>
+            </if>
             `
 
             if (!this.dbManager) throw 'prologue() has not been called before'
