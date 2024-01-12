@@ -15,11 +15,15 @@ export class ModuleCommand extends Command {
         super(name)
         this.description('manage modules')
         // upload
-        this.addCommand(new ModuleU('upload', `Upload local module file(s) to the database.
-Module name is the base name of the file. If a module with the same name already exists, it will be updated.
-Otherwise, a new module is inserted in the database. To rename a module, use option --id to indicate the module you want to rename`)
+        this.addCommand(new ModuleU('upload', `Upload local module file(s) to the database OR update module properties.
+If [files...] given then upload files.
+    For each file, module name is the base name of the file. If a module with the same name already exists, it will be updated.
+    Otherwise, a new module is inserted in the database.
+Without [files...] it is an update module properties command.
+    --id option is mandatory
+`)
         )
-        this.addCommand(new ModuleU('u', 'shortcut for (u)pload'))
+        this.addCommand(new ModuleU('u', 'shortcut for (u)pload files or (u)pdate properties'))
         // download
         this.addCommand(new ModuleDownload('download', 'download module files to the current directory'))
         this.addCommand(new ModuleDownload('d', 'shortcut for (d)ownload'))
