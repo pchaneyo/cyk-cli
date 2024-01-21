@@ -1,0 +1,30 @@
+<?xml-model href="../../../../VueProjects/docs-vuepress/docs/.vuepress/public/cyklang.xsd" ?>
+<module>
+    <function name="buildname" returns="result: string">
+        <string name="first"/>
+        <string name="last"/>
+        <block>
+            <set name="result">first + " " + last</set>
+        </block>
+    </function>
+    <function name="buildresume" returns="result: string">
+        <string name="name"/>
+        <string name="comment"/>
+        <block>
+            <set name="result">name + " : " + comment</set>
+        </block>
+    </function>
+    <string name="firstname">"John"</string>
+    <string name="lastname">"DOE"</string>
+    <string name="name" reactive="">buildname(firstname, lastname)</string>
+    <string name="comment">"Le soldat inconnu"</string>
+    <string name="resume" reactive="">buildresume(name, comment)</string>
+    <print>"name: " + name</print>
+    <print>"resume: " + resume</print>
+    <set name="lastname">"WAYNE"</set>
+    <set name="comment">"Le cow-boy"</set>
+    <sleep>100</sleep>
+    <print>"name: " + name</print>
+    <print>"resume: " + resume</print>
+    
+</module>
