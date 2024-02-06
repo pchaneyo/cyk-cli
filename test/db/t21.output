@@ -7,14 +7,14 @@ owner yves not in the collection
 john's car's brand is BMW
 bool : false
 chaine : 150
-<datetime name="dtbirthday">datetime(&quot;Mon Nov 04 1963 04:00:00 GMT+0400 (UTC+04:00)&quot;)</datetime>
+<datetime name="dtbirthday">datetime(&quot;Mon Nov 04 1963 04:00:00 GMT+0400 (heure de La Réunion)&quot;)</datetime>
 <datetime name="dtundef1">
 </datetime>
 <datetime name="dtundef2">
 </datetime>
 <datetime name="dtnull1">
 </datetime>
-<datetime name="dtbirthday">datetime(&quot;Mon Nov 04 1963 04:00:00 GMT+0400 (UTC+04:00)&quot;)</datetime>
+<datetime name="dtbirthday">datetime(&quot;Mon Nov 04 1963 04:00:00 GMT+0400 (heure de La Réunion)&quot;)</datetime>
 <datetime name="dtundef1">
 </datetime>
 <datetime name="dtundef2">
@@ -23,9 +23,7 @@ chaine : 150
 </datetime>
 string(dossier): <number name="id">
 </number>
-<string name="libelle">
-</string>
+<string name="libelle" literal=""></string>
 string(presta): <number name="pst_id">
 </number>
-<string name="pst_libelle">
-</string>
+<string name="pst_libelle" literal=""></string>

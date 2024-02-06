@@ -12,7 +12,7 @@
                 <string name="surname">"Philippe"</string>
                 <object name="t_actor">result_t_actor.resultset</object>
                 <object name="meta">
-                    <string name="t_actor">result_t_actor.meta.resultset</string>
+                    <type name="t_actor">result_t_actor.meta.resultset</type>
                 </object>
             </object>
             <set name="result">result_</set>

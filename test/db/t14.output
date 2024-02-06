@@ -7,10 +7,10 @@ actor <string name="actor_id">
 <string name="first_name">
 </string>
 ========
-undefined
+
 --------
 condition actor.actor_id == undefined is true
-undefined
+
 actor.actor_id == undefined
 ========= TEST OF COPY =======
 init copie with source.copy()

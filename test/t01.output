@@ -68,8 +68,7 @@ list: <object type="dossier">
 <object name="dossier_vide" type="dossier">
     <number name="dos_id">
     </number>
-    <string name="dos_libelle">
-    </string>
+    <string name="dos_libelle" literal=""></string>
     <object name="prestation" type="prestation">
     </object>
 </object>
@@ -93,21 +92,17 @@ meta(dossier_remorquage): <columns>
 </columns>
 dos4: <number name="dos_id">
 </number>
-<string name="dos_libelle">
-</string>
+<string name="dos_libelle" literal=""></string>
 <object name="prestation" type="prestation">
 </object>
 pst4: <number name="pst_id">
 </number>
-<string name="pst_libelle">
-</string>
+<string name="pst_libelle" literal=""></string>
 dos4: <number name="dos_id">
 </number>
-<string name="dos_libelle">
-</string>
+<string name="dos_libelle" literal=""></string>
 <object name="prestation" type="prestation">
     <number name="pst_id">
     </number>
-    <string name="pst_libelle">
-    </string>
+    <string name="pst_libelle" literal=""></string>
 </object>
