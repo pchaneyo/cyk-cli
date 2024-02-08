@@ -1,6 +1,12 @@
 <?xml-model href="../../../../VueProjects/docs-vuepress/docs/.vuepress/public/cyklang.xsd" ?>
 <module>
     <object name="dbresult"/>
+    <string name="data" literal=""><![CDATA[
+      <message>
+          Bonjour Le Monde2
+      </message>
+      ]]>
+  </string>
     <db.report returns="dbresult" format="pdf">
         <string name="style" literal=""><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <xsl:stylesheet version="1.0"
@@ -49,11 +55,7 @@
             </xsl:stylesheet> ]]>
 
         </string>
-        <string name="data" literal=""><![CDATA[<?xml version="1.0" encoding="iso-8859-1"?>
-            <message>
-                Bonjour Le Monde
-            </message>
-            ]]>
+        <string name="data">data
         </string>
     </db.report>
 </module>

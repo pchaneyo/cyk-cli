@@ -1,7 +1,7 @@
 obj2 <object name="selected">
 </object>
 <string name="command" literal="">new</string>
-undefined = undefined
+undefined = 
 actor <string name="actor_id">
 </string>
 <string name="first_name">
@@ -11,7 +11,7 @@ actor <string name="actor_id">
 --------
 condition actor.actor_id == undefined is true
 
-actor.actor_id == undefined
+actor.actor_id == 
 ========= TEST OF COPY =======
 init copie with source.copy()
 copie first first orig, second second orig

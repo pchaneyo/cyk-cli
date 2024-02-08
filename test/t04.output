@@ -7,12 +7,12 @@ ms = 100
 AVANT
 APRES
 length('1234') = 4
-length(undefined) = undefined
+length(undefined) = 
 counter_next('JANV-010') = JANV-011
 counter_next('March-999') = March-1000
 counter_next('April-909') = April-910
 counter_next('Février') = Février1
-counter_next(undefined) = undefined
+counter_next(undefined) = 
 padend('1',3,'0') = 100
 substring('abc',0,1) = a
 substring('abc',0,0) = 

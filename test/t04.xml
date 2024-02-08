@@ -1,4 +1,4 @@
-<?xml-model href="cyklang.xsd" ?>
+<?xml-model href="../../../../VueProjects/docs-vuepress/docs/.vuepress/public/cyklang.xsd" ?>
 <module>
   <function name="wait" returns="result: number">
     <number name="ms">100</number>
