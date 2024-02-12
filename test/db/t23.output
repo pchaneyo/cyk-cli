@@ -2,3 +2,89 @@ Third (1 sec)
 Second (2 sec)
 First (3 sec)
  AFTER parallel 
+<object name="t_actor">
+    <object name="1" type="t__t_actor">
+        <number name="actor_id">1</number>
+        <string name="first_name" literal="">Maria</string>
+        <string name="last_name" literal="">DUPONT</string>
+        <datetime name="last_update">
+        </datetime>
+        <string name="cyk_remark" literal="">remarque</string>
+        <boolean name="cyk_disable">
+        </boolean>
+        <object name="t_actor__meta">
+            <string name="user_name" literal="">cyk</string>
+            <number name="last_update">1707709479673</number>
+            <string name="key" literal="">1</string>
+        </object>
+    </object>
+    <object name="2" type="t__t_actor">
+        <number name="actor_id">2</number>
+        <string name="first_name" literal="">Leonardo</string>
+        <string name="last_name" literal="">DI CAPRIO</string>
+        <datetime name="last_update">
+        </datetime>
+        <string name="cyk_remark">
+        </string>
+        <boolean name="cyk_disable">
+        </boolean>
+        <object name="t_actor__meta">
+            <string name="user_name" literal="">cyk</string>
+            <number name="last_update">1707709485710</number>
+            <string name="key" literal="">2</string>
+        </object>
+    </object>
+</object>
+<object name="t_film">
+    <object name="1" type="t__t_film">
+        <number name="film_id">1</number>
+        <string name="title" literal="">La mélodie du bonheur</string>
+        <string name="description" literal="">Le film préféré de Mao</string>
+        <number name="release_year">1965</number>
+        <number name="length">60</number>
+        <number name="language_id">1</number>
+        <object name="t_film__meta">
+            <string name="user_name" literal="">cyk</string>
+            <number name="last_update">1707709479799</number>
+            <string name="key" literal="">1</string>
+        </object>
+    </object>
+</object>
+<object name="meta">
+    <type name="t_actor">
+        <number name="actor_id" dbtype="int" generated="by default">
+    </number>
+        <string name="first_name" dbtype="varchar(50)">
+    </string>
+        <string name="last_name" dbtype="text">
+    </string>
+        <datetime name="last_update" dbtype="timestamp with time zone">
+    </datetime>
+        <string name="cyk_remark" dbtype="varchar(255)">
+    </string>
+        <boolean name="cyk_disable" dbtype="boolean">
+    </boolean>
+        <object name="t_actor__meta" dbtype="jsonb">
+    </object>
+        <key name="actor_id">
+        </key>
+    </type>
+    <type name="t_film">
+        <number name="film_id" dbtype="int" generated="by default">
+    </number>
+        <string name="title" dbtype="varchar(255)">
+    </string>
+        <string name="description" dbtype="text">
+    </string>
+        <number name="release_year" dbtype="int">
+    </number>
+        <number name="length" dbtype="int">
+    </number>
+        <number name="language_id" dbtype="int">
+    </number>
+        <object name="t_film__meta" dbtype="jsonb">
+    </object>
+        <key name="film_id">
+        </key>
+    </type>
+</object>

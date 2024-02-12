@@ -41,4 +41,9 @@
 
     <print>" AFTER parallel "</print>
 
+    <object name="cache"/>
+    <db.call module="t22" method="t_load_cache" returns="cache"/>
+
+    <print>cache</print>
+
 </module>

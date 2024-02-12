@@ -20,4 +20,19 @@
             <print>"Server side : " + string(result)</print>
         </block>
     </function>
+
+    <function name="t_load_cache" returns="cache: object">
+        <block>
+            <query name="t_load_cache">
+                <string name="sql" literal="">select * from t_load_cache()</string>
+                <string name="multiple">"
+                    t_actor: t_actor;
+                    t_film: t_film
+                    "
+                </string>
+            </query>
+            <runquery name="t_load_cache" result="cache"></runquery>
+        </block>
+    </function>
+    
 </module>

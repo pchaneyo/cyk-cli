@@ -1,0 +1,64 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<module>
+    <function name="hello_world" returns="result: object">
+        <block>
+            <string name="data" literal=""><![CDATA[
+                <message>
+                    Bonjour Le Monde2
+                </message>
+                ]]>
+            </string>
+            <db.report returns="result" format="pdf">
+                <string name="style" literal=""><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                    <xsl:stylesheet version="1.0"
+                    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                    xmlns:fo="http://www.w3.org/1999/XSL/Format"
+                    xmlns:java="http://xml.apache.org/xslt/java" exclude-result-prefixes="java"
+                    >
+                    
+                    <xsl:template match="message">
+                        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+                        <!-- Modèle de pages -->
+                        <fo:layout-master-set>
+                          <fo:simple-page-master master-name="A4"
+                            page-width="210mm" page-height="297mm"
+                            margin="1cm">
+                            <!-- Région principale -->
+                            <fo:region-body   margin="2cm"/>
+                            <!-- Tête de page aka header -->
+                            <fo:region-before extent="1cm"/>
+                            <!-- Pied de page aka footer -->
+                            <fo:region-after  extent="1cm"/>
+                          </fo:simple-page-master>
+                        </fo:layout-master-set>
+                        <!-- Contenus -->
+                        <fo:page-sequence master-reference="A4">
+                          <!-- Contenu de la tête de page -->
+                          <fo:static-content flow-name="xsl-region-before">
+                            <fo:block text-align="center">XSL-FO <xsl:apply-templates/> example</fo:block>
+                          </fo:static-content>
+                          <!-- Contenu du pied de page : numéro de la page -->
+                          <fo:static-content flow-name="xsl-region-after">
+                            <fo:block text-align="center">- <fo:page-number/> -</fo:block>
+                          </fo:static-content>
+                          <!-- Contenu de la partie centrale -->
+                          <fo:flow flow-name="xsl-region-body">
+                            <fo:block text-align="center"
+                              font="32pt Times"
+                              border="black solid thick"><xsl:apply-templates/></fo:block>
+                          </fo:flow>
+                        </fo:page-sequence>
+                      </fo:root>
+                    </xsl:template>
+                    
+                    
+                    
+                    </xsl:stylesheet> ]]>
+        
+                </string>
+                <string name="data">data
+                </string>
+            </db.report>            
+        </block>
+    </function>
+</module>
