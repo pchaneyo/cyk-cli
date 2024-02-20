@@ -79,12 +79,9 @@ export class DBClient {
             //     })
             // }
 
-            const xmlResult = await this.dbManager.dbExecute(request)
-            if (xmlResult === undefined) throw 'xmlResult undefined'
-            const tagXmlResult = parseXML('xmlResult', xmlResult)
-
-            const objXmlResult = (await objectDataType.parseData(tagXmlResult, this.dbManager.scope)) as ObjectData
-            const metaObject = (objXmlResult.variables.getData('meta')) as ObjectData
+            const objResult = await this.dbManager.dbExecute(request)
+            if (!objResult) throw 'objResult undefined'
+            const metaObject = (objResult.variables.getData('meta')) as ObjectData
             if (metaObject === undefined) throw 'objectMeta not found'
             const typeObject = metaObject.variables.getData('resultset')
             if (!typeObject || typeObject === null) throw 'meta resultset not found'
@@ -102,7 +99,7 @@ export class DBClient {
                 list.addDBColumn(dbColumn)
             }
 
-            const objDataset = objXmlResult.variables.getData('resultset') as ObjectData
+            const objDataset = objResult.variables.getData('resultset') as ObjectData
             for (let ind = 0; ind < objDataset.variables.length(); ind++) {
                 const variable = objDataset.variables.at(ind)
                 if (variable) {

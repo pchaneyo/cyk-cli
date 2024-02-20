@@ -26,10 +26,8 @@ const scanAssets = async (dbManager: DBManager | undefined, dest?: string): Prom
     dbReq.selectFromTable = 'cyk_asset'
     const pFields = dbReq.parameters.addVariable('fields', dbManager.scope.structure.stringDataType)
     pFields.data = new PrimitiveData(dbManager.scope.structure.stringDataType, "asset_id,asset_route,asset_last_update,asset_mimetype")
-    const xmlResult = await dbManager.dbExecute(dbReq)
-    if (xmlResult === undefined || xmlResult === null) throw 'xmlResult null or undefined'
-    const tag = parseXML('scanAssets', xmlResult)
-    const objResult = await dbManager.scope.structure.objectDataType.parseData(tag, dbManager.scope) as ObjectData
+    const objResult = await dbManager.dbExecute(dbReq)
+    if (!objResult) throw 'objResult undefined'
     const rows = (objResult.variables.getData('resultset') as ObjectData).variables
     for (let ind = 0; ind < rows.list.length; ind++) {
         const { variable: row } = rows.list[ind]
