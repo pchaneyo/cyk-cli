@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:fo="http://www.w3.org/1999/XSL/Format"
+    xmlns:java="http://xml.apache.org/xslt/java" exclude-result-prefixes="java">
+
+    <xsl:template match="object[@name='resultset']">
+
+        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+            <fo:layout-master-set>
+                <!-- Définition du layout -->
+                <fo:simple-page-master master-name="page" page-height="29.7cm" page-width="21cm" margin-left="1.5cm" margin-right="1.5cm" margin-top="0.5cm" margin-bottom="0.5cm">
+                    <fo:region-body margin-top="3.5cm"/>
+                    <fo:region-before extent="5cm"/>
+                </fo:simple-page-master>
+            </fo:layout-master-set>
+
+            <!-- Début du document -->
+            <fo:page-sequence master-reference="page">
+                <!-- En-tête de page -->
+                <fo:static-content flow-name="xsl-region-before">
+                    <!-- cartouche d'entête -->
+                    <fo:block>
+                        <fo:table width="100%" table-layout="fixed" line-height="1.5" border="1pt solid black">
+                            <fo:table-column column-width="4cm"/>
+                            <fo:table-column column-width="proportional-column-width(1)"/>
+                            <fo:table-column column-width="5cm"/>
+                            <fo:table-body>
+                                <fo:table-row border-bottom="1pt solid black" border-top="1pt solid black" font="8pt Helvetica" >
+                                    <fo:table-cell padding="5pt" >
+                                        <fo:block font-weight="bold" >Database Concept</fo:block>
+                                        <fo:block >12 ter chemin bois rouge</fo:block>
+                                        <fo:block></fo:block>
+                                        <fo:block>97490 Sainte-Clotilde</fo:block>
+                                        <fo:block>0692 87 79 45</fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell padding="5pt" text-align="center" >
+                                        <fo:block font="14pt Helvetica" font-weight="bold">Balance complète</fo:block>
+                                        <fo:block font="10pt Helvetica">de: Janvier 2023 à: Décembre 2023</fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell padding="5pt" >
+                                        <fo:table>
+                                            <fo:table-column column-width="1.5cm"/>
+                                            <fo:table-column column-width="proportional-column-width(1)"/>
+                                            <fo:table-body>
+                                                <fo:table-row>
+                                                    <fo:table-cell>
+                                                        <fo:block font-weight="bold">N° Siret</fo:block>
+                                                    </fo:table-cell>
+                                                    <fo:table-cell>
+                                                        <fo:block>319412304560790</fo:block>
+                                                    </fo:table-cell>
+                                                </fo:table-row>
+                                                <fo:table-row>
+                                                    <fo:table-cell>
+                                                        <fo:block font-weight="bold">Code APE</fo:block>
+                                                    </fo:table-cell>
+                                                    <fo:table-cell>
+                                                        <fo:block>722Z</fo:block>
+                                                    </fo:table-cell>
+                                                </fo:table-row>
+                                                <fo:table-row>
+                                                    <fo:table-cell>
+                                                        <fo:block font-weight="bold">Exercice</fo:block>
+                                                    </fo:table-cell>
+                                                    <fo:table-cell>
+                                                        <fo:block>2023</fo:block>
+                                                    </fo:table-cell>
+                                                </fo:table-row>
+                                                <fo:table-row>
+                                                    <fo:table-cell>
+                                                        <fo:block font-weight="bold">Début</fo:block>
+                                                    </fo:table-cell>
+                                                    <fo:table-cell>
+                                                        <fo:block>01/01/2023</fo:block>
+                                                    </fo:table-cell>
+                                                </fo:table-row>
+                                                <fo:table-row>
+                                                    <fo:table-cell>
+                                                        <fo:block font-weight="bold">Fin</fo:block>
+                                                    </fo:table-cell>
+                                                    <fo:table-cell>
+                                                        <fo:block>31/12/2023</fo:block>
+                                                    </fo:table-cell>
+                                                </fo:table-row>
+                                            </fo:table-body>
+                                        </fo:table>
+                                    </fo:table-cell>
+                                </fo:table-row>
+                            </fo:table-body>
+                        </fo:table>
+                    </fo:block>
+                    
+                    <!-- Entête avec des rectangles -->
+                    <fo:block>
+                        <fo:table width="100%" table-layout="fixed">
+                            <fo:table-column column-width="proportional-column-width(1)"/>
+                            <fo:table-column column-width="proportional-column-width(1)"/>
+                            <fo:table-body>
+                                <fo:table-row border-bottom="1pt solid black" border-top="1pt solid black" font="8pt Helvetica" font-weight="bold">
+                                    <fo:table-cell padding="5pt" >
+                                        <fo:block>First Name</fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell padding="5pt" >
+                                        <fo:block>Last Name</fo:block>
+                                    </fo:table-cell>
+
+                                </fo:table-row>
+                            </fo:table-body>
+                        </fo:table>
+                    </fo:block>
+                </fo:static-content>
+
+                <!-- Corps de la page -->
+                <fo:flow flow-name="xsl-region-body">
+                    <!-- Tableau de données -->
+                    <fo:block >
+                        <fo:table width="100%" table-layout="fixed" font="8pt Helvetica">
+                            <fo:table-column column-width="proportional-column-width(1)"/>
+                            <fo:table-column column-width="proportional-column-width(1)"/>
+                            <!-- Ajoutez autant de colonnes que nécessaire-->
+                            <fo:table-body>
+                                <!-- Lignes de données -->
+                                <xsl:apply-templates select="object[@type='t__t_actor']"/>
+                            </fo:table-body>
+                        </fo:table>
+                    </fo:block>
+                </fo:flow>
+            </fo:page-sequence>
+        </fo:root>
+
+    </xsl:template>
+
+    <xsl:template match="/object/object[@name='resultset']/object[@type='t__t_actor']">
+        <fo:table-row border-bottom="1pt solid black" border-top="1pt solid black">
+            <fo:table-cell padding="5pt" >
+                <fo:block ><xsl:apply-templates select="string[@name='first_name']"/></fo:block>
+            </fo:table-cell>
+            <fo:table-cell padding="5pt"  >
+                <fo:block><xsl:apply-templates select="string[@name='last_name']"/></fo:block>
+            </fo:table-cell>
+            <!-- Ajoutez autant de cellules que nécessaire -->
+        </fo:table-row>
+        <xsl:apply-templates/>
+    </xsl:template>
+
+</xsl:stylesheet>

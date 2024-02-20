@@ -26,5 +26,9 @@
     <sleep>100</sleep>
     <print>"name: " + name</print>
     <print>"resume: " + resume</print>
+
+    <datetime name="dtbirth">datetime("1963-11-04 14:00")</datetime>
+    <print>"dtbirth: " + dateformat(dtbirth, "DD/MM/YYYY HH:mm")</print>
+    <print>"dtbirth: " + dateformat(dtbirth, "MMMM YYYY", "fr")</print>
     
 </module>

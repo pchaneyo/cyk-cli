@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:fo="http://www.w3.org/1999/XSL/Format"
+    xmlns:java="http://xml.apache.org/xslt/java" exclude-result-prefixes="java">
+
+    <xsl:template match="root">
+        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+            <!-- Modèle de pages -->
+            <fo:layout-master-set>
+                <fo:simple-page-master master-name="A4" page-width="210mm" page-height="297mm" margin="1cm">
+                    <!-- Région principale -->
+                    <fo:region-body margin="2cm"/>
+                    <!-- Tête de page aka header -->
+                    <fo:region-before extent="1cm"/>
+                    <!-- Pied de page aka footer -->
+                    <fo:region-after extent="1cm"/>
+                </fo:simple-page-master>
+            </fo:layout-master-set>
+            <!-- Contenus -->
+            <fo:page-sequence master-reference="A4">
+                <!-- Contenu de la tête de page -->
+                <fo:static-content flow-name="xsl-region-before">
+                    <fo:block text-align="center">XSL-FO <xsl:apply-templates/>
+ Document Example Root</fo:block>
+                </fo:static-content>
+                <!-- Contenu du pied de page : numéro de la page -->
+                <fo:static-content flow-name="xsl-region-after">
+                    <fo:block text-align="center">-                        <fo:page-number/>
+ -</fo:block>
+                </fo:static-content>
+                <!-- Contenu de la partie centrale -->
+                <fo:flow flow-name="xsl-region-body">
+                    <fo:block text-align="center" font="32pt Times" border="black solid thick">
+                        <xsl:apply-templates/>
+                    </fo:block>
+                </fo:flow>
+            </fo:page-sequence>
+        </fo:root>
+    </xsl:template>
+
+
+
+</xsl:stylesheet>

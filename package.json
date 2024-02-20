@@ -11,6 +11,8 @@
       "npm:upgrade": "npx npm-check-updates -iu",
       "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
       "dev": "nodemon -e ts --ignore build --exec \"npm run global\" ",
+      "asset:upload": "cyk asset upload -d / -y asset",
+      "asset:dev": "nodemon --watch asset --ext xml --exec \"npm run asset:upload \" ",
       "test": "./run_test.sh"
    },
    "keywords": [],

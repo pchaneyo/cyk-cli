@@ -1,4 +1,6 @@
 <?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" ?>
 <module>
+    <print>"test dlookup: " + dlookup('first_name', 't_actor', 'actor_id=1')</print>
+    <print>hex2string(dlookup('asset_content','cyk_asset', "asset_route='/test/tableau.xml'"))</print>
     
 </module>
