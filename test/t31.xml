@@ -31,4 +31,8 @@
     <print>"dtbirth: " + dateformat(dtbirth, "DD/MM/YYYY HH:mm")</print>
     <print>"dtbirth: " + dateformat(dtbirth, "MMMM YYYY", "fr")</print>
     
+    <print>"numberformat(123456.789) : " + numberformat(123456.789)</print>
+    <print>"moneyformat(123456.789) : " + moneyformat(123456.789)</print>
+    <print>"moneyformat(123456.789, 'USD') : " + moneyformat(123456.789, 'USD')</print>
+
 </module>
