@@ -35,4 +35,35 @@
     <print>"moneyformat(123456.789) : " + moneyformat(123456.789)</print>
     <print>"moneyformat(123456.789, 'USD') : " + moneyformat(123456.789, 'USD')</print>
 
+    <object name="v">
+        <number name="_010_">1000</number>
+    </object>
+
+    <call object="v" method="pushnamevariable">
+        <string name="name">"_AA_"</string>
+        <number name="variable">2000</number>
+    </call>
+    <call object="v" method="pushnamevariable">
+        <string name="name">"_AB_"</string>
+        <number name="variable">500</number>
+    </call>
+    <call object="v" method="pushnamevariable">
+        <string name="name">"_AC_"</string>
+        <number name="variable">100</number>
+    </call>
+    <call object="v" method="pushnamevariable">
+        <string name="name">"_AD_"</string>
+        <number name="variable" reactive="">v._AA_ - v._AB_ - v._AC_</number>
+    </call>
+
+    <print>"v._010_ = " + v._010_</print>
+    <print>"v._AA_ = " + v._AA_</print>
+    <print>"v._AB_ = " + v._AB_</print>
+    <print>"v._AC_ = " + v._AC_</print>
+    <print>"v._AD_ = " + v._AD_</print>
+    <set name="v._AC_">200</set>
+    <print>"v._AC_ = " + v._AC_</print>
+    <sleep>1</sleep>
+    <print>"v._AD_ = " + v._AD_</print>
+
 </module>

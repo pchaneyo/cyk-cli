@@ -4,8 +4,11 @@ cyk table drop -y t_film_actor
 cyk table drop -y t_film
 cyk table drop -y t_actor
 
+source ./.env
+echo $PGHOST
+echo $PGPORT
 
-psql -c "
+psql -h $PGHOST -p $PGPORT -c "
 do \$\$
 declare next_id int;
 begin
