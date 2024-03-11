@@ -4,3 +4,20 @@ name: John WAYNE
 resume: John WAYNE : Le cow-boy
 dtbirth: 04/11/1963 14:00
 dtbirth: novembre 1963
+numberformat(123456.789) : 123 456,789
+moneyformat(123456.789) : 123 456,79 €
+moneyformat(123456.789, 'USD') : 123 456,79 $US
+v._010_ = 1000
+v.AA = 2000
+v.AB = 500
+v.AC = 100
+v.AD = 1400
+v.AC = 200
+v.AD = 1300
+v = <object>
+    <number name="_010_">1000</number>
+    <number name="AA">2500</number>
+    <number name="AB">500</number>
+    <number name="AC">200</number>
+    <number name="AD">1300</number>
+</object>

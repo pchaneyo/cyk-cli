@@ -41,6 +41,7 @@
         <string name="_11">"Novembre"</string>
         <string name="_12">"Décembre"</string>
     </object>
+    <!-- <print>"monthlabel=" + xmlformat(monthlabel)</print> -->
     <if>
         <condition>monthlabel.has("_02")</condition>
         <then>

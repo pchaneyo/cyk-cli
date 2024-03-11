@@ -2,5 +2,12 @@
 <module>
     <print>"test dlookup: " + dlookup('first_name', 't_actor', 'actor_id=1')</print>
     <print>hex2string(dlookup('asset_content','cyk_asset', "asset_route='/test/tableau.xml'"))</print>
-    
+    <print>"dcount(actor_id, t_actor) = " + dcount("actor_id", "t_actor")</print>
+    <print>"dcount(actor_id, t_actor, actor_id &lt; 2) = " + dcount("actor_id", "t_actor", "actor_id &lt; 2")</print>
+
+    <print>"dsum(actor_id, t_actor) = " + dsum("actor_id", "t_actor")</print>
+    <print>"dsum(actor_id, t_actor, actor_id &lt; 2) = " + dsum("actor_id", "t_actor", "actor_id &lt; 2")</print>
+
+    <!-- <print>"dsum(entry_debit, entry) = " + dsum("entry_debit", "entry")</print> -->
+
 </module>

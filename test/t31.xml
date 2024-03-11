@@ -40,30 +40,37 @@
     </object>
 
     <call object="v" method="pushnamevariable">
-        <string name="name">"_AA_"</string>
+        <string name="name">"AA"</string>
         <number name="variable">2000</number>
     </call>
     <call object="v" method="pushnamevariable">
-        <string name="name">"_AB_"</string>
+        <string name="name">"AB"</string>
         <number name="variable">500</number>
     </call>
     <call object="v" method="pushnamevariable">
-        <string name="name">"_AC_"</string>
+        <string name="name">"AC"</string>
         <number name="variable">100</number>
     </call>
     <call object="v" method="pushnamevariable">
-        <string name="name">"_AD_"</string>
-        <number name="variable" reactive="">v._AA_ - v._AB_ - v._AC_</number>
+        <string name="name">"AD"</string>
+        <number name="variable" reactive="">v.AA - v.AB - v.AC</number>
     </call>
 
     <print>"v._010_ = " + v._010_</print>
-    <print>"v._AA_ = " + v._AA_</print>
-    <print>"v._AB_ = " + v._AB_</print>
-    <print>"v._AC_ = " + v._AC_</print>
-    <print>"v._AD_ = " + v._AD_</print>
-    <set name="v._AC_">200</set>
-    <print>"v._AC_ = " + v._AC_</print>
+    <print>"v.AA = " + v.AA</print>
+    <print>"v.AB = " + v.AB</print>
+    <print>"v.AC = " + v.AC</print>
+    <print>"v.AD = " + v.AD</print>
+    <set name="v.AC">200</set>
+    <print>"v.AC = " + v.AC</print>
     <sleep>1</sleep>
-    <print>"v._AD_ = " + v._AD_</print>
+    <print>"v.AD = " + v.AD</print>
+
+    <call object="v" method="set">
+        <string name="name">"AA"</string>
+        <number name="value">2500</number>
+    </call>
+
+    <print>"v = " + xmlformat(v)</print>
 
 </module>
