@@ -1,0 +1,74 @@
+<?xml-model href="https://www.cyklang.net/schema/cyklang.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<module>
+    <type name="Exercice">
+        <method name="output">
+            <object name="buffer"/>
+            <block>
+                <call object="buffer" method="push">
+                    <string><![CDATA[ "<Exercice>" ]]></string>
+                </call>
+
+                <call object="this" method="foreach">
+                    <function>
+                        <object name="journal"/>
+                        <block>
+                            <call object="journal" method="output">
+                                <object name="buffer">buffer</object>
+                            </call>
+                        </block>
+                    </function>
+                </call>
+
+                <call object="buffer" method="push">
+                    <string><![CDATA[ "</Exercice>" ]]></string>
+                </call>
+            </block>
+        </method>
+    </type>
+
+    <type name="Journal">
+        <method name="output">
+            <object name="buffer"/>
+            <block>
+                <call object="buffer" method="push">
+                    <string><![CDATA[ "<Journal>" ]]></string>
+                </call>
+
+                <call object="buffer" method="push">
+                    <string><![CDATA[ "Contenu du Journal" ]]></string>
+                </call>
+                
+                <!-- <call object="this" method="foreach">
+                    <function>
+                        <object name="journal"/>
+                        <block>
+                            <call object="journal" method="output">
+                                <object name="buffer">buffer</object>
+                            </call>
+                        </block>
+                    </function>
+                </call> -->
+
+                <call object="buffer" method="push">
+                    <string><![CDATA[ "</Journal>" ]]></string>
+                </call>
+            </block>
+        </method>
+    </type>
+
+    <object name="root" type="Exercice">
+        <object type="Journal"></object>
+        <object type="Journal"></object>
+    </object>
+
+    <object name="buffer"/>
+
+    <call object="root" method="output">
+        <object name="buffer">buffer</object>
+    </call>
+
+    <print>buffer.join(' ')</print>
+
+    <print>"encodexml() : " + encodexml("Frais postaux et de Télécom.")</print>
+
+</module>
