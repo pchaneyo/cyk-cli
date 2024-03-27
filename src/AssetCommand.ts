@@ -29,9 +29,9 @@ const scanAssets = async (dbManager: DBManager | undefined, dest?: string): Prom
     const objResult = await dbManager.dbExecute(dbReq)
     if (!objResult) throw 'objResult undefined'
     const rows = (objResult.variables.getData('resultset') as ObjectData).variables
-    for (let ind = 0; ind < rows.list.length; ind++) {
-        const { variable: row } = rows.list[ind]
-        const record = row.data as ObjectData
+    for (let ind = 0; ind < rows.length(); ind++) {
+        const namedVariable = rows.at(ind)
+        const record = namedVariable?.variable.data as ObjectData
         const asset_id = (record.variables.getData('asset_id') as PrimitiveData).value as number
         const asset_route = (record.variables.getData('asset_route') as PrimitiveData).value as string
         const asset_last_update = (record.variables.getData('asset_last_update') as PrimitiveData)?.value as Date

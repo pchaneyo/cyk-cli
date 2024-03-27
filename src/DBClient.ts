@@ -101,11 +101,11 @@ export class DBClient {
 
             const objDataset = objResult.variables.getData('resultset') as ObjectData
             for (let ind = 0; ind < objDataset.variables.length(); ind++) {
-                const variable = objDataset.variables.at(ind)
-                if (variable) {
-                    const record = (variable?.data as ObjectData)
+                const namedVariable = objDataset.variables.at(ind)
+                if (namedVariable) {
+                    const record = (namedVariable.variable.data as ObjectData)
                     list.addObjectData(record)
-                    result.push(variable2json(variable))
+                    result.push(variable2json(namedVariable.variable))
                 }
 
             }
