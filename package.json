@@ -1,6 +1,6 @@
 {
    "name": "@cyklang/cli",
-   "version": "0.14.7",
+   "version": "0.14.8",
    "description": "cyklang CLI",
    "main": "build/index.js",
    "scripts": {
@@ -19,7 +19,7 @@
    "author": "",
    "license": "ISC",
    "dependencies": {
-      "@cyklang/core": "^0.12.0",
+      "@cyklang/core": "^0.12.1",
       "commander": "^9.4.0",
       "dotenv": "^16.0.1",
       "form-data": "^4.0.0",
